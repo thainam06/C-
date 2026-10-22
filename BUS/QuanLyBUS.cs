@@ -10,16 +10,8 @@ public class QuanLyBUS
     private DuLieu duLieu;
     private static readonly (string Ten, decimal Kg, decimal Gia)[] MauHangVe =
     {
-        ("Phổ thông tiết kiệm", 7m, 800000m),
-        ("Phổ thông tiêu chuẩn", 15m, 1000000m),
-        ("Phổ thông linh hoạt", 20m, 1200000m),
-        ("Phổ thông đặc biệt tiết kiệm", 25m, 1600000m),
-        ("Phổ thông đặc biệt tiêu chuẩn", 30m, 1900000m),
-        ("Phổ thông đặc biệt linh hoạt", 35m, 2200000m),
-        ("Thương gia tiết kiệm", 40m, 3000000m),
-        ("Thương gia tiêu chuẩn", 45m, 3500000m),
-        ("Thương gia linh hoạt", 50m, 4000000m),
-        ("Hạng nhất", 60m, 6000000m)
+        ("Hạng phổ thông", 20m, 1200000m),
+        ("Hạng thương gia", 40m, 3000000m)
     };
 
     public QuanLyBUS(DuLieuDAO? dao = null)
@@ -160,8 +152,8 @@ public class QuanLyBUS
 
     public static string? LoaiGheTheoHangVe(string maHV)
     {
-        if (CungMa(maHV.Trim(), "HV1")) return Ghe.Thuong;
-        if (CungMa(maHV.Trim(), "HV2")) return Ghe.Vip;
+        if (CungMa(maHV.Trim(), "HV01")) return Ghe.Thuong;
+        if (CungMa(maHV.Trim(), "HV02")) return Ghe.Vip;
         return null;
     }
 
@@ -171,14 +163,16 @@ public class QuanLyBUS
         var thayDoi = false;
         foreach (var (ma, ten, kg, gia) in new[]
         {
-            ("HV1", Ghe.Thuong, 20m, 1200000m),
-            ("HV2", Ghe.Vip, 40m, 3000000m)
+            ("HV01", "Hạng phổ thông", 20m, 1200000m),
+            ("HV02", "Hạng thương gia", 40m, 3000000m)
         })
         {
             var hangVe = moi.HangVe.Find(x => CungMa(x.MaHV, ma));
             if (hangVe == null)
             {
-                moi.HangVe.Add(new HangVe(ma, ten, kg, gia));
+                var maCu = ma == "HV01" ? "HV1" : "HV2";
+                var hangVeCu = moi.HangVe.Find(x => CungMa(x.MaHV, maCu));
+                moi.HangVe.Add(new HangVe(ma, ten, hangVeCu?.HanhLyKg ?? kg, hangVeCu?.DonGiaVe ?? gia));
                 thayDoi = true;
             }
             else if (hangVe.TenHV != ten)
@@ -189,6 +183,11 @@ public class QuanLyBUS
         }
         foreach (var ghe in moi.Ghe)
         {
+            if (CungMa(ghe.MaHV, "HV1") || CungMa(ghe.MaHV, "HV2"))
+            {
+                ghe.MaHV = CungMa(ghe.MaHV, "HV1") ? "HV01" : "HV02";
+                thayDoi = true;
+            }
             var loai = LoaiGheTheoHangVe(ghe.MaHV);
             if (loai == null || ghe.LoaiGhe == loai) continue;
             ghe.LoaiGhe = loai;
@@ -197,9 +196,14 @@ public class QuanLyBUS
         if (thayDoi) Luu(moi);
     }
 
-    public List<string> LayTenHangVe() => new[] { Ghe.Thuong, Ghe.Vip }.Concat(MauHangVe.Select(x => x.Ten))
-        .Concat(duLieu.HangVe.Select(x => x.TenHV))
-        .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    public static string? TenHangVeTheoMa(string maHV)
+    {
+        if (CungMa(maHV.Trim(), "HV01")) return "Hạng phổ thông";
+        if (CungMa(maHV.Trim(), "HV02")) return "Hạng thương gia";
+        return null;
+    }
+
+    public List<string> LayTenHangVe() => MauHangVe.Select(x => x.Ten).ToList();
 
     public bool NapBoDuLieuMauMotLan()
     {
@@ -207,10 +211,11 @@ public class QuanLyBUS
         var moi = SaoChep();
         var cacHang = new[] { "VN", "VN", "VN", "VJ", "VJ", "VJ", "QH", "QH", "BL", "BL" };
         var cacVe = MauHangVe;
-        for (var i = 0; i < cacVe.Length; i++)
+        for (var i = 0; i < cacHang.Length; i++)
         {
             var maMayBay = $"M{i + 1:00}";
-            var maHV = $"HV{i + 1:00}";
+            var hangVeIndex = i < 6 ? 0 : 1;
+            var maHV = hangVeIndex == 0 ? "HV01" : "HV02";
             var maGhe = $"G{i + 1:00}";
             var mayBay = moi.MayBay.Find(x => CungMa(x.MaMayBay, maMayBay));
             if (mayBay == null)
@@ -221,7 +226,7 @@ public class QuanLyBUS
             var hangVe = moi.HangVe.Find(x => CungMa(x.MaHV, maHV));
             if (hangVe == null)
             {
-                hangVe = new HangVe(maHV, cacVe[i].Ten, cacVe[i].Kg, cacVe[i].Gia);
+                hangVe = new HangVe(maHV, cacVe[hangVeIndex].Ten, cacVe[hangVeIndex].Kg, cacVe[hangVeIndex].Gia);
                 moi.HangVe.Add(hangVe);
             }
             if (!moi.Ghe.Any(x => CungMa(x.MaMayBay, maMayBay) && CungMa(x.MaGhe, maGhe)))
@@ -274,7 +279,7 @@ public class QuanLyBUS
     public void LuuHangVe(string ma, string ten, decimal hanhLy, decimal donGia, bool sua)
     {
         ma = BatBuoc(ma, "mã hạng vé");
-        ten = LoaiGheTheoHangVe(ma) ?? BatBuoc(ten, "tên hạng vé");
+        ten = TenHangVeTheoMa(ma) ?? BatBuoc(ten, "tên hạng vé");
         if (hanhLy < 0 || donGia < 0) throw new ArgumentException("Hành lý và đơn giá không được âm.");
         var moi = SaoChep();
         var cu = moi.HangVe.Find(x => CungMa(x.MaHV, ma));
@@ -293,7 +298,7 @@ public class QuanLyBUS
     public void XoaHangVe(string ma)
     {
         if (LoaiGheTheoHangVe(ma) != null)
-            throw new ArgumentException("HV1 và HV2 là hạng vé mặc định, không thể xóa. Có thể sửa hành lý và đơn giá.");
+            throw new ArgumentException("HV01 và HV02 là hạng vé mặc định, không thể xóa. Có thể sửa hành lý và đơn giá.");
         var moi = SaoChep();
         if (moi.Ghe.Any(x => CungMa(x.MaHV, ma)))
             throw new ArgumentException("Hạng vé đang được ghế sử dụng. Hãy đổi hạng vé hoặc xóa ghế trước.");

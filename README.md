@@ -17,35 +17,23 @@ repository vào một thư mục mới trước khi mở project này.
 
 ## Sử dụng
 
-Hạng vé mặc định: **HV1 = Ghế thường**, **HV2 = Ghế VIP**. Hai mã này được thêm
-tự động (kể cả với dữ liệu cũ). Khi chọn HV1/HV2 trong tab Ghế, loại ghế tự điền
-và khóa theo mã; khi đổi hạng vé rồi lưu, loại ghế cũng đổi theo.
-Trong tab Hạng vé, tên của HV1/HV2 cũng tự điền và khóa. Có thể sửa hành lý và
-đơn giá; không xóa hai hạng vé mặc định. Giá ban đầu minh họa lần lượt là
-1.200.000 và 3.000.000 VNĐ, hành lý 20 và 40 kg.
-Các mã cũ **HV01–HV10** vẫn giữ nguyên và khác với HV1/HV2. Muốn áp dụng quy tắc
-mới cho ghế đã có, chọn ghế, đổi hạng vé sang HV1 hoặc HV2 rồi bấm Sửa.
+Hạng vé mặc định:
 
-Ở lần chạy đầu tiên sau bản cập nhật dữ liệu mẫu, chương trình tự thêm các mã còn thiếu:
-10 máy bay M01–M10, 10 hạng vé HV01–HV10 và 10 ghế G01–G10.
-G01 thuộc M01 và HV01, G02 thuộc M02 và HV02, …, G10 thuộc M10 và HV10.
-Mã đã tồn tại được giữ nguyên (không phân biệt hoa/thường), kể cả hạng vé/ghế đã sửa.
-Bộ mẫu chỉ được nạp một lần và lưu cờ trong JSON; sửa hoặc xóa sau đó sẽ không bị
-tạo lại khi khởi động. Không cần nút nạp hay kết nối SQL Server.
-Tên hạng vé, hạn mức hành lý và giá chỉ là số liệu minh họa để kiểm thử.
+| Mã HV | Tên hạng vé | Loại ghế | Hành lý mẫu (kg) | Giá mẫu (VNĐ) |
+|---|---|---|---:|---:|
+| HV01 | Hạng phổ thông | Ghế thường | 20 | 1.200.000 |
+| HV02 | Hạng thương gia | Ghế VIP | 40 | 3.000.000 |
 
-| Mã HV | Tên hạng vé | Hành lý (kg) | Đơn giá (VNĐ) |
-|---|---|---:|---:|
-| HV01 | Phổ thông tiết kiệm | 7 | 800.000 |
-| HV02 | Phổ thông tiêu chuẩn | 15 | 1.000.000 |
-| HV03 | Phổ thông linh hoạt | 20 | 1.200.000 |
-| HV04 | Phổ thông đặc biệt tiết kiệm | 25 | 1.600.000 |
-| HV05 | Phổ thông đặc biệt tiêu chuẩn | 30 | 1.900.000 |
-| HV06 | Phổ thông đặc biệt linh hoạt | 35 | 2.200.000 |
-| HV07 | Thương gia tiết kiệm | 40 | 3.000.000 |
-| HV08 | Thương gia tiêu chuẩn | 45 | 3.500.000 |
-| HV09 | Thương gia linh hoạt | 50 | 4.000.000 |
-| HV10 | Hạng nhất | 60 | 6.000.000 |
+Tên hạng vé và loại ghế tự điền, khóa theo mã. Hành lý và giá có thể sửa;
+không xóa hai hạng vé mặc định. Khi cập nhật dữ liệu cũ, chương trình sửa tên
+HV01/HV02 và đổi liên kết ghế dùng HV1/HV2 sang HV01/HV02. Giá và hành lý
+của HV01/HV02 đã có được giữ nguyên; nếu mã mới chưa có thì lấy từ HV1/HV2
+cũ khi có, hoặc dùng giá/hành lý mẫu. Các hạng vé cũ khác vẫn được giữ trong JSON.
+
+Với dữ liệu mới, chương trình nạp một lần 10 máy bay M01–M10 và 10 ghế G01–G10.
+G01–G06 dùng HV01, G07–G10 dùng HV02; G01 thuộc M01, …, G10 thuộc M10.
+Bộ mẫu không ghi đè các mã đã có và không tạo lại sau khi người dùng xóa.
+Không cần nút nạp hay kết nối SQL Server. Các giá trị mẫu chỉ dùng kiểm thử.
 
 - **Bảng tổng hợp:** mở đầu tiên, hiển thị chung máy bay, ghế và hạng vé trong một bảng.
   Các cột: mã máy bay, mã hãng, mã ghế, loại ghế, mã hạng vé, tên hạng vé, hành lý và đơn giá.
@@ -56,19 +44,13 @@ Tên hạng vé, hạn mức hành lý và giá chỉ là số liệu minh họa
   Khi quay lại tab này sau khi sửa dữ liệu, bảng tự cập nhật.
 - **Máy bay:** nhập mã máy bay và mã hãng hàng không.
 - **Hạng vé:** nhập mã, chọn tên hạng vé, nhập hành lý (kg) và đơn giá vé (VNĐ).
-- Ô **Tên hạng vé** là danh sách chọn sẵn các tên trong bộ mẫu và hai tên mặc định, không cần gõ.
-  Tên đã lưu từ trước cũng có trong danh sách để xem/sửa dữ liệu cũ.
-- **Ghế:** tạo máy bay và hạng vé trước, sau đó chọn chúng trong danh sách.
-  Ô **Hạng vé** chỉ hiển thị và cho chọn **HV1** hoặc **HV2**;
-  chọn HV1 thì ô **Loại ghế** tự hiện **Ghế thường**, chọn HV2 thì tự hiện **Ghế VIP**.
-  Danh sách lấy từ danh mục Hạng vé và chỉ lưu mã hạng vé. Các mã cũ không còn trong
-  danh sách chọn ở tab Ghế. Khi sửa ghế đang dùng mã cũ, cần chọn HV1 hoặc HV2
-  trước khi lưu; dữ liệu cũ không tự bị ghi đè.
-  Với HV1/HV2, **Loại ghế** tự điền; với mã khác, chọn **Ghế thường / Ghế VIP**.
-  Dữ liệu cũ chưa có loại ghế mặc định là Ghế thường; chọn dòng và Sửa để đổi.
+- Ô **Tên hạng vé** chỉ có **Hạng phổ thông** và **Hạng thương gia** để chọn.
+  Nhập mã HV01/HV02 thì tên tự điền và khóa theo mã.
+- **Ghế:** chọn máy bay và hạng vé từ danh sách.
+  Ô **Hạng vé** chỉ hiển thị **HV01** hoặc **HV02**. Chọn HV01 tự điền
+  **Ghế thường**, chọn HV02 tự điền **Ghế VIP**, không chọn loại trái với hạng vé.
+  Các ghế dùng hạng vé cũ khác được giữ nguyên; chọn lại HV01/HV02 rồi Sửa để đổi.
   Loại ghế được lưu vào JSON và có thể tìm bằng từ khóa `VIP` hoặc `thường`.
-  Khi khởi tạo bộ mẫu trên dữ liệu mới, G01–G06 là Ghế thường, G07–G10 là Ghế VIP.
-  Các ghế mẫu đã lưu từ bản cũ được giữ nguyên, không tự đổi loại.
   Mã ghế là duy nhất trong từng máy bay; hai máy bay có thể cùng có ghế `1A`.
 - **Thêm:** tạo dòng mới. **Nhập mới:** xóa ô nhập và thoát chế độ sửa.
 - Chọn một dòng trong bảng để **Sửa** hoặc **Xóa**. Khóa của dòng không được sửa;

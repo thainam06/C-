@@ -51,7 +51,7 @@ public class MainForm : Form
             q => bus.TimHangVe(q).Cast<HangVe>().ToList(),
             (x, sua) => bus.LuuHangVe(x.MaHV, x.TenHV, x.HanhLyKg, x.DonGiaVe, sua),
             x => bus.XoaHangVe(x.MaHV));
-        hangVe.RangBuocLuaChon("MaHV", "TenHV", QuanLyBUS.LoaiGheTheoHangVe);
+        hangVe.RangBuocLuaChon("MaHV", "TenHV", QuanLyBUS.TenHangVeTheoMa);
 
         var ghe = new QuanLyTab<Ghe>(
             new[]
