@@ -17,6 +17,27 @@ repository vào một thư mục mới trước khi mở project này.
 
 ## Sử dụng
 
+Ở lần chạy đầu tiên sau bản cập nhật dữ liệu mẫu, chương trình tự thêm các mã còn thiếu:
+10 máy bay M01–M10, 10 hạng vé HV01–HV10 và 10 ghế G01–G10.
+G01 thuộc M01 và HV01, G02 thuộc M02 và HV02, …, G10 thuộc M10 và HV10.
+Mã đã tồn tại được giữ nguyên (không phân biệt hoa/thường), kể cả hạng vé/ghế đã sửa.
+Bộ mẫu chỉ được nạp một lần và lưu cờ trong JSON; sửa hoặc xóa sau đó sẽ không bị
+tạo lại khi khởi động. Không cần nút nạp hay kết nối SQL Server.
+Tên hạng vé, hạn mức hành lý và giá chỉ là số liệu minh họa để kiểm thử.
+
+| Mã HV | Tên hạng vé | Hành lý (kg) | Đơn giá (VNĐ) |
+|---|---|---:|---:|
+| HV01 | Phổ thông tiết kiệm | 7 | 800.000 |
+| HV02 | Phổ thông tiêu chuẩn | 15 | 1.000.000 |
+| HV03 | Phổ thông linh hoạt | 20 | 1.200.000 |
+| HV04 | Phổ thông đặc biệt tiết kiệm | 25 | 1.600.000 |
+| HV05 | Phổ thông đặc biệt tiêu chuẩn | 30 | 1.900.000 |
+| HV06 | Phổ thông đặc biệt linh hoạt | 35 | 2.200.000 |
+| HV07 | Thương gia tiết kiệm | 40 | 3.000.000 |
+| HV08 | Thương gia tiêu chuẩn | 45 | 3.500.000 |
+| HV09 | Thương gia linh hoạt | 50 | 4.000.000 |
+| HV10 | Hạng nhất | 60 | 6.000.000 |
+
 - **Bảng tổng hợp:** mở đầu tiên, hiển thị chung máy bay, ghế và hạng vé trong một bảng.
   Các cột: mã máy bay, mã hãng, mã ghế, mã hạng vé, tên hạng vé, hành lý và đơn giá.
   Mỗi ghế là một dòng; máy bay có nhiều ghế sẽ xuất hiện trên nhiều dòng.

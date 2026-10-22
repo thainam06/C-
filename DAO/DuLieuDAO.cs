@@ -8,6 +8,7 @@ public class DuLieu
     public List<MayBay> MayBay { get; set; } = new();
     public List<Ghe> Ghe { get; set; } = new();
     public List<HangVe> HangVe { get; set; } = new();
+    public bool DaNapBoDuLieuMau { get; set; }
 }
 
 public class DuLieuDAO

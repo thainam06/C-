@@ -58,6 +58,7 @@ public class QuanLyBUS
     // GUI nhan ban sao, khong thay doi truc tiep du lieu cua BUS.
     private DuLieu SaoChep() => new()
     {
+        DaNapBoDuLieuMau = duLieu.DaNapBoDuLieuMau,
         MayBay = duLieu.MayBay.Select(x => new MayBay(x.MaMayBay, x.MHHK)).ToList(),
         Ghe = duLieu.Ghe.Select(x => new Ghe(x.MaGhe, x.MaMayBay, x.MaHV)).ToList(),
         HangVe = duLieu.HangVe.Select(x => new HangVe(x.MaHV, x.TenHV, x.HanhLyKg, x.DonGiaVe)).ToList()
@@ -139,6 +140,49 @@ public class QuanLyBUS
             });
         }
         return ketQua;
+    }
+
+    public bool NapBoDuLieuMauMotLan()
+    {
+        if (duLieu.DaNapBoDuLieuMau) return false;
+        var moi = SaoChep();
+        var cacHang = new[] { "VN", "VN", "VN", "VJ", "VJ", "VJ", "QH", "QH", "BL", "BL" };
+        var cacVe = new (string Ten, decimal Kg, decimal Gia)[]
+        {
+            ("Phổ thông tiết kiệm", 7m, 800000m),
+            ("Phổ thông tiêu chuẩn", 15m, 1000000m),
+            ("Phổ thông linh hoạt", 20m, 1200000m),
+            ("Phổ thông đặc biệt tiết kiệm", 25m, 1600000m),
+            ("Phổ thông đặc biệt tiêu chuẩn", 30m, 1900000m),
+            ("Phổ thông đặc biệt linh hoạt", 35m, 2200000m),
+            ("Thương gia tiết kiệm", 40m, 3000000m),
+            ("Thương gia tiêu chuẩn", 45m, 3500000m),
+            ("Thương gia linh hoạt", 50m, 4000000m),
+            ("Hạng nhất", 60m, 6000000m)
+        };
+        for (var i = 0; i < cacVe.Length; i++)
+        {
+            var maMayBay = $"M{i + 1:00}";
+            var maHV = $"HV{i + 1:00}";
+            var maGhe = $"G{i + 1:00}";
+            var mayBay = moi.MayBay.Find(x => CungMa(x.MaMayBay, maMayBay));
+            if (mayBay == null)
+            {
+                mayBay = new MayBay(maMayBay, cacHang[i]);
+                moi.MayBay.Add(mayBay);
+            }
+            var hangVe = moi.HangVe.Find(x => CungMa(x.MaHV, maHV));
+            if (hangVe == null)
+            {
+                hangVe = new HangVe(maHV, cacVe[i].Ten, cacVe[i].Kg, cacVe[i].Gia);
+                moi.HangVe.Add(hangVe);
+            }
+            if (!moi.Ghe.Any(x => CungMa(x.MaMayBay, maMayBay) && CungMa(x.MaGhe, maGhe)))
+                moi.Ghe.Add(new Ghe(maGhe, mayBay.MaMayBay, hangVe.MaHV));
+        }
+        moi.DaNapBoDuLieuMau = true;
+        Luu(moi);
+        return true;
     }
 
     public int NapMayBayMau()

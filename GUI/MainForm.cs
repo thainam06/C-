@@ -17,10 +17,11 @@ public class MainForm : Form
         try
         {
             bus = new QuanLyBUS();
+            bus.NapBoDuLieuMauMotLan();
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Không thể đọc dữ liệu. Chương trình sẽ đóng để bảo vệ file hiện tại.\n"
+            MessageBox.Show("Không thể đọc hoặc chuẩn bị dữ liệu. Chương trình sẽ đóng.\n"
                 + ex.Message, "Lỗi dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Shown += (_, _) => Close();
             return;
