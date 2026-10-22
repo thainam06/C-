@@ -37,6 +37,10 @@ Loại ghế cũng được đồng bộ theo danh mục: **Hạng phổ thông 
 **Hạng thương gia → Ghế VIP**, kể cả khi ghế còn dùng các mã mẫu cũ.
 Quy tắc áp dụng khi mở chương trình và khi lưu thay đổi; đổi tên nhóm hạng vé
 cũng cập nhật loại ghế liên quan, giữ nguyên giá và hành lý.
+Khi mở bản mới, ghế đã lưu thuộc nhóm phổ thông được chuyển mã sang **HV01**,
+nhóm thương gia chuyển sang **HV02**. Bảng tổng hợp lấy tên, hành lý và giá từ
+đúng danh mục HV01/HV02 sau khi chuyển. Định nghĩa hạng vé cũ vẫn được giữ trong
+JSON; các ghế chuyển nhóm sử dụng giá/hành lý của mã đích.
 
 Với dữ liệu mới, chương trình nạp một lần 10 máy bay M01–M10 và 10 ghế G01–G10.
 G01–G06 dùng HV01, G07–G10 dùng HV02; G01 thuộc M01, …, G10 thuộc M10.
@@ -59,7 +63,7 @@ Không cần nút nạp hay kết nối SQL Server. Các giá trị mẫu chỉ 
 - **Ghế:** chọn máy bay và hạng vé từ danh sách.
   Ô **Hạng vé** chỉ hiển thị **HV01** hoặc **HV02**. Chọn HV01 tự điền
   **Ghế thường**, chọn HV02 tự điền **Ghế VIP**, không chọn loại trái với hạng vé.
-  Các ghế dùng hạng vé cũ khác được giữ nguyên; chọn lại HV01/HV02 rồi Sửa để đổi.
+  Các ghế thuộc hai nhóm phổ thông/thương gia tự chuyển mã sang HV01/HV02 khi mở chương trình.
   Loại ghế được lưu vào JSON và có thể tìm bằng từ khóa `VIP` hoặc `thường`.
   Mã ghế là duy nhất trong từng máy bay; hai máy bay có thể cùng có ghế `1A`.
 - **Thêm:** tạo dòng mới. **Nhập mới:** xóa ô nhập và thoát chế độ sửa.

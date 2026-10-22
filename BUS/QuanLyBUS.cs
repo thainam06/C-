@@ -214,9 +214,16 @@ public class QuanLyBUS
         }
         foreach (var ghe in moi.Ghe)
         {
-            if (CungMa(ghe.MaHV, "HV1") || CungMa(ghe.MaHV, "HV2"))
+            var hangVe = moi.HangVe.First(x => CungMa(x.MaHV, ghe.MaHV));
+            var maChuan = LoaiGheTheoTenHangVe(hangVe.TenHV) switch
             {
-                ghe.MaHV = CungMa(ghe.MaHV, "HV1") ? "HV01" : "HV02";
+                Ghe.Thuong => "HV01",
+                Ghe.Vip => "HV02",
+                _ => null
+            };
+            if (maChuan != null && ghe.MaHV != maChuan)
+            {
+                ghe.MaHV = maChuan;
                 thayDoi = true;
             }
         }
