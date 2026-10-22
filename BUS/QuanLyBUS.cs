@@ -90,6 +90,38 @@ public class QuanLyBUS
     public ArrayList TimGhe(string tuKhoa = "") => Tim(new ArrayList(SaoChep().Ghe), tuKhoa,
         x => new[] { ((Ghe)x).MaGhe, ((Ghe)x).MaMayBay, ((Ghe)x).MaHV });
 
+    public ArrayList LayBangTongHop(string tuKhoa = "")
+    {
+        var cacDong = new ArrayList();
+        var gheTheoMayBay = duLieu.Ghe.ToLookup(x => x.MaMayBay, StringComparer.OrdinalIgnoreCase);
+        var hangVeTheoMa = duLieu.HangVe.ToDictionary(x => x.MaHV, StringComparer.OrdinalIgnoreCase);
+        foreach (var mayBay in duLieu.MayBay)
+        {
+            var gheCuaMayBay = gheTheoMayBay[mayBay.MaMayBay].ToList();
+            if (gheCuaMayBay.Count == 0)
+                cacDong.Add(new DongTongHop { MaMayBay = mayBay.MaMayBay, MHHK = mayBay.MHHK });
+            foreach (var ghe in gheCuaMayBay)
+            {
+                var hangVe = hangVeTheoMa[ghe.MaHV];
+                cacDong.Add(new DongTongHop
+                {
+                    MaMayBay = mayBay.MaMayBay,
+                    MHHK = mayBay.MHHK,
+                    MaGhe = ghe.MaGhe,
+                    MaHV = hangVe.MaHV,
+                    TenHV = hangVe.TenHV,
+                    HanhLyKg = hangVe.HanhLyKg,
+                    DonGiaVe = hangVe.DonGiaVe
+                });
+            }
+        }
+        return Tim(cacDong, tuKhoa, x =>
+        {
+            var dong = (DongTongHop)x;
+            return new[] { dong.MaMayBay, dong.MHHK, dong.MaGhe, dong.MaHV, dong.TenHV };
+        });
+    }
+
     public ArrayList LayGheTheoMayBay(string maMayBay)
     {
         var ketQua = new ArrayList();

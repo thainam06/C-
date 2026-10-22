@@ -17,11 +17,13 @@ repository vào một thư mục mới trước khi mở project này.
 
 ## Sử dụng
 
-- **Máy bay – Ghế:** màn hình chính–chi tiết mở đầu tiên. Bảng trên là máy bay;
-  chọn một dòng để bảng dưới chỉ hiện các ghế của đúng máy bay đó, kèm tên hạng vé,
-  hành lý và đơn giá. Khung bên phải hiện mã máy bay, mã hãng và số ghế đã khai báo.
-  Tìm kiếm lọc bảng máy bay; nếu không có kết quả, bảng chi tiết và thông tin được xóa.
-  Khi quay lại tab này sau khi sửa dữ liệu, các bảng tự cập nhật.
+- **Bảng tổng hợp:** mở đầu tiên, hiển thị chung máy bay, ghế và hạng vé trong một bảng.
+  Các cột: mã máy bay, mã hãng, mã ghế, mã hạng vé, tên hạng vé, hành lý và đơn giá.
+  Mỗi ghế là một dòng; máy bay có nhiều ghế sẽ xuất hiện trên nhiều dòng.
+  Máy bay chưa có ghế vẫn xuất hiện với các cột chi tiết để trống.
+  Hạng vé chưa được ghế nào dùng có thể xem ở tab Hạng vé.
+  Tìm kiếm theo các mã hoặc tên hạng vé, không phân biệt hoa/thường.
+  Khi quay lại tab này sau khi sửa dữ liệu, bảng tự cập nhật.
 - **Máy bay:** nhập mã máy bay và mã hãng hàng không.
 - **Hạng vé:** nhập mã, tên, hành lý (kg) và đơn giá vé (VNĐ).
 - **Ghế:** tạo máy bay và hạng vé trước, sau đó chọn chúng trong danh sách.
@@ -41,7 +43,7 @@ Chỉ chạy một phiên ứng dụng tại một thời điểm khi sửa cùn
 ## Cấu trúc
 
 - `DTO`: `MayBay`, `Ghe`, `HangVe` chứa dữ liệu.
-- `GUI`: `MainForm`, màn hình chính–chi tiết `MayBayGheView` và các tab nhập liệu/hiển thị.
+- `GUI`: `MainForm`, bảng tổng hợp `MayBayGheView` và các tab nhập liệu/hiển thị.
 - `BUS`: kiểm tra dữ liệu, thao tác quản lý và tìm kiếm trên `ArrayList`.
 - `DAO`: đọc/ghi JSON cục bộ, chưa kết nối cơ sở dữ liệu.
 

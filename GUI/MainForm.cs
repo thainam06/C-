@@ -65,7 +65,7 @@ public class MainForm : Form
 
         foreach (var (ten, noiDung) in new (string, Control)[]
         {
-            ("Máy bay – Ghế", tongQuan), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe)
+            ("Bảng tổng hợp", tongQuan), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe)
         })
         {
             var page = new TabPage(ten) { Padding = new Padding(12) };
