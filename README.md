@@ -46,7 +46,9 @@ Tên hạng vé, hạn mức hành lý và giá chỉ là số liệu minh họa
   Tìm kiếm theo các mã hoặc tên hạng vé, không phân biệt hoa/thường.
   Khi quay lại tab này sau khi sửa dữ liệu, bảng tự cập nhật.
 - **Máy bay:** nhập mã máy bay và mã hãng hàng không.
-- **Hạng vé:** nhập mã, tên, hành lý (kg) và đơn giá vé (VNĐ).
+- **Hạng vé:** nhập mã, chọn tên hạng vé, nhập hành lý (kg) và đơn giá vé (VNĐ).
+- Ô **Tên hạng vé** là danh sách chọn sẵn 10 tên trong bộ mẫu, không cần gõ.
+  Tên đã lưu từ trước cũng có trong danh sách để xem/sửa dữ liệu cũ.
 - **Ghế:** tạo máy bay và hạng vé trước, sau đó chọn chúng trong danh sách.
   Mã ghế là duy nhất trong từng máy bay; hai máy bay có thể cùng có ghế `1A`.
 - **Thêm:** tạo dòng mới. **Nhập mới:** xóa ô nhập và thoát chế độ sửa.

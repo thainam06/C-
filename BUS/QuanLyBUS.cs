@@ -8,6 +8,19 @@ public class QuanLyBUS
 {
     private readonly DuLieuDAO dao;
     private DuLieu duLieu;
+    private static readonly (string Ten, decimal Kg, decimal Gia)[] MauHangVe =
+    {
+        ("Phổ thông tiết kiệm", 7m, 800000m),
+        ("Phổ thông tiêu chuẩn", 15m, 1000000m),
+        ("Phổ thông linh hoạt", 20m, 1200000m),
+        ("Phổ thông đặc biệt tiết kiệm", 25m, 1600000m),
+        ("Phổ thông đặc biệt tiêu chuẩn", 30m, 1900000m),
+        ("Phổ thông đặc biệt linh hoạt", 35m, 2200000m),
+        ("Thương gia tiết kiệm", 40m, 3000000m),
+        ("Thương gia tiêu chuẩn", 45m, 3500000m),
+        ("Thương gia linh hoạt", 50m, 4000000m),
+        ("Hạng nhất", 60m, 6000000m)
+    };
 
     public QuanLyBUS(DuLieuDAO? dao = null)
     {
@@ -142,24 +155,16 @@ public class QuanLyBUS
         return ketQua;
     }
 
+    public List<string> LayTenHangVe() => MauHangVe.Select(x => x.Ten)
+        .Concat(duLieu.HangVe.Select(x => x.TenHV))
+        .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
     public bool NapBoDuLieuMauMotLan()
     {
         if (duLieu.DaNapBoDuLieuMau) return false;
         var moi = SaoChep();
         var cacHang = new[] { "VN", "VN", "VN", "VJ", "VJ", "VJ", "QH", "QH", "BL", "BL" };
-        var cacVe = new (string Ten, decimal Kg, decimal Gia)[]
-        {
-            ("Phổ thông tiết kiệm", 7m, 800000m),
-            ("Phổ thông tiêu chuẩn", 15m, 1000000m),
-            ("Phổ thông linh hoạt", 20m, 1200000m),
-            ("Phổ thông đặc biệt tiết kiệm", 25m, 1600000m),
-            ("Phổ thông đặc biệt tiêu chuẩn", 30m, 1900000m),
-            ("Phổ thông đặc biệt linh hoạt", 35m, 2200000m),
-            ("Thương gia tiết kiệm", 40m, 3000000m),
-            ("Thương gia tiêu chuẩn", 45m, 3500000m),
-            ("Thương gia linh hoạt", 50m, 4000000m),
-            ("Hạng nhất", 60m, 6000000m)
-        };
+        var cacVe = MauHangVe;
         for (var i = 0; i < cacVe.Length; i++)
         {
             var maMayBay = $"M{i + 1:00}";

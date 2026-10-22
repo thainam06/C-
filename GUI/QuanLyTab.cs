@@ -59,7 +59,11 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                     ThousandsSeparator = true
                 };
             else if (field.LuaChon != null)
-                input = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+                input = new ComboBox
+                {
+                    DropDownStyle = ComboBoxStyle.DropDownList, DropDownWidth = 400,
+                    MaxDropDownItems = 10, IntegralHeight = false
+                };
             else input = new TextBox { MaxLength = 255 };
             input.Dock = DockStyle.Fill;
             input.Margin = new Padding(3, 7, 3, 3);

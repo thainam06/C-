@@ -43,7 +43,7 @@ public class MainForm : Form
             new[]
             {
                 new Truong("MaHV", "Mã hạng vé", Khoa: true),
-                new Truong("TenHV", "Tên hạng vé"),
+                new Truong("TenHV", "Tên hạng vé", LuaChon: bus.LayTenHangVe),
                 new Truong("HanhLyKg", "Hành lý (kg)", So: true),
                 new Truong("DonGiaVe", "Đơn giá vé (VNĐ)", So: true)
             },
