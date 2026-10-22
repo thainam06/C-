@@ -73,6 +73,7 @@ public class QuanLyBUS
 
     private void Luu(DuLieu moi)
     {
+        DongBoLoaiGhe(moi);
         KiemTraDuLieu(moi);
         // Chi cap nhat bo nho sau khi luu thanh cong.
         dao.Luu(moi);
@@ -158,6 +159,28 @@ public class QuanLyBUS
         return null;
     }
 
+    private static string? LoaiGheTheoTenHangVe(string ten)
+    {
+        if (CungMa(ten.Trim(), "Hạng phổ thông")) return Ghe.Thuong;
+        if (CungMa(ten.Trim(), "Hạng thương gia")) return Ghe.Vip;
+        return null;
+    }
+
+    private static bool DongBoLoaiGhe(DuLieu data)
+    {
+        var thayDoi = false;
+        var cacHangVe = data.HangVe.ToDictionary(x => x.MaHV, StringComparer.OrdinalIgnoreCase);
+        foreach (var ghe in data.Ghe)
+        {
+            if (!cacHangVe.TryGetValue(ghe.MaHV, out var hangVe)) continue;
+            var loai = LoaiGheTheoHangVe(hangVe.MaHV) ?? LoaiGheTheoTenHangVe(hangVe.TenHV);
+            if (loai == null || ghe.LoaiGhe == loai) continue;
+            ghe.LoaiGhe = loai;
+            thayDoi = true;
+        }
+        return thayDoi;
+    }
+
     public void CauHinhHangVeMacDinh()
     {
         var moi = SaoChep();
@@ -196,11 +219,8 @@ public class QuanLyBUS
                 ghe.MaHV = CungMa(ghe.MaHV, "HV1") ? "HV01" : "HV02";
                 thayDoi = true;
             }
-            var loai = LoaiGheTheoHangVe(ghe.MaHV);
-            if (loai == null || ghe.LoaiGhe == loai) continue;
-            ghe.LoaiGhe = loai;
-            thayDoi = true;
         }
+        thayDoi |= DongBoLoaiGhe(moi);
         if (thayDoi) Luu(moi);
     }
 
@@ -344,7 +364,8 @@ public class QuanLyBUS
         var cu = moi.Ghe.Find(x => CungMa(x.MaGhe, ma) && CungMa(x.MaMayBay, mayBay));
         if (sua && cu == null) throw new ArgumentException("Ghế không còn tồn tại.");
         if (!sua && cu != null) throw new ArgumentException("Mã ghế đã tồn tại trên máy bay này.");
-        loaiGhe = BatBuoc(LoaiGheTheoHangVe(hv.MaHV) ?? loaiGhe ?? cu?.LoaiGhe ?? Ghe.Thuong, "loại ghế");
+        loaiGhe = BatBuoc(LoaiGheTheoHangVe(hv.MaHV) ?? LoaiGheTheoTenHangVe(hv.TenHV)
+            ?? loaiGhe ?? cu?.LoaiGhe ?? Ghe.Thuong, "loại ghế");
         if (loaiGhe != Ghe.Thuong && loaiGhe != Ghe.Vip)
             throw new ArgumentException("Vui lòng chọn Ghế thường hoặc Ghế VIP.");
         if (cu != null)

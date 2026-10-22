@@ -33,6 +33,10 @@ Các tên hạng vé mẫu cũ được đồng bộ trong danh mục và bảng
 HV03–HV06 dùng tên **Hạng phổ thông**, HV07–HV10 dùng tên **Hạng thương gia**.
 Mã hạng vé, giá và hành lý của các dòng này giữ nguyên. Bảng tổng hợp luôn lấy
 tên từ danh mục Hạng vé theo mã; không dùng tên nhập riêng ở tab Ghế.
+Loại ghế cũng được đồng bộ theo danh mục: **Hạng phổ thông → Ghế thường**,
+**Hạng thương gia → Ghế VIP**, kể cả khi ghế còn dùng các mã mẫu cũ.
+Quy tắc áp dụng khi mở chương trình và khi lưu thay đổi; đổi tên nhóm hạng vé
+cũng cập nhật loại ghế liên quan, giữ nguyên giá và hành lý.
 
 Với dữ liệu mới, chương trình nạp một lần 10 máy bay M01–M10 và 10 ghế G01–G10.
 G01–G06 dùng HV01, G07–G10 dùng HV02; G01 thuộc M01, …, G10 thuộc M10.
