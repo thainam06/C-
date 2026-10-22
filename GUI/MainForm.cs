@@ -19,6 +19,7 @@ public class MainForm : Form
             bus = new QuanLyBUS();
             bus.NapBoDuLieuMauMotLan();
             bus.CauHinhHangVeMacDinh();
+            bus.CapNhatHangM01M02MotLan();
         }
         catch (Exception ex)
         {

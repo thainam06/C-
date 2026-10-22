@@ -65,6 +65,7 @@ public class QuanLyBUS
     private DuLieu SaoChep() => new()
     {
         DaNapBoDuLieuMau = duLieu.DaNapBoDuLieuMau,
+        DaCapNhatHangM01M02 = duLieu.DaCapNhatHangM01M02,
         MayBay = duLieu.MayBay.Select(x => new MayBay(x.MaMayBay, x.MHHK)).ToList(),
         Ghe = duLieu.Ghe.Select(x => new Ghe(x.MaGhe, x.MaMayBay, x.MaHV, x.LoaiGhe)).ToList(),
         HangVe = duLieu.HangVe.Select(x => new HangVe(x.MaHV, x.TenHV, x.HanhLyKg, x.DonGiaVe)).ToList()
@@ -205,11 +206,24 @@ public class QuanLyBUS
 
     public List<string> LayTenHangVe() => MauHangVe.Select(x => x.Ten).ToList();
 
+    public void CapNhatHangM01M02MotLan()
+    {
+        if (duLieu.DaCapNhatHangM01M02) return;
+        var moi = SaoChep();
+        foreach (var mayBay in moi.MayBay)
+        {
+            if (CungMa(mayBay.MaMayBay, "M01")) mayBay.MHHK = "VN";
+            if (CungMa(mayBay.MaMayBay, "M02")) mayBay.MHHK = "THA";
+        }
+        moi.DaCapNhatHangM01M02 = true;
+        Luu(moi);
+    }
+
     public bool NapBoDuLieuMauMotLan()
     {
         if (duLieu.DaNapBoDuLieuMau) return false;
         var moi = SaoChep();
-        var cacHang = new[] { "VN", "VN", "VN", "VJ", "VJ", "VJ", "QH", "QH", "BL", "BL" };
+        var cacHang = new[] { "VN", "THA", "VN", "VJ", "VJ", "VJ", "QH", "QH", "BL", "BL" };
         var cacVe = MauHangVe;
         for (var i = 0; i < cacHang.Length; i++)
         {
@@ -240,7 +254,7 @@ public class QuanLyBUS
     public int NapMayBayMau()
     {
         var moi = SaoChep();
-        var cacHang = new[] { "VN", "VN", "VN", "VJ", "VJ", "VJ", "QH", "QH", "BL", "BL" };
+        var cacHang = new[] { "VN", "THA", "VN", "VJ", "VJ", "VJ", "QH", "QH", "BL", "BL" };
         var soDaThem = 0;
         for (var i = 0; i < cacHang.Length; i++)
         {

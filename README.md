@@ -33,6 +33,8 @@ cũ khi có, hoặc dùng giá/hành lý mẫu. Các hạng vé cũ khác vẫn 
 Với dữ liệu mới, chương trình nạp một lần 10 máy bay M01–M10 và 10 ghế G01–G10.
 G01–G06 dùng HV01, G07–G10 dùng HV02; G01 thuộc M01, …, G10 thuộc M10.
 Bộ mẫu không ghi đè các mã đã có và không tạo lại sau khi người dùng xóa.
+Riêng bản cập nhật mã hãng áp dụng một lần cho máy bay đã có: **M01 → VN**,
+**M02 → THA**. Các máy bay khác giữ nguyên; các lần sửa thủ công sau đó không bị đặt lại.
 Không cần nút nạp hay kết nối SQL Server. Các giá trị mẫu chỉ dùng kiểm thử.
 
 - **Bảng tổng hợp:** mở đầu tiên, hiển thị chung máy bay, ghế và hạng vé trong một bảng.
