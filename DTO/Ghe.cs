@@ -5,11 +5,16 @@ namespace QuanLyMayBay.DTO
     /// </summary>
     public class Ghe
     {
+        public const string Thuong = "Ghế thường";
+        public const string Vip = "Ghế VIP";
+
         public string MaGhe { get; set; }
 
         public string MaMayBay { get; set; }
 
         public string MaHV { get; set; }
+
+        public string LoaiGhe { get; set; } = Thuong;
 
         public Ghe()
         {
@@ -18,11 +23,12 @@ namespace QuanLyMayBay.DTO
             MaHV = string.Empty;
         }
 
-        public Ghe(string maGhe, string maMayBay, string maHV)
+        public Ghe(string maGhe, string maMayBay, string maHV, string loaiGhe = Thuong)
         {
             MaGhe = maGhe;
             MaMayBay = maMayBay;
             MaHV = maHV;
+            LoaiGhe = loaiGhe;
         }
     }
 }

@@ -62,6 +62,7 @@ public class QuanLyBUS
         {
             if (ghe == null || string.IsNullOrWhiteSpace(ghe.MaGhe)
                 || string.IsNullOrWhiteSpace(ghe.MaMayBay) || string.IsNullOrWhiteSpace(ghe.MaHV)
+                || (ghe.LoaiGhe != Ghe.Thuong && ghe.LoaiGhe != Ghe.Vip)
                 || !maMayBay.Contains(ghe.MaMayBay) || !maHangVe.Contains(ghe.MaHV)
                 || !maGhe.Add((ghe.MaMayBay.ToUpperInvariant(), ghe.MaGhe.ToUpperInvariant())))
                 throw new InvalidDataException("Dữ liệu ghế không hợp lệ hoặc mất liên kết.");
@@ -73,7 +74,7 @@ public class QuanLyBUS
     {
         DaNapBoDuLieuMau = duLieu.DaNapBoDuLieuMau,
         MayBay = duLieu.MayBay.Select(x => new MayBay(x.MaMayBay, x.MHHK)).ToList(),
-        Ghe = duLieu.Ghe.Select(x => new Ghe(x.MaGhe, x.MaMayBay, x.MaHV)).ToList(),
+        Ghe = duLieu.Ghe.Select(x => new Ghe(x.MaGhe, x.MaMayBay, x.MaHV, x.LoaiGhe)).ToList(),
         HangVe = duLieu.HangVe.Select(x => new HangVe(x.MaHV, x.TenHV, x.HanhLyKg, x.DonGiaVe)).ToList()
     };
 
@@ -102,7 +103,7 @@ public class QuanLyBUS
         x => new[] { ((HangVe)x).MaHV, ((HangVe)x).TenHV });
 
     public ArrayList TimGhe(string tuKhoa = "") => Tim(new ArrayList(SaoChep().Ghe), tuKhoa,
-        x => new[] { ((Ghe)x).MaGhe, ((Ghe)x).MaMayBay, ((Ghe)x).MaHV });
+        x => new[] { ((Ghe)x).MaGhe, ((Ghe)x).MaMayBay, ((Ghe)x).MaHV, ((Ghe)x).LoaiGhe });
 
     public ArrayList LayBangTongHop(string tuKhoa = "")
     {
@@ -122,6 +123,7 @@ public class QuanLyBUS
                     MaMayBay = mayBay.MaMayBay,
                     MHHK = mayBay.MHHK,
                     MaGhe = ghe.MaGhe,
+                    LoaiGhe = ghe.LoaiGhe,
                     MaHV = hangVe.MaHV,
                     TenHV = hangVe.TenHV,
                     HanhLyKg = hangVe.HanhLyKg,
@@ -132,7 +134,7 @@ public class QuanLyBUS
         return Tim(cacDong, tuKhoa, x =>
         {
             var dong = (DongTongHop)x;
-            return new[] { dong.MaMayBay, dong.MHHK, dong.MaGhe, dong.MaHV, dong.TenHV };
+            return new[] { dong.MaMayBay, dong.MHHK, dong.MaGhe, dong.LoaiGhe, dong.MaHV, dong.TenHV };
         });
     }
 
@@ -146,6 +148,7 @@ public class QuanLyBUS
             ketQua.Add(new ChiTietGhe
             {
                 MaGhe = ghe.MaGhe,
+                LoaiGhe = ghe.LoaiGhe,
                 MaHV = hangVe.MaHV,
                 TenHV = hangVe.TenHV,
                 HanhLyKg = hangVe.HanhLyKg,
@@ -183,7 +186,7 @@ public class QuanLyBUS
                 moi.HangVe.Add(hangVe);
             }
             if (!moi.Ghe.Any(x => CungMa(x.MaMayBay, maMayBay) && CungMa(x.MaGhe, maGhe)))
-                moi.Ghe.Add(new Ghe(maGhe, mayBay.MaMayBay, hangVe.MaHV));
+                moi.Ghe.Add(new Ghe(maGhe, mayBay.MaMayBay, hangVe.MaHV, i < 6 ? Ghe.Thuong : Ghe.Vip));
         }
         moi.DaNapBoDuLieuMau = true;
         Luu(moi);
@@ -258,7 +261,7 @@ public class QuanLyBUS
         Luu(moi);
     }
 
-    public void LuuGhe(string ma, string mayBay, string hangVe, bool sua)
+    public void LuuGhe(string ma, string mayBay, string hangVe, bool sua, string? loaiGhe = null)
     {
         ma = BatBuoc(ma, "mã ghế");
         mayBay = BatBuoc(mayBay, "máy bay");
@@ -270,8 +273,15 @@ public class QuanLyBUS
         var cu = moi.Ghe.Find(x => CungMa(x.MaGhe, ma) && CungMa(x.MaMayBay, mayBay));
         if (sua && cu == null) throw new ArgumentException("Ghế không còn tồn tại.");
         if (!sua && cu != null) throw new ArgumentException("Mã ghế đã tồn tại trên máy bay này.");
-        if (cu != null) cu.MaHV = hv.MaHV;
-        else moi.Ghe.Add(new Ghe(ma, mb.MaMayBay, hv.MaHV));
+        loaiGhe = BatBuoc(loaiGhe ?? cu?.LoaiGhe ?? Ghe.Thuong, "loại ghế");
+        if (loaiGhe != Ghe.Thuong && loaiGhe != Ghe.Vip)
+            throw new ArgumentException("Vui lòng chọn Ghế thường hoặc Ghế VIP.");
+        if (cu != null)
+        {
+            cu.MaHV = hv.MaHV;
+            cu.LoaiGhe = loaiGhe;
+        }
+        else moi.Ghe.Add(new Ghe(ma, mb.MaMayBay, hv.MaHV, loaiGhe));
         Luu(moi);
     }
 

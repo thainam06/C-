@@ -26,7 +26,7 @@ internal class MayBayGheView : UserControl
         search.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
         tuKhoa.Dock = DockStyle.Fill;
         tuKhoa.Margin = new Padding(3, 8, 3, 3);
-        tuKhoa.PlaceholderText = "Tìm mã máy bay, mã hãng, mã ghế, mã hoặc tên hạng vé…";
+        tuKhoa.PlaceholderText = "Tìm mã máy bay, mã hãng, mã ghế, loại ghế, mã hoặc tên hạng vé…";
         tuKhoa.AccessibleName = "Tìm kiếm bảng tổng hợp";
         tuKhoa.KeyDown += (_, e) =>
         {
@@ -57,6 +57,7 @@ internal class MayBayGheView : UserControl
         ThemCot("MaMayBay", "Mã máy bay");
         ThemCot("MHHK", "Mã hãng HK");
         ThemCot("MaGhe", "Mã ghế");
+        ThemCot("LoaiGhe", "Loại ghế");
         ThemCot("MaHV", "Mã hạng vé");
         ThemCot("TenHV", "Tên hạng vé");
         ThemCot("HanhLyKg", "Hành lý (kg)", "N2");

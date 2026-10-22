@@ -55,13 +55,15 @@ public class MainForm : Form
             new[]
             {
                 new Truong("MaGhe", "Mã ghế", Khoa: true),
+                new Truong("LoaiGhe", "Loại ghế",
+                    LuaChon: () => new List<string> { Ghe.Thuong, Ghe.Vip }),
                 new Truong("MaMayBay", "Máy bay", Khoa: true,
                     LuaChon: () => bus.TimMayBay().Cast<MayBay>().Select(x => x.MaMayBay).ToList()),
                 new Truong("MaHV", "Hạng vé",
                     LuaChon: () => bus.TimHangVe().Cast<HangVe>().Select(x => x.MaHV).ToList())
             },
             q => bus.TimGhe(q).Cast<Ghe>().ToList(),
-            (x, sua) => bus.LuuGhe(x.MaGhe, x.MaMayBay, x.MaHV, sua),
+            (x, sua) => bus.LuuGhe(x.MaGhe, x.MaMayBay, x.MaHV, sua, x.LoaiGhe),
             x => bus.XoaGhe(x.MaGhe, x.MaMayBay));
 
         foreach (var (ten, noiDung) in new (string, Control)[]

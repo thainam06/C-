@@ -39,7 +39,7 @@ Tên hạng vé, hạn mức hành lý và giá chỉ là số liệu minh họa
 | HV10 | Hạng nhất | 60 | 6.000.000 |
 
 - **Bảng tổng hợp:** mở đầu tiên, hiển thị chung máy bay, ghế và hạng vé trong một bảng.
-  Các cột: mã máy bay, mã hãng, mã ghế, mã hạng vé, tên hạng vé, hành lý và đơn giá.
+  Các cột: mã máy bay, mã hãng, mã ghế, loại ghế, mã hạng vé, tên hạng vé, hành lý và đơn giá.
   Mỗi ghế là một dòng; máy bay có nhiều ghế sẽ xuất hiện trên nhiều dòng.
   Máy bay chưa có ghế vẫn xuất hiện với các cột chi tiết để trống.
   Hạng vé chưa được ghế nào dùng có thể xem ở tab Hạng vé.
@@ -50,6 +50,11 @@ Tên hạng vé, hạn mức hành lý và giá chỉ là số liệu minh họa
 - Ô **Tên hạng vé** là danh sách chọn sẵn 10 tên trong bộ mẫu, không cần gõ.
   Tên đã lưu từ trước cũng có trong danh sách để xem/sửa dữ liệu cũ.
 - **Ghế:** tạo máy bay và hạng vé trước, sau đó chọn chúng trong danh sách.
+  Chọn **Loại ghế** trong danh sách **Ghế thường / Ghế VIP**.
+  Dữ liệu cũ chưa có loại ghế mặc định là Ghế thường; chọn dòng và Sửa để đổi.
+  Loại ghế được lưu vào JSON và có thể tìm bằng từ khóa `VIP` hoặc `thường`.
+  Khi khởi tạo bộ mẫu trên dữ liệu mới, G01–G06 là Ghế thường, G07–G10 là Ghế VIP.
+  Các ghế mẫu đã lưu từ bản cũ được giữ nguyên, không tự đổi loại.
   Mã ghế là duy nhất trong từng máy bay; hai máy bay có thể cùng có ghế `1A`.
 - **Thêm:** tạo dòng mới. **Nhập mới:** xóa ô nhập và thoát chế độ sửa.
 - Chọn một dòng trong bảng để **Sửa** hoặc **Xóa**. Khóa của dòng không được sửa;
