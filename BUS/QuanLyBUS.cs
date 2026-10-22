@@ -90,6 +90,25 @@ public class QuanLyBUS
     public ArrayList TimGhe(string tuKhoa = "") => Tim(new ArrayList(SaoChep().Ghe), tuKhoa,
         x => new[] { ((Ghe)x).MaGhe, ((Ghe)x).MaMayBay, ((Ghe)x).MaHV });
 
+    public ArrayList LayGheTheoMayBay(string maMayBay)
+    {
+        var ketQua = new ArrayList();
+        var hangVeTheoMa = duLieu.HangVe.ToDictionary(x => x.MaHV, StringComparer.OrdinalIgnoreCase);
+        foreach (var ghe in duLieu.Ghe.Where(x => CungMa(x.MaMayBay, maMayBay)))
+        {
+            var hangVe = hangVeTheoMa[ghe.MaHV];
+            ketQua.Add(new ChiTietGhe
+            {
+                MaGhe = ghe.MaGhe,
+                MaHV = hangVe.MaHV,
+                TenHV = hangVe.TenHV,
+                HanhLyKg = hangVe.HanhLyKg,
+                DonGiaVe = hangVe.DonGiaVe
+            });
+        }
+        return ketQua;
+    }
+
     public int NapMayBayMau()
     {
         var moi = SaoChep();

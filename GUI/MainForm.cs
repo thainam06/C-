@@ -27,6 +27,7 @@ public class MainForm : Form
         }
 
         var tabs = new TabControl { Dock = DockStyle.Fill };
+        var tongQuan = new MayBayGheView(bus);
         var mayBay = new QuanLyTab<MayBay>(
             new[]
             {
@@ -36,15 +37,6 @@ public class MainForm : Form
             q => bus.TimMayBay(q).Cast<MayBay>().ToList(),
             (x, sua) => bus.LuuMayBay(x.MaMayBay, x.MHHK, sua),
             x => bus.XoaMayBay(x.MaMayBay));
-
-        mayBay.ThemNut("Nạp M01–M10", () =>
-        {
-            var soDaThem = bus.NapMayBayMau();
-            MessageBox.Show(soDaThem == 0
-                ? "Đã có đủ mã M01–M10. Dữ liệu hiện tại được giữ nguyên."
-                : $"Đã thêm và lưu {soDaThem} máy bay mẫu. Các mã đã có được giữ nguyên.",
-                "Dữ liệu mẫu", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        });
 
         var hangVe = new QuanLyTab<HangVe>(
             new[]
@@ -73,7 +65,7 @@ public class MainForm : Form
 
         foreach (var (ten, noiDung) in new (string, Control)[]
         {
-            ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe)
+            ("Máy bay – Ghế", tongQuan), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe)
         })
         {
             var page = new TabPage(ten) { Padding = new Padding(12) };
@@ -83,7 +75,8 @@ public class MainForm : Form
         tabs.SelectedIndexChanged += (_, _) =>
         {
             // Nap lai cac ma tham chieu khi chuyen tu may bay/hang ve sang ghe.
-            if (tabs.SelectedIndex == 2) ghe.LamMoi();
+            if (tabs.SelectedIndex == 0) tongQuan.LamMoi();
+            if (tabs.SelectedIndex == 3) ghe.LamMoi();
         };
 
         var title = new Label
