@@ -58,10 +58,10 @@ public class MainForm : Form
             {
                 new Truong("MaGhe", "Mã ghế", Khoa: true),
                 new Truong("MaHV", "Hạng vé",
-                    LuaChonCoNhan: () => bus.TimHangVe().Cast<HangVe>()
+                    LuaChon: () => bus.TimHangVe().Cast<HangVe>()
                         .Where(x => QuanLyBUS.LoaiGheTheoHangVe(x.MaHV) != null)
                         .OrderBy(x => x.MaHV)
-                        .Select(x => new MucLuaChon(x.MaHV, $"{x.MaHV} – {x.TenHV}")).ToList()),
+                        .Select(x => x.MaHV).ToList()),
                 new Truong("MaMayBay", "Máy bay", Khoa: true,
                     LuaChon: () => bus.TimMayBay().Cast<MayBay>().Select(x => x.MaMayBay).ToList()),
                 new Truong("LoaiGhe", "Loại ghế",

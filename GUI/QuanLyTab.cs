@@ -190,7 +190,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
             combo.Enabled = giaTri == null;
         }
         if (input is ComboBox nguonChon)
-            nguonChon.SelectedValueChanged += (_, _) => CapNhat();
+            nguonChon.SelectedIndexChanged += (_, _) => CapNhat();
         else input.TextChanged += (_, _) => CapNhat();
         SauKhiDienForm += CapNhat;
         CapNhat();
