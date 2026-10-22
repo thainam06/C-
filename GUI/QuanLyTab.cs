@@ -3,8 +3,11 @@ using System.Reflection;
 
 namespace QuanLyMayBay.GUI;
 
+internal record MucLuaChon(string GiaTri, string HienThi);
+
 internal record Truong(string ThuocTinh, string Nhan, bool Khoa = false,
-    bool So = false, Func<List<string>>? LuaChon = null);
+    bool So = false, Func<List<string>>? LuaChon = null,
+    Func<List<MucLuaChon>>? LuaChonCoNhan = null);
 
 internal class QuanLyTab<T> : UserControl where T : class, new()
 {
@@ -59,7 +62,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                     DecimalPlaces = 2, Minimum = 0, Maximum = decimal.MaxValue,
                     ThousandsSeparator = true
                 };
-            else if (field.LuaChon != null)
+            else if (field.LuaChon != null || field.LuaChonCoNhan != null)
                 input = new ComboBox
                 {
                     DropDownStyle = ComboBoxStyle.DropDownList, DropDownWidth = 400,
@@ -155,7 +158,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 var value = ThuocTinh(field).GetValue(item);
                 var input = oNhap[field.ThuocTinh];
                 if (input is NumericUpDown number) number.Value = (decimal)value!;
-                else if (input is ComboBox combo) combo.SelectedItem = (string)value!;
+                else if (input is ComboBox combo) ChonTheoMa(combo, (string)value!);
                 else input.Text = (string)value!;
                 input.Enabled = !field.Khoa;
             }
@@ -182,11 +185,13 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         var combo = (ComboBox)oNhap[dich];
         void CapNhat()
         {
-            var giaTri = giaTriTheoMa(input.Text);
-            if (giaTri != null) combo.SelectedItem = giaTri;
+            var giaTri = giaTriTheoMa(DocChuoi(input));
+            if (giaTri != null) ChonTheoMa(combo, giaTri);
             combo.Enabled = giaTri == null;
         }
-        input.TextChanged += (_, _) => CapNhat();
+        if (input is ComboBox nguonChon)
+            nguonChon.SelectedValueChanged += (_, _) => CapNhat();
+        else input.TextChanged += (_, _) => CapNhat();
         SauKhiDienForm += CapNhat;
         CapNhat();
     }
@@ -204,6 +209,28 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
 
     private static PropertyInfo ThuocTinh(Truong field) => typeof(T).GetProperty(field.ThuocTinh)!;
 
+    private static string DocChuoi(Control input)
+    {
+        if (input is not ComboBox combo) return input.Text.Trim();
+        return combo.SelectedItem switch
+        {
+            MucLuaChon muc => muc.GiaTri,
+            string text => text,
+            _ => string.Empty
+        };
+    }
+
+    private static void ChonTheoMa(ComboBox combo, string ma)
+    {
+        if (combo.ValueMember == nameof(MucLuaChon.GiaTri))
+        {
+            var cacMuc = combo.DataSource as List<MucLuaChon>;
+            combo.SelectedValue = cacMuc?.FirstOrDefault(x => string.Equals(x.GiaTri, ma,
+                StringComparison.OrdinalIgnoreCase))?.GiaTri ?? ma;
+        }
+        else combo.SelectedItem = ma;
+    }
+
     private static Button Nut(string text, EventHandler click)
     {
         var button = new Button { Text = text, Width = 116, Height = 34, Margin = new Padding(3, 5, 6, 3) };
@@ -217,7 +244,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         foreach (var field in truong)
         {
             var input = oNhap[field.ThuocTinh];
-            object value = input is NumericUpDown number ? number.Value : input.Text.Trim();
+            object value = input is NumericUpDown number ? number.Value : DocChuoi(input);
             ThuocTinh(field).SetValue(item, value);
         }
         return item;
@@ -256,10 +283,16 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
 
     public void LamMoi()
     {
-        foreach (var field in truong.Where(x => x.LuaChon != null))
+        foreach (var field in truong.Where(x => x.LuaChon != null || x.LuaChonCoNhan != null))
         {
             var combo = (ComboBox)oNhap[field.ThuocTinh];
-            combo.DataSource = field.LuaChon!();
+            if (field.LuaChonCoNhan != null)
+            {
+                combo.DisplayMember = nameof(MucLuaChon.HienThi);
+                combo.ValueMember = nameof(MucLuaChon.GiaTri);
+                combo.DataSource = field.LuaChonCoNhan();
+            }
+            else combo.DataSource = field.LuaChon!();
             combo.SelectedIndex = -1;
         }
         tuKhoa.Clear();

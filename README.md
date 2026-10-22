@@ -59,6 +59,9 @@ Tên hạng vé, hạn mức hành lý và giá chỉ là số liệu minh họa
 - Ô **Tên hạng vé** là danh sách chọn sẵn các tên trong bộ mẫu và hai tên mặc định, không cần gõ.
   Tên đã lưu từ trước cũng có trong danh sách để xem/sửa dữ liệu cũ.
 - **Ghế:** tạo máy bay và hạng vé trước, sau đó chọn chúng trong danh sách.
+  Ô **Hạng vé** lấy trực tiếp từ danh mục Hạng vé, hiển thị **mã – tên**
+  (ví dụ **HV1 – Ghế thường**, **HV2 – Ghế VIP**) và chỉ lưu mã hạng vé.
+  Sửa tên/thêm hạng vé tại tab Hạng vé rồi quay lại tab Ghế để cập nhật danh sách.
   Với HV1/HV2, **Loại ghế** tự điền; với mã khác, chọn **Ghế thường / Ghế VIP**.
   Dữ liệu cũ chưa có loại ghế mặc định là Ghế thường; chọn dòng và Sửa để đổi.
   Loại ghế được lưu vào JSON và có thể tìm bằng từ khóa `VIP` hoặc `thường`.
