@@ -57,15 +57,15 @@ public class MainForm : Form
             new[]
             {
                 new Truong("MaGhe", "Mã ghế", Khoa: true),
-                new Truong("LoaiGhe", "Loại ghế",
-                    LuaChon: () => new List<string> { Ghe.Thuong, Ghe.Vip }),
-                new Truong("MaMayBay", "Máy bay", Khoa: true,
-                    LuaChon: () => bus.TimMayBay().Cast<MayBay>().Select(x => x.MaMayBay).ToList()),
                 new Truong("MaHV", "Hạng vé",
                     LuaChonCoNhan: () => bus.TimHangVe().Cast<HangVe>()
                         .Where(x => QuanLyBUS.LoaiGheTheoHangVe(x.MaHV) != null)
                         .OrderBy(x => x.MaHV)
-                        .Select(x => new MucLuaChon(x.MaHV, $"{x.MaHV} – {x.TenHV}")).ToList())
+                        .Select(x => new MucLuaChon(x.MaHV, $"{x.MaHV} – {x.TenHV}")).ToList()),
+                new Truong("MaMayBay", "Máy bay", Khoa: true,
+                    LuaChon: () => bus.TimMayBay().Cast<MayBay>().Select(x => x.MaMayBay).ToList()),
+                new Truong("LoaiGhe", "Loại ghế",
+                    LuaChon: () => new List<string> { Ghe.Thuong, Ghe.Vip })
             },
             q => bus.TimGhe(q).Cast<Ghe>().ToList(),
             (x, sua) => bus.LuuGhe(x.MaGhe, x.MaMayBay, x.MaHV, sua, x.LoaiGhe),
