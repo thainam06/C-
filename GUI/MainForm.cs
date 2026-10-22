@@ -63,8 +63,8 @@ public class MainForm : Form
                     LuaChon: () => bus.TimMayBay().Cast<MayBay>().Select(x => x.MaMayBay).ToList()),
                 new Truong("MaHV", "Hạng vé",
                     LuaChonCoNhan: () => bus.TimHangVe().Cast<HangVe>()
-                        .OrderBy(x => QuanLyBUS.LoaiGheTheoHangVe(x.MaHV) == null ? 1 : 0)
-                        .ThenBy(x => x.MaHV)
+                        .Where(x => QuanLyBUS.LoaiGheTheoHangVe(x.MaHV) != null)
+                        .OrderBy(x => x.MaHV)
                         .Select(x => new MucLuaChon(x.MaHV, $"{x.MaHV} – {x.TenHV}")).ToList())
             },
             q => bus.TimGhe(q).Cast<Ghe>().ToList(),
