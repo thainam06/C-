@@ -10,18 +10,15 @@ internal class MayBayGheView : UserControl
     private readonly QuanLyBUS bus;
     private readonly DataGridView bang = new();
     private readonly TextBox tuKhoa = new();
-    private readonly Label trangThai = new();
 
     public MayBayGheView(QuanLyBUS bus)
     {
         this.bus = bus;
         Dock = DockStyle.Fill;
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4 };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2 };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
 
         var search = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3 };
         search.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -65,17 +62,8 @@ internal class MayBayGheView : UserControl
         ThemCot("HanhLyKg", "Hành lý (kg)", "N2");
         ThemCot("DonGiaVe", "Đơn giá vé (VNĐ)", "N2");
 
-        trangThai.Dock = DockStyle.Fill;
-        trangThai.TextAlign = ContentAlignment.MiddleLeft;
-        var huongDan = new Label
-        {
-            Text = "Mỗi dòng là một ghế cùng máy bay và hạng vé. Thêm/sửa/xóa tại các tab tương ứng.",
-            Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft
-        };
         layout.Controls.Add(search, 0, 0);
         layout.Controls.Add(bang, 0, 1);
-        layout.Controls.Add(trangThai, 0, 2);
-        layout.Controls.Add(huongDan, 0, 3);
         Controls.Add(layout);
         Load += (_, _) => LamMoi();
     }
@@ -86,11 +74,6 @@ internal class MayBayGheView : UserControl
         bang.DataSource = new BindingList<DongTongHop>(danhSach);
         bang.ClearSelection();
         bang.CurrentCell = null;
-        var soMayBay = danhSach.Select(x => x.MaMayBay).Distinct(StringComparer.OrdinalIgnoreCase).Count();
-        var soGhe = danhSach.Count(x => x.MaGhe.Length > 0);
-        trangThai.Text = danhSach.Count == 0
-            ? "Chưa có dữ liệu phù hợp. Thêm máy bay ở tab Máy bay hoặc đổi từ khóa tìm kiếm."
-            : $"Đang hiển thị {danhSach.Count} dòng · {soMayBay} máy bay · {soGhe} ghế. Máy bay chưa có ghế để trống các cột chi tiết.";
     }
 
     private void ThemCot(string property, string title, string? format = null)

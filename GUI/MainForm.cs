@@ -87,13 +87,7 @@ public class MainForm : Form
             Font = new Font("Segoe UI", 17, FontStyle.Bold),
             BackColor = Color.FromArgb(30, 58, 95), ForeColor = Color.White
         };
-        var note = new Label
-        {
-            Text = "Tạo máy bay và hạng vé trước khi thêm ghế. Dữ liệu tự lưu trên máy này.",
-            Dock = DockStyle.Bottom, Height = 38, Padding = new Padding(16, 8, 0, 0)
-        };
         Controls.Add(tabs);
         Controls.Add(title);
-        Controls.Add(note);
     }
 }
