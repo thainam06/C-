@@ -29,6 +29,10 @@ không xóa hai hạng vé mặc định. Khi cập nhật dữ liệu cũ, chư
 HV01/HV02 và đổi liên kết ghế dùng HV1/HV2 sang HV01/HV02. Giá và hành lý
 của HV01/HV02 đã có được giữ nguyên; nếu mã mới chưa có thì lấy từ HV1/HV2
 cũ khi có, hoặc dùng giá/hành lý mẫu. Các hạng vé cũ khác vẫn được giữ trong JSON.
+Các tên hạng vé mẫu cũ được đồng bộ trong danh mục và bảng tổng hợp:
+HV03–HV06 dùng tên **Hạng phổ thông**, HV07–HV10 dùng tên **Hạng thương gia**.
+Mã hạng vé, giá và hành lý của các dòng này giữ nguyên. Bảng tổng hợp luôn lấy
+tên từ danh mục Hạng vé theo mã; không dùng tên nhập riêng ở tab Ghế.
 
 Với dữ liệu mới, chương trình nạp một lần 10 máy bay M01–M10 và 10 ghế G01–G10.
 G01–G06 dùng HV01, G07–G10 dùng HV02; G01 thuộc M01, …, G10 thuộc M10.

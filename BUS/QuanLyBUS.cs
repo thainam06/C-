@@ -182,6 +182,13 @@ public class QuanLyBUS
                 thayDoi = true;
             }
         }
+        foreach (var hangVe in moi.HangVe)
+        {
+            var tenChuan = TenHangVeTheoMa(hangVe.MaHV);
+            if (tenChuan == null || hangVe.TenHV == tenChuan) continue;
+            hangVe.TenHV = tenChuan;
+            thayDoi = true;
+        }
         foreach (var ghe in moi.Ghe)
         {
             if (CungMa(ghe.MaHV, "HV1") || CungMa(ghe.MaHV, "HV2"))
@@ -199,9 +206,13 @@ public class QuanLyBUS
 
     public static string? TenHangVeTheoMa(string maHV)
     {
-        if (CungMa(maHV.Trim(), "HV01")) return "Hạng phổ thông";
-        if (CungMa(maHV.Trim(), "HV02")) return "Hạng thương gia";
-        return null;
+        // Gom ten cac hang ve mau cu ve hai nhom, giu nguyen gia va hanh ly.
+        return maHV.Trim().ToUpperInvariant() switch
+        {
+            "HV01" or "HV1" or "HV03" or "HV04" or "HV05" or "HV06" => "Hạng phổ thông",
+            "HV02" or "HV2" or "HV07" or "HV08" or "HV09" or "HV10" => "Hạng thương gia",
+            _ => null
+        };
     }
 
     public List<string> LayTenHangVe() => MauHangVe.Select(x => x.Ten).ToList();
