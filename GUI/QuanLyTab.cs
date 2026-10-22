@@ -22,6 +22,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
     private readonly FlowLayoutPanel buttons;
     private T? dangChon;
     private bool dangNap;
+    private event Action? SauKhiDienForm;
 
     public QuanLyTab(Truong[] truong, Func<string, List<T>> tim,
         Action<T, bool> luu, Action<T> xoa)
@@ -160,6 +161,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
             }
             them.Enabled = false;
             sua.Enabled = nutXoa.Enabled = true;
+            SauKhiDienForm?.Invoke();
             Bao("Đang sửa dòng đã chọn. Bấm Nhập mới để thêm dòng khác.");
         };
 
@@ -172,6 +174,21 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         layout.Controls.Add(thongBao, 0, 4);
         Controls.Add(layout);
         LamMoi();
+    }
+
+    public void RangBuocLuaChon(string nguon, string dich, Func<string, string?> giaTriTheoMa)
+    {
+        var input = oNhap[nguon];
+        var combo = (ComboBox)oNhap[dich];
+        void CapNhat()
+        {
+            var giaTri = giaTriTheoMa(input.Text);
+            if (giaTri != null) combo.SelectedItem = giaTri;
+            combo.Enabled = giaTri == null;
+        }
+        input.TextChanged += (_, _) => CapNhat();
+        SauKhiDienForm += CapNhat;
+        CapNhat();
     }
 
     public void ThemNut(string text, Action action)
@@ -219,6 +236,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         }
         them.Enabled = true;
         sua.Enabled = nutXoa.Enabled = false;
+        SauKhiDienForm?.Invoke();
     }
 
     private void NapBang()

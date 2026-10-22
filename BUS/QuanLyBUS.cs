@@ -158,7 +158,46 @@ public class QuanLyBUS
         return ketQua;
     }
 
-    public List<string> LayTenHangVe() => MauHangVe.Select(x => x.Ten)
+    public static string? LoaiGheTheoHangVe(string maHV)
+    {
+        if (CungMa(maHV.Trim(), "HV1")) return Ghe.Thuong;
+        if (CungMa(maHV.Trim(), "HV2")) return Ghe.Vip;
+        return null;
+    }
+
+    public void CauHinhHangVeMacDinh()
+    {
+        var moi = SaoChep();
+        var thayDoi = false;
+        foreach (var (ma, ten, kg, gia) in new[]
+        {
+            ("HV1", Ghe.Thuong, 20m, 1200000m),
+            ("HV2", Ghe.Vip, 40m, 3000000m)
+        })
+        {
+            var hangVe = moi.HangVe.Find(x => CungMa(x.MaHV, ma));
+            if (hangVe == null)
+            {
+                moi.HangVe.Add(new HangVe(ma, ten, kg, gia));
+                thayDoi = true;
+            }
+            else if (hangVe.TenHV != ten)
+            {
+                hangVe.TenHV = ten;
+                thayDoi = true;
+            }
+        }
+        foreach (var ghe in moi.Ghe)
+        {
+            var loai = LoaiGheTheoHangVe(ghe.MaHV);
+            if (loai == null || ghe.LoaiGhe == loai) continue;
+            ghe.LoaiGhe = loai;
+            thayDoi = true;
+        }
+        if (thayDoi) Luu(moi);
+    }
+
+    public List<string> LayTenHangVe() => new[] { Ghe.Thuong, Ghe.Vip }.Concat(MauHangVe.Select(x => x.Ten))
         .Concat(duLieu.HangVe.Select(x => x.TenHV))
         .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
@@ -235,7 +274,7 @@ public class QuanLyBUS
     public void LuuHangVe(string ma, string ten, decimal hanhLy, decimal donGia, bool sua)
     {
         ma = BatBuoc(ma, "mã hạng vé");
-        ten = BatBuoc(ten, "tên hạng vé");
+        ten = LoaiGheTheoHangVe(ma) ?? BatBuoc(ten, "tên hạng vé");
         if (hanhLy < 0 || donGia < 0) throw new ArgumentException("Hành lý và đơn giá không được âm.");
         var moi = SaoChep();
         var cu = moi.HangVe.Find(x => CungMa(x.MaHV, ma));
@@ -253,6 +292,8 @@ public class QuanLyBUS
 
     public void XoaHangVe(string ma)
     {
+        if (LoaiGheTheoHangVe(ma) != null)
+            throw new ArgumentException("HV1 và HV2 là hạng vé mặc định, không thể xóa. Có thể sửa hành lý và đơn giá.");
         var moi = SaoChep();
         if (moi.Ghe.Any(x => CungMa(x.MaHV, ma)))
             throw new ArgumentException("Hạng vé đang được ghế sử dụng. Hãy đổi hạng vé hoặc xóa ghế trước.");
@@ -273,7 +314,7 @@ public class QuanLyBUS
         var cu = moi.Ghe.Find(x => CungMa(x.MaGhe, ma) && CungMa(x.MaMayBay, mayBay));
         if (sua && cu == null) throw new ArgumentException("Ghế không còn tồn tại.");
         if (!sua && cu != null) throw new ArgumentException("Mã ghế đã tồn tại trên máy bay này.");
-        loaiGhe = BatBuoc(loaiGhe ?? cu?.LoaiGhe ?? Ghe.Thuong, "loại ghế");
+        loaiGhe = BatBuoc(LoaiGheTheoHangVe(hv.MaHV) ?? loaiGhe ?? cu?.LoaiGhe ?? Ghe.Thuong, "loại ghế");
         if (loaiGhe != Ghe.Thuong && loaiGhe != Ghe.Vip)
             throw new ArgumentException("Vui lòng chọn Ghế thường hoặc Ghế VIP.");
         if (cu != null)

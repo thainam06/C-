@@ -18,6 +18,7 @@ public class MainForm : Form
         {
             bus = new QuanLyBUS();
             bus.NapBoDuLieuMauMotLan();
+            bus.CauHinhHangVeMacDinh();
         }
         catch (Exception ex)
         {
@@ -50,6 +51,7 @@ public class MainForm : Form
             q => bus.TimHangVe(q).Cast<HangVe>().ToList(),
             (x, sua) => bus.LuuHangVe(x.MaHV, x.TenHV, x.HanhLyKg, x.DonGiaVe, sua),
             x => bus.XoaHangVe(x.MaHV));
+        hangVe.RangBuocLuaChon("MaHV", "TenHV", QuanLyBUS.LoaiGheTheoHangVe);
 
         var ghe = new QuanLyTab<Ghe>(
             new[]
@@ -60,11 +62,14 @@ public class MainForm : Form
                 new Truong("MaMayBay", "Máy bay", Khoa: true,
                     LuaChon: () => bus.TimMayBay().Cast<MayBay>().Select(x => x.MaMayBay).ToList()),
                 new Truong("MaHV", "Hạng vé",
-                    LuaChon: () => bus.TimHangVe().Cast<HangVe>().Select(x => x.MaHV).ToList())
+                    LuaChon: () => bus.TimHangVe().Cast<HangVe>()
+                        .OrderBy(x => QuanLyBUS.LoaiGheTheoHangVe(x.MaHV) == null ? 1 : 0)
+                        .ThenBy(x => x.MaHV).Select(x => x.MaHV).ToList())
             },
             q => bus.TimGhe(q).Cast<Ghe>().ToList(),
             (x, sua) => bus.LuuGhe(x.MaGhe, x.MaMayBay, x.MaHV, sua, x.LoaiGhe),
             x => bus.XoaGhe(x.MaGhe, x.MaMayBay));
+        ghe.RangBuocLuaChon("MaHV", "LoaiGhe", QuanLyBUS.LoaiGheTheoHangVe);
 
         foreach (var (ten, noiDung) in new (string, Control)[]
         {
