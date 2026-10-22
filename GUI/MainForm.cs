@@ -37,6 +37,15 @@ public class MainForm : Form
             (x, sua) => bus.LuuMayBay(x.MaMayBay, x.MHHK, sua),
             x => bus.XoaMayBay(x.MaMayBay));
 
+        mayBay.ThemNut("Nạp M01–M10", () =>
+        {
+            var soDaThem = bus.NapMayBayMau();
+            MessageBox.Show(soDaThem == 0
+                ? "Đã có đủ mã M01–M10. Dữ liệu hiện tại được giữ nguyên."
+                : $"Đã thêm và lưu {soDaThem} máy bay mẫu. Các mã đã có được giữ nguyên.",
+                "Dữ liệu mẫu", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        });
+
         var hangVe = new QuanLyTab<HangVe>(
             new[]
             {

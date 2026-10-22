@@ -18,6 +18,10 @@ repository vào một thư mục mới trước khi mở project này.
 ## Sử dụng
 
 - **Máy bay:** nhập mã máy bay và mã hãng hàng không.
+  Bấm **Nạp M01–M10** để thêm nhanh 10 máy bay mẫu:
+  M01–M03 thuộc VN, M04–M06 thuộc VJ, M07–M08 thuộc QH, M09–M10 thuộc BL.
+  Chỉ thêm mã còn thiếu (không phân biệt hoa/thường), không ghi đè mã đã có.
+  Dữ liệu mẫu được lưu ngay vào JSON và có thể sửa/xóa như dữ liệu nhập tay.
 - **Hạng vé:** nhập mã, tên, hành lý (kg) và đơn giá vé (VNĐ).
 - **Ghế:** tạo máy bay và hạng vé trước, sau đó chọn chúng trong danh sách.
   Mã ghế là duy nhất trong từng máy bay; hai máy bay có thể cùng có ghế `1A`.

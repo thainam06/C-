@@ -90,6 +90,22 @@ public class QuanLyBUS
     public ArrayList TimGhe(string tuKhoa = "") => Tim(new ArrayList(SaoChep().Ghe), tuKhoa,
         x => new[] { ((Ghe)x).MaGhe, ((Ghe)x).MaMayBay, ((Ghe)x).MaHV });
 
+    public int NapMayBayMau()
+    {
+        var moi = SaoChep();
+        var cacHang = new[] { "VN", "VN", "VN", "VJ", "VJ", "VJ", "QH", "QH", "BL", "BL" };
+        var soDaThem = 0;
+        for (var i = 0; i < cacHang.Length; i++)
+        {
+            var ma = $"M{i + 1:00}";
+            if (moi.MayBay.Any(x => CungMa(x.MaMayBay, ma))) continue;
+            moi.MayBay.Add(new MayBay(ma, cacHang[i]));
+            soDaThem++;
+        }
+        if (soDaThem > 0) Luu(moi);
+        return soDaThem;
+    }
+
     public void LuuMayBay(string ma, string mhhk, bool sua)
     {
         ma = BatBuoc(ma, "mã máy bay");

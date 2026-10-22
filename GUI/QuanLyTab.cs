@@ -19,6 +19,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
     private readonly Button them;
     private readonly Button sua;
     private readonly Button nutXoa;
+    private readonly FlowLayoutPanel buttons;
     private T? dangChon;
     private bool dangNap;
 
@@ -67,7 +68,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
             editor.Controls.Add(input, 1, i);
         }
 
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false };
+        buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false };
         them = Nut("Thêm", (_, _) => ThucHien(() =>
         {
             luu(DocForm(), false);
@@ -167,6 +168,17 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         layout.Controls.Add(thongBao, 0, 4);
         Controls.Add(layout);
         LamMoi();
+    }
+
+    public void ThemNut(string text, Action action)
+    {
+        var button = Nut(text, (_, _) => ThucHien(() =>
+        {
+            action();
+            LamMoi();
+        }));
+        button.Width = 155;
+        buttons.Controls.Add(button);
     }
 
     private static PropertyInfo ThuocTinh(Truong field) => typeof(T).GetProperty(field.ThuocTinh)!;
