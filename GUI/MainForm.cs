@@ -7,19 +7,21 @@ public class MainForm : Form
 {
     public MainForm()
     {
-        Text = "Quản lý máy bay";
+        Text = "Quản lý máy bay và khách hàng";
         StartPosition = FormStartPosition.CenterScreen;
         MinimumSize = new Size(900, 650);
         Size = new Size(1100, 760);
         Font = new Font("Segoe UI", 10);
 
         QuanLyBUS bus;
+        KhachHangBUS khachHangBus;
         try
         {
             bus = new QuanLyBUS();
             bus.NapBoDuLieuMauMotLan();
             bus.CauHinhHangVeMacDinh();
             bus.CapNhatHangM01M02MotLan();
+            khachHangBus = new KhachHangBUS();
         }
         catch (Exception ex)
         {
@@ -75,7 +77,8 @@ public class MainForm : Form
 
         foreach (var (ten, noiDung) in new (string, Control)[]
         {
-            ("Bảng tổng hợp", tongQuan), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe)
+            ("Bảng tổng hợp", tongQuan), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe),
+            ("Khách hàng", new KhachHangView(khachHangBus))
         })
         {
             var page = new TabPage(ten) { Padding = new Padding(12) };
@@ -91,7 +94,7 @@ public class MainForm : Form
 
         var title = new Label
         {
-            Text = "QUẢN LÝ MÁY BAY · GHẾ · HẠNG VÉ",
+            Text = "QUẢN LÝ MÁY BAY · GHẾ · HẠNG VÉ · KHÁCH HÀNG",
             Dock = DockStyle.Top, Height = 66, Padding = new Padding(20, 18, 0, 0),
             Font = new Font("Segoe UI", 17, FontStyle.Bold),
             BackColor = Color.FromArgb(30, 58, 95), ForeColor = Color.White

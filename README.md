@@ -1,6 +1,6 @@
 # Quản lý máy bay
 
-Ứng dụng C# WinForms quản lý Máy bay, Ghế và Hạng vé.
+Ứng dụng C# WinForms quản lý Máy bay, Ghế, Hạng vé và Khách hàng.
 
 ## Mở bằng Visual Studio
 
@@ -79,6 +79,25 @@ Nếu file hỏng hoặc không đọc được, ứng dụng báo lỗi và đ�
 Chỉ chạy một phiên ứng dụng tại một thời điểm khi sửa cùng file dữ liệu.
 
 ## Cấu trúc
+
+### Khách hàng: GUI – BUS – DAO
+
+- `GUI/KhachHangView.cs`: tab **Khách hàng** có đủ tám ô nhập và các nút
+  Thêm, Sửa, Xóa, Nhập mới, Tìm kiếm. Mật khẩu được che và không hiển thị trong bảng.
+- `BUS/KhachHangBUS.cs`: tìm kiếm trên `ArrayList`; kiểm tra mã KH, CCCD, tài khoản
+  không trùng; CCCD đủ 12 chữ số; SĐT 9–15 chữ số (có thể có dấu `+`); email hợp lệ.
+  Các thông tin đều bắt buộc khi thêm. Khi sửa, để trống mật khẩu để giữ mật khẩu cũ.
+- `DAO/KhachHangDAO.cs`: đọc/ghi file
+  `%LOCALAPPDATA%\QuanLyMayBay\khachhang.json`, riêng với dữ liệu máy bay.
+  Mật khẩu lưu dưới dạng PBKDF2-SHA256 có salt, không lưu nguyên văn.
+- `DTO/KhachHang.cs`: dữ liệu truyền giữa các lớp; kết quả tìm kiếm gửi lên GUI
+  có `MatKhau` rỗng. Mã khách hàng không đổi khi sửa. Module này chưa có chức năng đăng nhập.
+
+Chạy kiểm tra Khách hàng (không cần Windows hay SQL Server):
+
+```powershell
+dotnet run --project Tests/KhachHangChecks/Checks.csproj -c Release
+```
 
 - `DTO`: `MayBay`, `Ghe`, `HangVe` chứa dữ liệu.
 - `GUI`: `MainForm`, bảng tổng hợp `MayBayGheView` và các tab nhập liệu/hiển thị.

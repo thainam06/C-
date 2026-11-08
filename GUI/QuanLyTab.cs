@@ -7,7 +7,7 @@ internal record MucLuaChon(string GiaTri, string HienThi);
 
 internal record Truong(string ThuocTinh, string Nhan, bool Khoa = false,
     bool So = false, Func<List<string>>? LuaChon = null,
-    Func<List<MucLuaChon>>? LuaChonCoNhan = null);
+    Func<List<MucLuaChon>>? LuaChonCoNhan = null, bool LaMatKhau = false);
 
 internal class QuanLyTab<T> : UserControl where T : class, new()
 {
@@ -38,23 +38,30 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
 
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5 };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, truong.Length * 42 + 12));
+        var soCotNhap = truong.Length > 4 ? 2 : 1;
+        var soDongNhap = (truong.Length + soCotNhap - 1) / soCotNhap;
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, soDongNhap * 42 + 12));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
 
-        var editor = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = truong.Length };
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 190));
-        editor.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        var editor = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = soCotNhap * 2, RowCount = soDongNhap };
+        for (int i = 0; i < soCotNhap; i++)
+        {
+            editor.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, soCotNhap == 1 ? 190 : 140));
+            editor.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / soCotNhap));
+        }
+        for (int i = 0; i < soDongNhap; i++) editor.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
         for (int i = 0; i < truong.Length; i++)
         {
             var field = truong[i];
-            editor.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
+            var cot = i % soCotNhap * 2;
+            var dong = i / soCotNhap;
             editor.Controls.Add(new Label
             {
                 Text = field.Nhan, AutoSize = true, Anchor = AnchorStyles.Left
-            }, 0, i);
+            }, cot, dong);
             Control input;
             if (field.So)
                 input = new NumericUpDown
@@ -68,12 +75,16 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                     DropDownStyle = ComboBoxStyle.DropDownList, DropDownWidth = 400,
                     MaxDropDownItems = 10, IntegralHeight = false
                 };
-            else input = new TextBox { MaxLength = 255 };
+            else input = new TextBox
+            {
+                MaxLength = 255, UseSystemPasswordChar = field.LaMatKhau,
+                PlaceholderText = field.LaMatKhau ? "Khi sửa: để trống để giữ mật khẩu" : ""
+            };
             input.Dock = DockStyle.Fill;
             input.Margin = new Padding(3, 7, 3, 3);
             input.AccessibleName = field.Nhan;
             oNhap.Add(field.ThuocTinh, input);
-            editor.Controls.Add(input, 1, i);
+            editor.Controls.Add(input, cot + 1, dong);
         }
 
         buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false };
@@ -140,6 +151,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         bang.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 245, 250);
         foreach (var field in truong)
         {
+            if (field.LaMatKhau) continue;
             var column = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = field.ThuocTinh, HeaderText = field.Nhan,
@@ -157,7 +169,8 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
             {
                 var value = ThuocTinh(field).GetValue(item);
                 var input = oNhap[field.ThuocTinh];
-                if (input is NumericUpDown number) number.Value = (decimal)value!;
+                if (field.LaMatKhau) input.Text = "";
+                else if (input is NumericUpDown number) number.Value = (decimal)value!;
                 else if (input is ComboBox combo) ChonTheoMa(combo, (string)value!);
                 else input.Text = (string)value!;
                 input.Enabled = !field.Khoa;
@@ -244,7 +257,8 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         foreach (var field in truong)
         {
             var input = oNhap[field.ThuocTinh];
-            object value = input is NumericUpDown number ? number.Value : DocChuoi(input);
+            object value = input is NumericUpDown number ? number.Value
+                : field.LaMatKhau ? input.Text : DocChuoi(input);
             ThuocTinh(field).SetValue(item, value);
         }
         return item;
