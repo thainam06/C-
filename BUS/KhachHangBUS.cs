@@ -9,11 +9,13 @@ namespace QuanLyMayBay.BUS;
 public class KhachHangBUS
 {
     private readonly KhachHangDAO dao;
+    private readonly HanhKhachDAO hanhKhachDAO;
     private List<KhachHang> danhSach;
 
-    public KhachHangBUS(KhachHangDAO? dao = null)
+    public KhachHangBUS(KhachHangDAO? dao = null, HanhKhachDAO? hanhKhachDAO = null)
     {
         this.dao = dao ?? new KhachHangDAO();
+        this.hanhKhachDAO = hanhKhachDAO ?? new HanhKhachDAO(Path.Combine(this.dao.ThuMuc, "hanhkhach.json"));
         danhSach = this.dao.Doc();
         try
         {
@@ -136,6 +138,8 @@ public class KhachHangBUS
     public void Xoa(string maKH)
     {
         maKH = BatBuoc(maKH, "mã khách hàng");
+        if (hanhKhachDAO.Doc().Any(x => CungMa(x.MaKH, maKH)))
+            throw new ArgumentException("Khách hàng đang có hành khách liên quan. Hãy đổi khách hàng hoặc xóa hành khách trước.");
         var moi = danhSach.Select(x => SaoChep(x)).ToList();
         if (moi.RemoveAll(x => CungMa(x.MaKH, maKH)) == 0)
             throw new ArgumentException("Không tìm thấy khách hàng cần xóa.");

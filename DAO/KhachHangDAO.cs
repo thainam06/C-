@@ -6,6 +6,7 @@ namespace QuanLyMayBay.DAO;
 public class KhachHangDAO
 {
     private readonly string duongDan;
+    internal string ThuMuc => Path.GetDirectoryName(duongDan)!;
 
     public KhachHangDAO(string? duongDan = null)
     {

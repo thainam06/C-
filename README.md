@@ -1,6 +1,6 @@
 # Quản lý máy bay
 
-Ứng dụng C# WinForms quản lý Máy bay, Ghế, Hạng vé và Khách hàng.
+Ứng dụng C# WinForms quản lý Máy bay, Ghế, Hạng vé, Khách hàng và Hành khách.
 
 ## Mở bằng Visual Studio
 
@@ -79,6 +79,30 @@ Nếu file hỏng hoặc không đọc được, ứng dụng báo lỗi và đ�
 Chỉ chạy một phiên ứng dụng tại một thời điểm khi sửa cùng file dữ liệu.
 
 ## Cấu trúc
+
+### Hành khách: GUI – BUS – DAO
+
+- `DTO/HanhKhach.cs`: `MaHK`, `HoTen`, `NgaySinh` (`DateTime`), `CCCD`,
+  `GioiTinh`, `MaKH`, `LoaiKH`; các mã và CCCD dùng `string`.
+- `GUI/HanhKhachView.cs`: tab **Hành khách** có Thêm/Sửa/Xóa/Nhập mới/Tìm kiếm;
+  chọn ngày sinh bằng lịch, giới tính Nam/Nữ/Khác, chọn khách hàng theo **mã – tên**.
+- `BUS/HanhKhachBUS.cs`: tìm kiếm `ArrayList`, chặn trùng mã hành khách và CCCD
+  khi có nhập, chặn ngày sinh tương lai và kiểm tra `MaKH` phải tồn tại.
+- `DAO/HanhKhachDAO.cs`: lưu riêng tại
+  `%LOCALAPPDATA%\QuanLyMayBay\hanhkhach.json`, không cần SQL Server.
+
+Tạo Khách hàng trước rồi thêm Hành khách. `LoaiKH` nhập tự do để dùng đúng
+danh mục của nhóm; chưa áp đặt quy tắc phân loại theo tuổi. CCCD có thể trống
+(ví dụ trẻ chưa có CCCD); nếu nhập thì cần 12 chữ số. Các trường còn lại bắt buộc.
+Một khách hàng có nhiều hành khách. Không xóa khách hàng đang có hành khách liên quan;
+cần chuyển hành khách sang khách hàng khác hoặc xóa hành khách trước.
+Quay lại tab Hành khách sau khi thêm khách hàng để cập nhật danh sách chọn.
+
+Chạy kiểm tra module Hành khách:
+
+```powershell
+dotnet run --project Tests/HanhKhachChecks/Checks.csproj -c Release
+```
 
 ### Khách hàng: GUI – BUS – DAO
 

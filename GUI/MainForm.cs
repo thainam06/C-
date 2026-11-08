@@ -15,6 +15,7 @@ public class MainForm : Form
 
         QuanLyBUS bus;
         KhachHangBUS khachHangBus;
+        HanhKhachBUS hanhKhachBus;
         try
         {
             bus = new QuanLyBUS();
@@ -22,6 +23,7 @@ public class MainForm : Form
             bus.CauHinhHangVeMacDinh();
             bus.CapNhatHangM01M02MotLan();
             khachHangBus = new KhachHangBUS();
+            hanhKhachBus = new HanhKhachBUS();
         }
         catch (Exception ex)
         {
@@ -33,6 +35,7 @@ public class MainForm : Form
 
         var tabs = new TabControl { Dock = DockStyle.Fill };
         var tongQuan = new MayBayGheView(bus);
+        var hanhKhach = new HanhKhachView(hanhKhachBus);
         var mayBay = new QuanLyTab<MayBay>(
             new[]
             {
@@ -78,7 +81,7 @@ public class MainForm : Form
         foreach (var (ten, noiDung) in new (string, Control)[]
         {
             ("Bảng tổng hợp", tongQuan), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe),
-            ("Khách hàng", new KhachHangView(khachHangBus))
+            ("Khách hàng", new KhachHangView(khachHangBus)), ("Hành khách", hanhKhach)
         })
         {
             var page = new TabPage(ten) { Padding = new Padding(12) };
@@ -90,6 +93,7 @@ public class MainForm : Form
             // Nap lai cac ma tham chieu khi chuyen tu may bay/hang ve sang ghe.
             if (tabs.SelectedIndex == 0) tongQuan.LamMoi();
             if (tabs.SelectedIndex == 3) ghe.LamMoi();
+            if (tabs.SelectedIndex == 5) hanhKhach.LamMoi();
         };
 
         var title = new Label

@@ -7,7 +7,7 @@ internal record MucLuaChon(string GiaTri, string HienThi);
 
 internal record Truong(string ThuocTinh, string Nhan, bool Khoa = false,
     bool So = false, Func<List<string>>? LuaChon = null,
-    Func<List<MucLuaChon>>? LuaChonCoNhan = null, bool LaMatKhau = false);
+    Func<List<MucLuaChon>>? LuaChonCoNhan = null, bool LaMatKhau = false, bool LaNgaySinh = false);
 
 internal class QuanLyTab<T> : UserControl where T : class, new()
 {
@@ -63,7 +63,13 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 Text = field.Nhan, AutoSize = true, Anchor = AnchorStyles.Left
             }, cot, dong);
             Control input;
-            if (field.So)
+            if (field.LaNgaySinh)
+                input = new DateTimePicker
+                {
+                    Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy",
+                    MaxDate = DateTime.Today, Value = DateTime.Today
+                };
+            else if (field.So)
                 input = new NumericUpDown
                 {
                     DecimalPlaces = 2, Minimum = 0, Maximum = decimal.MaxValue,
@@ -158,6 +164,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 SortMode = DataGridViewColumnSortMode.NotSortable
             };
             if (field.So) column.DefaultCellStyle.Format = "N2";
+            if (field.LaNgaySinh) column.DefaultCellStyle.Format = "dd/MM/yyyy";
             bang.Columns.Add(column);
         }
         bang.SelectionChanged += (_, _) =>
@@ -170,6 +177,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 var value = ThuocTinh(field).GetValue(item);
                 var input = oNhap[field.ThuocTinh];
                 if (field.LaMatKhau) input.Text = "";
+                else if (input is DateTimePicker ngay) ngay.Value = (DateTime)value!;
                 else if (input is NumericUpDown number) number.Value = (decimal)value!;
                 else if (input is ComboBox combo) ChonTheoMa(combo, (string)value!);
                 else input.Text = (string)value!;
@@ -258,6 +266,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         {
             var input = oNhap[field.ThuocTinh];
             object value = input is NumericUpDown number ? number.Value
+                : input is DateTimePicker ngay ? ngay.Value.Date
                 : field.LaMatKhau ? input.Text : DocChuoi(input);
             ThuocTinh(field).SetValue(item, value);
         }
@@ -271,7 +280,8 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         {
             var input = oNhap[field.ThuocTinh];
             input.Enabled = true;
-            if (input is NumericUpDown number) number.Value = 0;
+            if (input is DateTimePicker ngay) ngay.Value = DateTime.Today;
+            else if (input is NumericUpDown number) number.Value = 0;
             else if (input is ComboBox combo) combo.SelectedIndex = -1;
             else input.Text = "";
         }

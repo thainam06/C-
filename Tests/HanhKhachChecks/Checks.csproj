@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../DTO/KhachHang.cs" Link="DTO/KhachHang.cs" />
+    <Compile Include="../../DTO/HanhKhach.cs" Link="DTO/HanhKhach.cs" />
+    <Compile Include="../../BUS/KhachHangBUS.cs" Link="BUS/KhachHangBUS.cs" />
+    <Compile Include="../../BUS/HanhKhachBUS.cs" Link="BUS/HanhKhachBUS.cs" />
+    <Compile Include="../../DAO/KhachHangDAO.cs" Link="DAO/KhachHangDAO.cs" />
+    <Compile Include="../../DAO/HanhKhachDAO.cs" Link="DAO/HanhKhachDAO.cs" />
+  </ItemGroup>
+</Project>
