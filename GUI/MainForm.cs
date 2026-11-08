@@ -16,6 +16,9 @@ public class MainForm : Form
         QuanLyBUS bus;
         KhachHangBUS khachHangBus;
         HanhKhachBUS hanhKhachBus;
+        NhanVienBUS nhanVienBus;
+        CTKMBUS ctkmBus;
+        VoucherBUS voucherBus;
         try
         {
             bus = new QuanLyBUS();
@@ -24,6 +27,9 @@ public class MainForm : Form
             bus.CapNhatHangM01M02MotLan();
             khachHangBus = new KhachHangBUS();
             hanhKhachBus = new HanhKhachBUS();
+            nhanVienBus = new NhanVienBUS();
+            ctkmBus = new CTKMBUS();
+            voucherBus = new VoucherBUS();
         }
         catch (Exception ex)
         {
@@ -36,6 +42,7 @@ public class MainForm : Form
         var tabs = new TabControl { Dock = DockStyle.Fill };
         var tongQuan = new MayBayGheView(bus);
         var hanhKhach = new HanhKhachView(hanhKhachBus);
+        var voucher = new VoucherView(voucherBus);
         var mayBay = new QuanLyTab<MayBay>(
             new[]
             {
@@ -81,7 +88,9 @@ public class MainForm : Form
         foreach (var (ten, noiDung) in new (string, Control)[]
         {
             ("Bảng tổng hợp", tongQuan), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe),
-            ("Khách hàng", new KhachHangView(khachHangBus)), ("Hành khách", hanhKhach)
+            ("Khách hàng", new KhachHangView(khachHangBus)), ("Hành khách", hanhKhach),
+            ("Nhân viên", new NhanVienView(nhanVienBus)), ("CTKM", new CTKMView(ctkmBus)),
+            ("Voucher", voucher)
         })
         {
             var page = new TabPage(ten) { Padding = new Padding(12) };
@@ -94,6 +103,7 @@ public class MainForm : Form
             if (tabs.SelectedIndex == 0) tongQuan.LamMoi();
             if (tabs.SelectedIndex == 3) ghe.LamMoi();
             if (tabs.SelectedIndex == 5) hanhKhach.LamMoi();
+            if (tabs.SelectedIndex == 8) voucher.LamMoi();
         };
 
         var title = new Label

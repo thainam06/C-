@@ -7,7 +7,8 @@ internal record MucLuaChon(string GiaTri, string HienThi);
 
 internal record Truong(string ThuocTinh, string Nhan, bool Khoa = false,
     bool So = false, Func<List<string>>? LuaChon = null,
-    Func<List<MucLuaChon>>? LuaChonCoNhan = null, bool LaMatKhau = false, bool LaNgaySinh = false);
+    Func<List<MucLuaChon>>? LuaChonCoNhan = null, bool LaMatKhau = false, bool LaNgaySinh = false,
+    bool LaNgay = false, decimal? GiaTriToiDa = null);
 
 internal class QuanLyTab<T> : UserControl where T : class, new()
 {
@@ -63,16 +64,17 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 Text = field.Nhan, AutoSize = true, Anchor = AnchorStyles.Left
             }, cot, dong);
             Control input;
-            if (field.LaNgaySinh)
+            if (field.LaNgaySinh || field.LaNgay)
                 input = new DateTimePicker
                 {
                     Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy",
-                    MaxDate = DateTime.Today, Value = DateTime.Today
+                    MaxDate = field.LaNgaySinh ? DateTime.Today : DateTimePicker.MaximumDateTime,
+                    Value = DateTime.Today
                 };
             else if (field.So)
                 input = new NumericUpDown
                 {
-                    DecimalPlaces = 2, Minimum = 0, Maximum = decimal.MaxValue,
+                    DecimalPlaces = 2, Minimum = 0, Maximum = field.GiaTriToiDa ?? decimal.MaxValue,
                     ThousandsSeparator = true
                 };
             else if (field.LuaChon != null || field.LuaChonCoNhan != null)
@@ -164,7 +166,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 SortMode = DataGridViewColumnSortMode.NotSortable
             };
             if (field.So) column.DefaultCellStyle.Format = "N2";
-            if (field.LaNgaySinh) column.DefaultCellStyle.Format = "dd/MM/yyyy";
+            if (field.LaNgaySinh || field.LaNgay) column.DefaultCellStyle.Format = "dd/MM/yyyy";
             bang.Columns.Add(column);
         }
         bang.SelectionChanged += (_, _) =>

@@ -1,6 +1,7 @@
 # Quản lý máy bay
 
-Ứng dụng C# WinForms quản lý Máy bay, Ghế, Hạng vé, Khách hàng và Hành khách.
+Ứng dụng C# WinForms quản lý Máy bay, Ghế, Hạng vé, Khách hàng, Hành khách,
+Nhân viên, CTKM và Voucher.
 
 ## Mở bằng Visual Studio
 
@@ -79,6 +80,34 @@ Nếu file hỏng hoặc không đọc được, ứng dụng báo lỗi và đ�
 Chỉ chạy một phiên ứng dụng tại một thời điểm khi sửa cùng file dữ liệu.
 
 ## Cấu trúc
+
+### Nhân viên, CTKM và Voucher: GUI – BUS – DAO
+
+Mỗi module có DTO, BUS, DAO và View riêng; cả ba tab đều có
+Thêm/Sửa/Xóa/Nhập mới/Tìm kiếm. Mã là duy nhất, không phân biệt hoa/thường và
+không đổi khi sửa. Tìm kiếm trên `ArrayList` tại BUS.
+
+| Tab | Thuộc tính | Quy tắc |
+|---|---|---|
+| Nhân viên | `MaNV`, `Ho`, `Ten`, `ChucVu` | Các trường bắt buộc; tìm được cả họ và tên ghép |
+| CTKM | `MaCTKM`, `TenCTKM`, `NgayBatDau`, `NgayKetThuc` | Chọn ngày bằng lịch, ngày kết thúc từ ngày bắt đầu trở đi; cho phép CTKM tương lai và cùng ngày |
+| Voucher | `MaVoucher`, `MaCTKM`, `GiamGia` | Chọn CTKM theo mã – tên; giảm giá là phần trăm, lớn hơn 0 và không quá 100 |
+
+Tạo CTKM trước khi thêm Voucher. Một CTKM có nhiều Voucher, không xóa CTKM
+đang có Voucher liên quan. Chuyển/xóa các Voucher trước nếu cần xóa CTKM.
+Sau khi thêm/sửa CTKM, quay lại tab Voucher để cập nhật danh sách chọn.
+`GiamGia` dùng `decimal`: nhập `10.5` nghĩa là giảm **10,5%**.
+Module hiện quản lý danh mục, chưa có chức năng áp Voucher vào hóa đơn/đặt vé.
+
+Dữ liệu lưu riêng trong `%LOCALAPPDATA%\QuanLyMayBay`:
+`nhanvien.json`, `ctkm.json`, `voucher.json`; không cần SQL Server.
+`DAO/JsonDanhSachDAO.cs` dùng chung thao tác đọc/ghi an toàn cho ba DAO này.
+
+Chạy kiểm tra ba module:
+
+```powershell
+dotnet run --project Tests/NhanVienKhuyenMaiChecks/Checks.csproj -c Release
+```
 
 ### Hành khách: GUI – BUS – DAO
 
