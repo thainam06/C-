@@ -15,6 +15,9 @@ public class DuLieu
 public class DuLieuDAO
 {
     private readonly string duongDan;
+    private readonly PhienBangSql<MayBay> sqlMayBay = new();
+    private readonly PhienBangSql<HangVe> sqlHangVe = new();
+    private readonly PhienBangSql<Ghe> sqlGhe = new();
 
     public DuLieuDAO(string? duongDan = null)
     {
@@ -25,6 +28,12 @@ public class DuLieuDAO
 
     public DuLieu Doc()
     {
+        if (sqlMayBay.ThuDoc(out var mayBay))
+        {
+            sqlHangVe.ThuDoc(out var hangVe);
+            sqlGhe.ThuDoc(out var ghe);
+            return new DuLieu { MayBay = mayBay, HangVe = hangVe, Ghe = ghe };
+        }
         if (!File.Exists(duongDan))
             return new DuLieu();
 
@@ -38,6 +47,8 @@ public class DuLieuDAO
 
     public void Luu(DuLieu duLieu)
     {
+        if (SqlServerDanhSachDAO.ThuLuuNhieu(new[]
+            { sqlMayBay.TaoLo(duLieu.MayBay), sqlHangVe.TaoLo(duLieu.HangVe), sqlGhe.TaoLo(duLieu.Ghe) })) return;
         var thuMuc = Path.GetDirectoryName(Path.GetFullPath(duongDan))!;
         Directory.CreateDirectory(thuMuc);
         var tam = duongDan + ".tmp";

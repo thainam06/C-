@@ -6,6 +6,7 @@ namespace QuanLyMayBay.DAO;
 public class KhachHangDAO
 {
     private readonly string duongDan;
+    private readonly PhienBangSql<KhachHang> sql = new();
     internal string ThuMuc => Path.GetDirectoryName(duongDan)!;
 
     public KhachHangDAO(string? duongDan = null)
@@ -17,6 +18,7 @@ public class KhachHangDAO
 
     public List<KhachHang> Doc()
     {
+        if (sql.ThuDoc(out var dataSql)) return dataSql;
         if (!File.Exists(duongDan)) return new List<KhachHang>();
         return JsonSerializer.Deserialize<List<KhachHang>>(File.ReadAllText(duongDan))
             ?? throw new InvalidDataException("File khách hàng không hợp lệ.");
@@ -24,6 +26,7 @@ public class KhachHangDAO
 
     public void Luu(IReadOnlyCollection<KhachHang> danhSach)
     {
+        if (sql.ThuLuu(danhSach)) return;
         Directory.CreateDirectory(Path.GetDirectoryName(duongDan)!);
         var fileTam = duongDan + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try

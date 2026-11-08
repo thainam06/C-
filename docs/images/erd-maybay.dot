@@ -1,0 +1,1 @@
+digraph G { graph [rankdir=LR,bgcolor="white",dpi=170]; node [shape=record,fontname="DejaVu Sans",fontsize=12]; edge [fontname="DejaVu Sans",fontsize=11]; m[label="MayBay|MaMayBay (PK)|MHHK"]; g[label="Ghe|MaMayBay + MaGhe (PK)|MaHV (FK)|LoaiGhe"]; h[label="HangVe|MaHV (PK)|TenHV|HanhLyKg|DonGiaVe"]; m -> g[label="1 - n"]; h -> g[label="1 - n"];}

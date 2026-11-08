@@ -6,15 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../DTO/NhanVien.cs" Link="DTO/NhanVien.cs" />
-    <Compile Include="../../DTO/CTKM.cs" Link="DTO/CTKM.cs" />
-    <Compile Include="../../DTO/Voucher.cs" Link="DTO/Voucher.cs" />
-    <Compile Include="../../BUS/NhanVienBUS.cs" Link="BUS/NhanVienBUS.cs" />
-    <Compile Include="../../BUS/CTKMBUS.cs" Link="BUS/CTKMBUS.cs" />
-    <Compile Include="../../BUS/VoucherBUS.cs" Link="BUS/VoucherBUS.cs" />
-    <Compile Include="../../DAO/JsonDanhSachDAO.cs" Link="DAO/JsonDanhSachDAO.cs" />
-    <Compile Include="../../DAO/NhanVienDAO.cs" Link="DAO/NhanVienDAO.cs" />
-    <Compile Include="../../DAO/CTKMDAO.cs" Link="DAO/CTKMDAO.cs" />
-    <Compile Include="../../DAO/VoucherDAO.cs" Link="DAO/VoucherDAO.cs" />
+    <ProjectReference Include="../../Core/QuanLyMayBay.Core.csproj" />
   </ItemGroup>
 </Project>

@@ -10,6 +10,7 @@ internal static class NhanVienKhuyenMaiChecks
 {
     public static void Main()
     {
+        Environment.SetEnvironmentVariable("QLMB_SQL_CONNECTION", null);
         var folder = Path.Combine(Path.GetTempPath(), "nhanvien-khuyenmai-" + Guid.NewGuid());
         Directory.CreateDirectory(folder);
         int passed = 0;

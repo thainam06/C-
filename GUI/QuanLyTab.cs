@@ -1,5 +1,9 @@
 using System.ComponentModel;
 using System.Reflection;
+using System.Collections;
+using System.Globalization;
+using QuanLyMayBay.BUS;
+using QuanLyMayBay.Services;
 
 namespace QuanLyMayBay.GUI;
 
@@ -27,9 +31,11 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
     private T? dangChon;
     private bool dangNap;
     private event Action? SauKhiDienForm;
+    private string bieuThuc = "";
+    private List<T> dangHienThi = new();
 
     public QuanLyTab(Truong[] truong, Func<string, List<T>> tim,
-        Action<T, bool> luu, Action<T> xoa)
+        Action<T, bool> luu, Action<T> xoa, Action<List<T>>? nhapExcel = null)
     {
         this.truong = truong;
         this.tim = tim;
@@ -37,12 +43,13 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         this.xoa = xoa;
         Dock = DockStyle.Fill;
 
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5 };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 6 };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         var soCotNhap = truong.Length > 4 ? 2 : 1;
         var soDongNhap = (truong.Length + soCotNhap - 1) / soCotNhap;
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, soDongNhap * 42 + 12));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 84));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
@@ -92,7 +99,31 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
             input.Margin = new Padding(3, 7, 3, 3);
             input.AccessibleName = field.Nhan;
             oNhap.Add(field.ThuocTinh, input);
-            editor.Controls.Add(input, cot + 1, dong);
+            if (input is ComboBox comboInput)
+            {
+                var panel = new Panel { Dock = DockStyle.Fill, Margin = input.Margin };
+                input.Margin = Padding.Empty;
+                var lookup = new Button { Text = "...", Dock = DockStyle.Right, Width = 34, AccessibleName = "Tìm " + field.Nhan };
+                lookup.Click += (_, _) => ThucHien(() =>
+                {
+                    var options = field.LuaChonCoNhan?.Invoke()
+                        ?? field.LuaChon!().Select(x => new MucLuaChon(x, x)).ToList();
+                    using var dialog = new ChonDuLieuForm(options);
+                    if (dialog.ShowDialog(this) != DialogResult.OK || ChonDuLieuForm.DaChon == null) return;
+                    if (field.LuaChonCoNhan != null)
+                    {
+                        comboInput.DisplayMember = nameof(MucLuaChon.HienThi);
+                        comboInput.ValueMember = nameof(MucLuaChon.GiaTri);
+                        comboInput.DataSource = options;
+                    }
+                    else comboInput.DataSource = options.Select(x => x.GiaTri).ToList();
+                    ChonTheoMa(comboInput, ChonDuLieuForm.DaChon.GiaTri);
+                });
+                comboInput.EnabledChanged += (_, _) => lookup.Enabled = comboInput.Enabled;
+                panel.Controls.Add(input); panel.Controls.Add(lookup);
+                editor.Controls.Add(panel, cot + 1, dong);
+            }
+            else editor.Controls.Add(input, cot + 1, dong);
         }
 
         buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false };
@@ -123,6 +154,47 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
             them, sua, nutXoa, Nut("Nhập mới", (_, _) => LamMoi())
         });
 
+        var tools = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = true, AutoScroll = true };
+        tools.Controls.Add(Nut("Lọc nâng cao", (_, _) => ThucHien(() =>
+        {
+            using var dialog = new LocNangCaoForm(bieuThuc, truong.Where(x => !x.LaMatKhau).Select(x => x.ThuocTinh),
+                expression => LocNangCaoBUS.Loc<T>(new ArrayList(), expression));
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+            bieuThuc = dialog.BieuThuc; NapBang();
+        })));
+        tools.Controls.Add(Nut("Xuất XLS", (_, _) => ThucHien(() =>
+        {
+            using var file = new SaveFileDialog { Filter = "Excel 97–2003 (*.xls)|*.xls", FileName = typeof(T).Name + ".xls" };
+            if (file.ShowDialog(this) == DialogResult.OK) ExcelService.Xuat(file.FileName, dangHienThi);
+        })));
+        tools.Controls.Add(Nut("Xuất PDF", (_, _) => ThucHien(() =>
+        {
+            using var file = new SaveFileDialog { Filter = "PDF (*.pdf)|*.pdf", FileName = typeof(T).Name + ".pdf" };
+            if (file.ShowDialog(this) != DialogResult.OK) return;
+            var columns = truong.Where(x => !x.LaMatKhau).ToArray();
+            PdfService.XuatBang(file.FileName, "DANH SÁCH " + typeof(T).Name, columns.Select(x => x.Nhan).ToArray(),
+                dangHienThi.Select(x => columns.Select(c => ThuocTinh(c).GetValue(x) is DateTime date
+                    ? date.ToString("dd/MM/yyyy") : Convert.ToString(ThuocTinh(c).GetValue(x), CultureInfo.InvariantCulture) ?? "").ToArray()).ToList());
+        })));
+        if (nhapExcel != null)
+        {
+            tools.Controls.Add(Nut("Mẫu XLS", (_, _) => ThucHien(() =>
+            {
+                using var file = new SaveFileDialog { Filter = "Excel (*.xls)|*.xls", FileName = "Mau_" + typeof(T).Name + ".xls" };
+                if (file.ShowDialog(this) == DialogResult.OK) ExcelService.Xuat(file.FileName, new List<T>());
+            })));
+            tools.Controls.Add(Nut("Nhập Excel", (_, _) => ThucHien(() =>
+            {
+                using var file = new OpenFileDialog { Filter = "Excel (*.xls;*.xlsx)|*.xls;*.xlsx" };
+                if (file.ShowDialog(this) != DialogResult.OK) return;
+                var rows = ExcelService.Nhap<T>(file.FileName);
+                if (rows.Count == 0) throw new ArgumentException("Không có dòng dữ liệu để nhập.");
+                if (MessageBox.Show($"Thêm/cập nhật {rows.Count} dòng theo mã? Các dòng không có trong file được giữ nguyên.",
+                    "Nhập Excel", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+                nhapExcel(rows); LamMoi(); Bao($"Đã nhập {rows.Count} dòng.");
+            })));
+        }
+
         var search = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3 };
         search.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         search.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 125));
@@ -142,6 +214,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         search.Controls.Add(Nut("Hiện tất cả", (_, _) =>
         {
             tuKhoa.Clear();
+            bieuThuc = "";
             ThucHien(NapBang);
         }), 2, 0);
 
@@ -195,9 +268,10 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         thongBao.TextAlign = ContentAlignment.MiddleLeft;
         layout.Controls.Add(editor, 0, 0);
         layout.Controls.Add(buttons, 0, 1);
-        layout.Controls.Add(search, 0, 2);
-        layout.Controls.Add(bang, 0, 3);
-        layout.Controls.Add(thongBao, 0, 4);
+        layout.Controls.Add(tools, 0, 2);
+        layout.Controls.Add(search, 0, 3);
+        layout.Controls.Add(bang, 0, 4);
+        layout.Controls.Add(thongBao, 0, 5);
         Controls.Add(layout);
         LamMoi();
     }
@@ -297,7 +371,8 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         dangNap = true;
         try
         {
-            var data = tim(tuKhoa.Text);
+            var data = LocNangCaoBUS.Loc<T>(new ArrayList(tim(tuKhoa.Text)), bieuThuc).Cast<T>().ToList();
+            dangHienThi = data;
             bang.DataSource = new BindingList<T>(data);
             bang.ClearSelection();
             bang.CurrentCell = null;

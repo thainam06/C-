@@ -66,6 +66,14 @@ public class NhanVienBUS
         danhSach = data;
     }
 
+    public void NhapDanhSach(List<NhanVien> rows)
+    {
+        var next = NhapLoatBUS.HopNhat(danhSach, rows, x => x.MaNV,
+            x => new NhanVien(BatBuoc(x.MaNV, "mã nhân viên"), BatBuoc(x.Ho, "họ"),
+                BatBuoc(x.Ten, "tên"), BatBuoc(x.ChucVu, "chức vụ")), KiemTra);
+        dao.Luu(next); danhSach = next;
+    }
+
     public void Xoa(string maNV)
     {
         maNV = BatBuoc(maNV, "mã nhân viên");

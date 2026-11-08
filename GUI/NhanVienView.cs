@@ -17,6 +17,6 @@ internal class NhanVienView : UserControl
                 new Truong("ChucVu", "Chức vụ")
             },
             q => bus.TimKiem(q).Cast<NhanVien>().ToList(),
-            (nv, sua) => bus.Luu(nv, sua), nv => bus.Xoa(nv.MaNV)));
+            (nv, sua) => bus.Luu(nv, sua), nv => bus.Xoa(nv.MaNV), bus.NhapDanhSach));
     }
 }

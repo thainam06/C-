@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../DTO/**/*.cs" />
+    <Compile Include="../BUS/**/*.cs" />
+    <Compile Include="../DAO/**/*.cs" />
+    <Compile Include="../Services/**/*.cs" />
+    <EmbeddedResource Include="../Assets/DejaVuSans.ttf" LogicalName="DejaVuSans.ttf" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.8" />
+    <PackageReference Include="NPOI" Version="2.7.6" />
+    <PackageReference Include="PDFsharp" Version="6.2.4" />
+  </ItemGroup>
+</Project>

@@ -17,6 +17,6 @@ internal class CTKMView : UserControl
                 new Truong("NgayKetThuc", "Ngày kết thúc", LaNgay: true)
             },
             q => bus.TimKiem(q).Cast<CTKM>().ToList(),
-            (km, sua) => bus.Luu(km, sua), km => bus.Xoa(km.MaCTKM)));
+            (km, sua) => bus.Luu(km, sua), km => bus.Xoa(km.MaCTKM), bus.NhapDanhSach));
     }
 }

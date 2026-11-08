@@ -1,5 +1,6 @@
 using QuanLyMayBay.BUS;
 using QuanLyMayBay.DTO;
+using QuanLyMayBay.DAO;
 
 namespace QuanLyMayBay.GUI;
 
@@ -19,17 +20,22 @@ public class MainForm : Form
         NhanVienBUS nhanVienBus;
         CTKMBUS ctkmBus;
         VoucherBUS voucherBus;
+        ThamSoBUS thamSoBus;
         try
         {
             bus = new QuanLyBUS();
-            bus.NapBoDuLieuMauMotLan();
-            bus.CauHinhHangVeMacDinh();
-            bus.CapNhatHangM01M02MotLan();
+            if (!MyConnection.DaCauHinh)
+            {
+                bus.NapBoDuLieuMauMotLan();
+                bus.CauHinhHangVeMacDinh();
+                bus.CapNhatHangM01M02MotLan();
+            }
             khachHangBus = new KhachHangBUS();
             hanhKhachBus = new HanhKhachBUS();
             nhanVienBus = new NhanVienBUS();
             ctkmBus = new CTKMBUS();
             voucherBus = new VoucherBUS();
+            thamSoBus = new ThamSoBUS();
         }
         catch (Exception ex)
         {
@@ -39,10 +45,25 @@ public class MainForm : Form
             return;
         }
 
-        var tabs = new TabControl { Dock = DockStyle.Fill };
+        var content = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
+        var menu = new ListBox { Dock = DockStyle.Left, Width = 195, Font = new Font("Segoe UI", 10),
+            DrawMode = DrawMode.OwnerDrawFixed, ItemHeight = 34, IntegralHeight = false,
+            BackColor = Color.FromArgb(30, 58, 95), ForeColor = Color.White, BorderStyle = BorderStyle.None };
+        menu.DrawItem += (_, e) =>
+        {
+            if (e.Index < 0) return;
+            using var brush = new SolidBrush((e.State & DrawItemState.Selected) != 0 ? Color.FromArgb(45, 100, 155) : menu.BackColor);
+            e.Graphics.FillRectangle(brush, e.Bounds);
+            e.Graphics.DrawString(Convert.ToString(menu.Items[e.Index]), e.Font!, Brushes.White, e.Bounds.Left + 10, e.Bounds.Top + 7);
+            e.DrawFocusRectangle();
+        };
         var tongQuan = new MayBayGheView(bus);
         var hanhKhach = new HanhKhachView(hanhKhachBus);
         var voucher = new VoucherView(voucherBus);
+        var mainSub = new MainSubView(bus, khachHangBus, hanhKhachBus, ctkmBus, voucherBus);
+        var thongKeBus = new ThongKeBUS(taiNgay: false);
+        var baoCao = new BaoCaoView(thongKeBus, thamSoBus);
+        var hoaDon = new HoaDonView(thongKeBus, thamSoBus);
         var mayBay = new QuanLyTab<MayBay>(
             new[]
             {
@@ -85,35 +106,44 @@ public class MainForm : Form
             x => bus.XoaGhe(x.MaGhe, x.MaMayBay));
         ghe.RangBuocLuaChon("MaHV", "LoaiGhe", QuanLyBUS.LoaiGheTheoHangVe);
 
-        foreach (var (ten, noiDung) in new (string, Control)[]
+        var pages = new (string Ten, Control View)[]
         {
-            ("Bảng tổng hợp", tongQuan), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe),
+            ("Bảng tổng hợp", tongQuan), ("Chính – chi tiết", mainSub), ("Máy bay", mayBay), ("Hạng vé", hangVe), ("Ghế", ghe),
             ("Khách hàng", new KhachHangView(khachHangBus)), ("Hành khách", hanhKhach),
             ("Nhân viên", new NhanVienView(nhanVienBus)), ("CTKM", new CTKMView(ctkmBus)),
-            ("Voucher", voucher)
-        })
+            ("Voucher", voucher), ("Hóa đơn – Chi tiết", hoaDon), ("Thống kê", baoCao),
+            ("Tham số", new ThamSoView(thamSoBus)), ("Kết nối SQL Server", new CauHinhSqlView())
+        };
+        foreach (var page in pages)
         {
-            var page = new TabPage(ten) { Padding = new Padding(12) };
-            page.Controls.Add(noiDung);
-            tabs.TabPages.Add(page);
+            page.View.Dock = DockStyle.Fill; page.View.Visible = false;
+            content.Controls.Add(page.View);
         }
-        tabs.SelectedIndexChanged += (_, _) =>
+        menu.SelectedIndexChanged += (_, _) =>
         {
-            // Nap lai cac ma tham chieu khi chuyen tu may bay/hang ve sang ghe.
-            if (tabs.SelectedIndex == 0) tongQuan.LamMoi();
-            if (tabs.SelectedIndex == 3) ghe.LamMoi();
-            if (tabs.SelectedIndex == 5) hanhKhach.LamMoi();
-            if (tabs.SelectedIndex == 8) voucher.LamMoi();
+            if (menu.SelectedIndex < 0) return;
+            var active = pages[menu.SelectedIndex].View;
+            foreach (var page in pages) page.View.Visible = ReferenceEquals(page.View, active);
+            active.BringToFront();
+            if (ReferenceEquals(active, tongQuan)) tongQuan.LamMoi();
+            if (ReferenceEquals(active, mainSub)) mainSub.LamMoi();
+            if (ReferenceEquals(active, ghe)) ghe.LamMoi();
+            if (ReferenceEquals(active, hanhKhach)) hanhKhach.LamMoi();
+            if (ReferenceEquals(active, voucher)) voucher.LamMoi();
+            if (ReferenceEquals(active, baoCao)) baoCao.LamMoi();
+            if (ReferenceEquals(active, hoaDon)) hoaDon.LamMoi();
         };
 
         var title = new Label
         {
-            Text = "QUẢN LÝ MÁY BAY · GHẾ · HẠNG VÉ · KHÁCH HÀNG",
+            Text = "QUẢN LÝ VÉ MÁY BAY",
             Dock = DockStyle.Top, Height = 66, Padding = new Padding(20, 18, 0, 0),
             Font = new Font("Segoe UI", 17, FontStyle.Bold),
             BackColor = Color.FromArgb(30, 58, 95), ForeColor = Color.White
         };
-        Controls.Add(tabs);
+        Controls.Add(content);
+        Controls.Add(menu);
         Controls.Add(title);
+        menu.DataSource = pages.Select(x => x.Ten).ToList();
     }
 }

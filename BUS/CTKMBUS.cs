@@ -72,6 +72,14 @@ public class CTKMBUS
         danhSach = data;
     }
 
+    public void NhapDanhSach(List<CTKM> rows)
+    {
+        var next = NhapLoatBUS.HopNhat(danhSach, rows, x => x.MaCTKM,
+            x => new CTKM(BatBuoc(x.MaCTKM, "mã CTKM"), BatBuoc(x.TenCTKM, "tên CTKM"),
+                x.NgayBatDau.Date, x.NgayKetThuc.Date), KiemTra);
+        dao.Luu(next); danhSach = next;
+    }
+
     public void Xoa(string maCTKM)
     {
         maCTKM = BatBuoc(maCTKM, "mã CTKM");

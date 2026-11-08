@@ -6,6 +6,7 @@ namespace QuanLyMayBay.DAO;
 public class HanhKhachDAO
 {
     private readonly string duongDan;
+    private readonly PhienBangSql<HanhKhach> sql = new();
 
     public HanhKhachDAO(string? duongDan = null)
     {
@@ -16,6 +17,7 @@ public class HanhKhachDAO
 
     public List<HanhKhach> Doc()
     {
+        if (sql.ThuDoc(out var dataSql)) return dataSql;
         if (!File.Exists(duongDan)) return new List<HanhKhach>();
         var data = JsonSerializer.Deserialize<List<HanhKhach>>(File.ReadAllText(duongDan));
         if (data == null || data.Any(x => x == null))
@@ -25,6 +27,7 @@ public class HanhKhachDAO
 
     public void Luu(IReadOnlyCollection<HanhKhach> danhSach)
     {
+        if (sql.ThuLuu(danhSach)) return;
         Directory.CreateDirectory(Path.GetDirectoryName(duongDan)!);
         var fileTam = duongDan + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try

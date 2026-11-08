@@ -19,7 +19,7 @@ internal class VoucherView : UserControl
                 new Truong("GiamGia", "Giảm giá (%)", So: true, GiaTriToiDa: 100m)
             },
             q => bus.TimKiem(q).Cast<Voucher>().ToList(),
-            (v, sua) => bus.Luu(v, sua), v => bus.Xoa(v.MaVoucher));
+            (v, sua) => bus.Luu(v, sua), v => bus.Xoa(v.MaVoucher), bus.NhapDanhSach);
         Controls.Add(tab);
     }
 

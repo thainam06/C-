@@ -1,0 +1,1 @@
+digraph G { graph [rankdir=LR,bgcolor="white",dpi=170]; node [shape=record,fontname="DejaVu Sans",fontsize=12]; edge [fontname="DejaVu Sans",fontsize=11]; k[label="KhachHang|MaKH (PK)|HoTen|CCCD, SDT, Email|TaiKhoan, MatKhau(hash)|DiaChi"]; h[label="HanhKhach|MaHK (PK)|HoTen, NgaySinh|CCCD, GioiTinh|MaKH (FK), LoaiKH"]; k -> h[label="1 - n"];}

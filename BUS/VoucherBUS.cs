@@ -77,6 +77,18 @@ public class VoucherBUS
         danhSach = data;
     }
 
+    public void NhapDanhSach(List<Voucher> rows)
+    {
+        var parents = LayCTKM().Cast<CTKM>().ToDictionary(x => x.MaCTKM, StringComparer.OrdinalIgnoreCase);
+        var next = NhapLoatBUS.HopNhat(danhSach, rows, x => x.MaVoucher, x =>
+        {
+            var ma = BatBuoc(x.MaVoucher, "mã Voucher");
+            if (!parents.TryGetValue(BatBuoc(x.MaCTKM, "CTKM"), out var km)) throw new ArgumentException("CTKM không tồn tại.");
+            return new Voucher(ma, km.MaCTKM, x.GiamGia);
+        }, KiemTra);
+        dao.Luu(next); danhSach = next;
+    }
+
     public void Xoa(string maVoucher)
     {
         maVoucher = BatBuoc(maVoucher, "mã Voucher");

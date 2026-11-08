@@ -3,6 +3,56 @@
 Ứng dụng C# WinForms quản lý Máy bay, Ghế, Hạng vé, Khách hàng, Hành khách,
 Nhân viên, CTKM và Voucher.
 
+## Bản cập nhật theo PDF yêu cầu đồ án
+
+Đã thêm menu desktop bên trái, màn chính–chi tiết bằng ListView, nút `...` chọn dữ
+liệu có biến static, bộ lọc nâng cao tại BUS, XLS/PDF tiếng Việt, tham số cấu hình,
+hóa đơn–CTHD dạng chỉ đọc và các bảng thống kê tiền.
+
+- Đọc [đối chiếu từng yêu cầu](docs/DOI_CHIEU_YEU_CAU.md) trước khi đánh giá hoàn tất.
+- [Hướng dẫn SQL Server](docs/KET_NOI_SQL_SERVER.md),
+  [kiểm tra Windows](docs/KIEM_THU_WINDOWS.md),
+  [báo cáo nháp](docs/BaoCaoDoAn_Nhap.docx).
+- Các màn hình nay chọn từ **menu bên trái** thay vì hàng tab ở trên.
+- Phần SQL hỗ trợ MyConnection và mapping, nhưng **chưa nối/kiểm chứng CSDL nhóm**
+  vì chưa có CREATE TABLE/PK/FK/view thật. Nghiệp vụ bán/hủy vé và tồn ghế còn chờ
+  lược đồ, không giả lập bằng cách xóa ghế vật lý.
+- Báo cáo là **bản nháp**, thiếu thông tin nhóm, ảnh GUI Windows và ảnh SQL thực tế.
+
+Build/test:
+
+```powershell
+.\tools\Test.ps1
+```
+
+Trên Linux/macOS có .NET 8: `bash tools/test.sh` (build WinForms chỉ để kiểm tra
+biên dịch; giao diện chỉ chạy Windows). Thư viện Core chứa DTO/BUS/DAO/Services,
+WinForms tham chiếu Core; các test cũng dùng đúng Core này.
+
+### Lọc, Excel và PDF
+
+Lọc nâng cao mở từ thanh công cụ danh mục. Ví dụ tại Voucher:
+`GiamGia >= 10 AND NOT (MaVoucher ~ 'TEST')`; tại CTKM:
+`NgayBatDau >= '2026-01-01' AND NgayKetThuc <= '2026-12-31'`.
+Hỗ trợ AND/OR/NOT, ngoặc, =, <>, !=, >, >=, <, <=, ≥, ≤, và ~ (chứa chuỗi).
+Ngày dùng yyyy-MM-dd hoặc dd/MM/yyyy, chuỗi/ngày đặt trong nháy; số dùng dấu chấm.
+Mật khẩu không được lọc hoặc xuất.
+
+Xuất XLS/PDF ở các danh mục; nhập theo lô và mẫu XLS ở Nhân viên/CTKM/Voucher.
+Nhập kiểm tra cả file trước khi lưu; mã đã có được cập nhật, dòng ngoài file giữ nguyên.
+XLS thực dùng NPOI 2.7.6 (Apache-2.0); PDF dùng PDFsharp 6.2.4 và font DejaVu nhúng
+(giấy phép kèm Assets). Tên cột trong file mẫu là tên property DTO; không đổi tiêu đề.
+
+Màn **Hóa đơn–Chi tiết**: chế độ JSON cho nhập tập CTHD/phiếu chi đúng mẫu và xuất
+PDF hóa đơn được chọn; chế độ SQL chỉ đọc view được ánh xạ. Đây là nguồn báo cáo,
+**chưa phải chức năng tạo giao dịch bán vé**. File trong examples là dữ liệu giả lập,
+chỉ nhập chủ động trên dữ liệu thử. Các tổng tiền/thành tiền không nhập trực tiếp.
+
+Màn **Thống kê**: thu, chi, lợi nhuận trong khoảng ngày (bao gồm cả hai đầu),
+ba bảng quý theo NV/KH/SP với năm chọn riêng, nhóm theo ngày/tháng/quý/năm,
+KH+SP và NV+SP+Năm. Màn **Tham số** điều khiển tên đơn vị, địa chỉ, SDT,
+số lẻ tiền; các giá trị được dùng trên PDF và khi làm tròn tiền.
+
 ## Mở bằng Visual Studio
 
 1. Dùng Windows và Visual Studio 2022 phiên bản 17.8 trở lên, cài workload
