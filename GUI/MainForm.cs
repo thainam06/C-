@@ -8,7 +8,7 @@ public class MainForm : Form
 {
     public MainForm()
     {
-        Text = "Quản lý máy bay và khách hàng";
+        Text = "Quản lý bán vé máy bay";
         StartPosition = FormStartPosition.CenterScreen;
         MinimumSize = new Size(900, 650);
         Size = new Size(1100, 760);
@@ -136,7 +136,7 @@ public class MainForm : Form
 
         var title = new Label
         {
-            Text = "QUẢN LÝ VÉ MÁY BAY",
+            Text = "QUẢN LÝ BÁN VÉ MÁY BAY",
             Dock = DockStyle.Top, Height = 66, Padding = new Padding(20, 18, 0, 0),
             Font = new Font("Segoe UI", 17, FontStyle.Bold),
             BackColor = Color.FromArgb(30, 58, 95), ForeColor = Color.White

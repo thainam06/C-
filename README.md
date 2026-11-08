@@ -1,7 +1,11 @@
-# Quản lý máy bay
+# Quản lý bán vé máy bay
 
 Ứng dụng C# WinForms quản lý Máy bay, Ghế, Hạng vé, Khách hàng, Hành khách,
 Nhân viên, CTKM và Voucher.
+
+Tên đề tài chính thức: **Quản lý bán vé máy bay**. Các danh mục hỗ trợ quy trình
+bán vé; phần đặt/bán/hủy vé, hóa đơn và ghế theo chuyến cần ghép với CSDL SQL Server
+thực tế của nhóm như trạng thái đối chiếu bên dưới.
 
 ## Bản cập nhật theo PDF yêu cầu đồ án
 

@@ -27,5 +27,5 @@ phụ thuộc lược đồ SQL, giao dịch vé và báo cáo cuối kỳ còn 
 1. Script CREATE TABLE/PK/FK, tên schema, các bảng hóa đơn/CTHD, đặt/bán/hủy vé,
    ghế theo chuyến và phiếu nhập/chi. Không cần gửi mật khẩu vào chat.
 2. Quy tắc cập nhật ghế khi bán/hủy/đổi vé, thuế/phí/giảm giá thực tế.
-3. Tên đề tài chính thức, họ tên/MSSV, lớp; hiện người dùng cho biết chưa có.
+3. Tên đề tài đã xác nhận: **Quản lý bán vé máy bay**. Họ tên/MSSV các thành viên và lớp vẫn chưa có.
 4. Ảnh màn hình chạy Windows và ảnh CSDL thực tế để hoàn thiện báo cáo.

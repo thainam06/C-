@@ -20,7 +20,7 @@ public static class PdfService
     private static readonly object FontLock = new();
 
     public static void XuatBang(string path, string title, IReadOnlyList<string> headers,
-        IReadOnlyList<string[]> rows, string donVi = "Quản lý vé máy bay")
+        IReadOnlyList<string[]> rows, string donVi = "Quản lý bán vé máy bay")
     {
         if (headers.Count == 0 || rows.Any(x => x.Length != headers.Count)) throw new ArgumentException("Bảng PDF không hợp lệ.");
         lock (FontLock) GlobalFontSettings.FontResolver ??= new FontResolver();

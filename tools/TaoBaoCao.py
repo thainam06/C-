@@ -56,7 +56,7 @@ tree.save(tree_path)
 
 doc = Document()
 doc.core_properties.author = "Nhóm chưa cung cấp thông tin"
-doc.core_properties.title = "Báo cáo nháp — Quản lý vé máy bay"
+doc.core_properties.title = "Báo cáo nháp — Quản lý bán vé máy bay"
 section = doc.sections[0]
 section.page_width, section.page_height = Cm(21), Cm(29.7)
 section.top_margin = section.bottom_margin = Cm(1.8)
@@ -105,14 +105,14 @@ def table(headers, rows):
 
 
 for text in ["[TRƯỜNG / KHOA: CHƯA CUNG CẤP]", "", "ĐỒ ÁN HỌC PHẦN LẬP TRÌNH C#",
-             "QUẢN LÝ VÉ MÁY BAY", "", "BẢN NHÁP — CHƯA HOÀN THIỆN ĐỂ NỘP",
+             "QUẢN LÝ BÁN VÉ MÁY BAY", "", "BẢN NHÁP — CHƯA HOÀN THIỆN ĐỂ NỘP",
              "", "Thành viên / MSSV: [CHƯA CUNG CẤP]", "Lớp: [CHƯA CUNG CẤP]",
              "GVHD: Phùng Thái Thiên Trang", "", "Tháng 12/2026"]:
     para = p(text, "ĐỒ ÁN" in text or "BẢN NHÁP" in text)
     para.alignment = 1
 
 new_page("I. Giới thiệu đề tài")
-p("Đề tài quản lý các danh mục máy bay, ghế, hạng vé, khách hàng, hành khách, nhân viên, "
+p("Tên đề tài chính thức: Quản lý bán vé máy bay. Đề tài quản lý các danh mục máy bay, ghế, hạng vé, khách hàng, hành khách, nhân viên, "
   "chương trình khuyến mãi và voucher. Ứng dụng desktop C# WinForms tổ chức theo GUI–BUS–DAO.")
 p("Bản cập nhật bổ sung tìm kiếm nâng cao, chọn dữ liệu bằng nút ..., màn chính–chi tiết, "
   "tham số cấu hình, nhập/xuất XLS, PDF và thống kê tiền từ nguồn số liệu được chuẩn hóa.")
@@ -231,7 +231,7 @@ table(["Bộ kiểm tra Core", "Số kiểm tra qua"], [["Khách hàng", "29"], 
       ["Nhân viên / CTKM / Voucher", "47"], ["Yêu cầu đồ án mới", "45"], ["Tổng", "149"]])
 p("Build Release trên Linux: 0 lỗi, 0 cảnh báo. Test không chứng minh giao diện Windows hoặc SQL Server thật đã chạy. "
   "Xem docs/KET_QUA_KIEM_THU.md và KIEM_THU_WINDOWS.md để phân biệt phần đã kiểm tra và phần còn chờ.")
-p("Cần hoàn thiện trước khi nộp: (1) thông tin nhóm/lớp và tên đề tài chính thức; (2) mapping SQL thật; "
+p("Cần hoàn thiện trước khi nộp: (1) thông tin nhóm/lớp; (2) mapping SQL thật; "
   "(3) giao dịch bán/hủy/nhập và tồn ghế; (4) ảnh GUI/SQL; (5) chạy nghiệm thu trên Windows và "
   "đối chiếu báo cáo với chứng từ thật.")
 p("Mốc theo tài liệu: tuần 9–10 kiểm tra viết hàm, tuần 11–12 chấm đồ án. Báo cáo tối đa 20 trang, "

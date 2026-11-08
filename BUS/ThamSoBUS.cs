@@ -16,7 +16,7 @@ public class ThamSoBUS
         {
             data = new()
             {
-                new() { MaThamSo = "TEN_DON_VI", GiaTri = "Quản lý vé máy bay", MoTa = "Tên hiển thị trên PDF" },
+                new() { MaThamSo = "TEN_DON_VI", GiaTri = "Quản lý bán vé máy bay", MoTa = "Tên hiển thị trên PDF" },
                 new() { MaThamSo = "DIA_CHI", GiaTri = "Chưa cung cấp", MoTa = "Địa chỉ đơn vị trên PDF" },
                 new() { MaThamSo = "SDT", GiaTri = "Chưa cung cấp", MoTa = "Số liên hệ trên PDF" },
                 new() { MaThamSo = "SO_LE_TIEN", GiaTri = "0", MoTa = "Số chữ số làm tròn tiền: 0–2" }
@@ -26,6 +26,13 @@ public class ThamSoBUS
         if (data.GroupBy(x => x.MaThamSo, StringComparer.OrdinalIgnoreCase).Any(x => x.Count() > 1))
             throw new InvalidDataException("Trùng mã tham số.");
         foreach (var item in data) KiemTra(item);
+        if (!MyConnection.DaCauHinh && data.Any(x => x.MaThamSo == "TEN_DON_VI"
+            && x.GiaTri is "Quản lý vé máy bay" or "Quản lý máy bay"))
+        {
+            var next = data.Select(Copy).ToList();
+            next.First(x => x.MaThamSo == "TEN_DON_VI").GiaTri = "Quản lý bán vé máy bay";
+            this.dao.Luu(next); data = next;
+        }
     }
     private static ThamSo Copy(ThamSo x) => new() { MaThamSo = x.MaThamSo, GiaTri = x.GiaTri, MoTa = x.MoTa };
     private static void KiemTra(ThamSo x)
