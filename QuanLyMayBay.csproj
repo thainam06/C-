@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Tests/**/*.cs;Core/**/*.cs;BUS/**/*.cs;DAO/**/*.cs;DTO/**/*.cs;Services/**/*.cs" />
+    <Compile Remove="Tests/**/*.cs;Core/**/*.cs;BUS/**/*.cs;DAO/**/*.cs;DTO/**/*.cs;Services/**/*.cs;tools/**/*.cs" />
     <ProjectReference Include="Core/QuanLyMayBay.Core.csproj" />
   </ItemGroup>
 </Project>

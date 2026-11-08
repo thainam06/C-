@@ -1,4 +1,5 @@
 using QuanLyMayBay.DAO;
+using QuanLyMayBay.Services;
 namespace QuanLyMayBay.GUI;
 internal class CauHinhSqlView : UserControl
 {
@@ -21,6 +22,14 @@ internal class CauHinhSqlView : UserControl
             try { MessageBox.Show("Kết nối thành công, CSDL: " + MyConnection.KiemTra()); }
             catch { MessageBox.Show("Chưa kết nối được. Kiểm tra server, database, quyền truy cập, chứng chỉ và biến QLMB_SQL_CONNECTION. Không gửi mật khẩu vào chat."); }
         };
-        Controls.Add(help); Controls.Add(test);
+        var schema = new Button { Dock = DockStyle.Top, Height = 38, Text = "Xuất cấu trúc CSDL (không xuất dữ liệu người dùng)" };
+        schema.Click += (_, _) =>
+        {
+            using var file = new SaveFileDialog { Filter = "JSON (*.json)|*.json", FileName = "BanVeMayBay.schema.local.json" };
+            if (file.ShowDialog(this) != DialogResult.OK) return;
+            try { SqlSchemaService.XuatCauTruc(file.FileName); MessageBox.Show("Đã xuất tên bảng/cột, kiểu dữ liệu, PK/FK. Không có dữ liệu khách hàng hoặc chuỗi kết nối."); }
+            catch { MessageBox.Show("Chưa xuất được cấu trúc. Kiểm tra kết nối SQL, quyền xem metadata và chứng chỉ TLS."); }
+        };
+        Controls.Add(help); Controls.Add(schema); Controls.Add(test);
     }
 }

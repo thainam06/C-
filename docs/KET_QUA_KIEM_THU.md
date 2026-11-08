@@ -7,7 +7,8 @@
 - HanhKhachChecks: 28 kiểm tra qua.
 - NhanVienKhuyenMaiChecks: 47 kiểm tra qua.
 - DoAnChecks: 45 kiểm tra qua.
-- Tổng: **149 kiểm tra Core**, không có test GUI hoặc test kết nối SQL thật trong số này.
+- SqlProfileChecks: 22 kiểm tra ngoại tuyến qua (profile theo ảnh, cột suy diễn, CHAR padding).
+- Tổng: **171 kiểm tra Core/ngoại tuyến**, không có test GUI hoặc test kết nối SQL thật trong số này.
 
 Các kiểm tra mới bao gồm cú pháp bộ lọc (AND/OR/NOT, ngày, số, nhiều field),
 field không hợp lệ/mật khẩu, XLS OLE thật, giữ số 0 đầu/Unicode/decimal,
@@ -28,7 +29,8 @@ kết thúc và chạy riêng lại bộ mới; kết quả trên là lượt đ
 - Không chạy cửa sổ WinForms vì môi trường không phải Windows. Các bước cần bấm
   thực tế được ghi trong KIEM_THU_WINDOWS.md.
 - QLMB_SQL_CONNECTION và QLMB_SQL_MAPPING_FILE đều chưa có trong máy kiểm tra.
-  Nhóm chưa gửi lược đồ SQL Server, nên chưa kiểm tra live SQL, PK/FK/rollback SQL,
+  Ảnh đã cho biết localhost/BanVeMayBay và một phần schema, nhưng chưa có lược đồ đầy đủ,
+  nên chưa kiểm tra live SQL, PK/FK/rollback SQL,
   adapter view thống kê và transaction bán/hủy vé/tồn ghế.
 - SQL mapping đã kiểm tra ngoại tuyến; việc quote identifier được test, nhưng
   điều đó không thay thế kiểm tra kết nối và nghiệp vụ trên CSDL thật.

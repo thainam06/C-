@@ -141,5 +141,15 @@
     "KeyColumns": [
       "MaPC"
     ]
+  },
+  "HangHangKhong": {
+    "Table": "dbo.HangHangKhong",
+    "Columns": {
+      "MaHHK": "MaHHK",
+      "TenHang": "TenHang"
+    },
+    "KeyColumns": [
+      "MaHHK"
+    ]
   }
 }

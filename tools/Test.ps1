@@ -7,7 +7,8 @@ try {
         'Tests/KhachHangChecks/Checks.csproj',
         'Tests/HanhKhachChecks/Checks.csproj',
         'Tests/NhanVienKhuyenMaiChecks/Checks.csproj',
-        'Tests/DoAnChecks/Checks.csproj'
+        'Tests/DoAnChecks/Checks.csproj',
+        'Tests/SqlProfileChecks/Checks.csproj'
     )) {
         dotnet run --project $projectPath -c Release
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -18,6 +18,7 @@ public class QuanLyBUS
     {
         this.dao = dao ?? new DuLieuDAO();
         duLieu = this.dao.Doc();
+        if (MyConnection.DaCauHinh) DongBoLoaiGhe(duLieu);
         KiemTraDuLieu(duLieu);
     }
 
@@ -37,6 +38,8 @@ public class QuanLyBUS
         var maHangVe = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         // Ma ghe la duy nhat trong tung may bay (vi du nhieu may bay deu co ghe 1A).
         var maGhe = new HashSet<(string, string)>();
+        var maGheToanCuc = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var khoaGheToanCuc = DungKhoaGheToanCuc();
         foreach (var mb in data.MayBay)
         {
             if (mb == null || string.IsNullOrWhiteSpace(mb.MaMayBay)
@@ -56,9 +59,20 @@ public class QuanLyBUS
                 || string.IsNullOrWhiteSpace(ghe.MaMayBay) || string.IsNullOrWhiteSpace(ghe.MaHV)
                 || (ghe.LoaiGhe != Ghe.Thuong && ghe.LoaiGhe != Ghe.Vip)
                 || !maMayBay.Contains(ghe.MaMayBay) || !maHangVe.Contains(ghe.MaHV)
+                || (khoaGheToanCuc && !maGheToanCuc.Add(ghe.MaGhe))
                 || !maGhe.Add((ghe.MaMayBay.ToUpperInvariant(), ghe.MaGhe.ToUpperInvariant())))
                 throw new InvalidDataException("Dữ liệu ghế không hợp lệ hoặc mất liên kết.");
         }
+    }
+
+    private static bool DungKhoaGheToanCuc() => MyConnection.DaCauHinh
+        && SqlServerDanhSachDAO.DocAnhXa(typeof(Ghe)).KeyColumns.SequenceEqual(new[] { nameof(Ghe.MaGhe) });
+
+    public ArrayList LayHangHangKhong()
+    {
+        if (SqlServerDanhSachDAO.ThuDoc<HangHangKhong>(out var rows, out _)) return new ArrayList(rows);
+        return new ArrayList(duLieu.MayBay.Select(x => x.MHHK).Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(x => new HangHangKhong { MaHHK = x, TenHang = x }).ToList());
     }
 
     // GUI nhan ban sao, khong thay doi truc tiep du lieu cua BUS.
@@ -309,6 +323,12 @@ public class QuanLyBUS
     {
         ma = BatBuoc(ma, "mã máy bay");
         mhhk = BatBuoc(mhhk, "mã hãng hàng không");
+        if (MyConnection.DaCauHinh)
+        {
+            var hang = LayHangHangKhong().Cast<HangHangKhong>().FirstOrDefault(x => CungMa(x.MaHHK, mhhk));
+            if (hang == null) throw new ArgumentException("Mã hãng hàng không không tồn tại trong HangHangKhong.");
+            mhhk = hang.MaHHK;
+        }
         var moi = SaoChep();
         var cu = moi.MayBay.Find(x => CungMa(x.MaMayBay, ma));
         if (sua && cu == null) throw new ArgumentException("Máy bay không còn tồn tại.");
@@ -371,6 +391,8 @@ public class QuanLyBUS
         var cu = moi.Ghe.Find(x => CungMa(x.MaGhe, ma) && CungMa(x.MaMayBay, mayBay));
         if (sua && cu == null) throw new ArgumentException("Ghế không còn tồn tại.");
         if (!sua && cu != null) throw new ArgumentException("Mã ghế đã tồn tại trên máy bay này.");
+        if (!sua && DungKhoaGheToanCuc() && moi.Ghe.Any(x => CungMa(x.MaGhe, ma)))
+            throw new ArgumentException("Mã ghế đã tồn tại. CSDL SQL đang dùng MaGhe là khóa duy nhất toàn hệ thống.");
         loaiGhe = BatBuoc(LoaiGheTheoHangVe(hv.MaHV) ?? LoaiGheTheoTenHangVe(hv.TenHV)
             ?? loaiGhe ?? cu?.LoaiGhe ?? Ghe.Thuong, "loại ghế");
         if (loaiGhe != Ghe.Thuong && loaiGhe != Ghe.Vip)

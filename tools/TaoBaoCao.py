@@ -26,7 +26,7 @@ def diagram(name, body):
 
 diagrams = [
     diagram("erd-maybay", 'm[label="MayBay|MaMayBay (PK)|MHHK"]; '
-            'g[label="Ghe|MaMayBay + MaGhe (PK)|MaHV (FK)|LoaiGhe"]; '
+            'g[label="Ghe|MaGhe (PK SQL)|MaMayBay (FK)|MaHV (FK)|LoaiGhe (suy dien)"]; '
             'h[label="HangVe|MaHV (PK)|TenHV|HanhLyKg|DonGiaVe"]; '
             'm -> g[label="1 - n"]; h -> g[label="1 - n"];'),
     diagram("erd-khachhang", 'k[label="KhachHang|MaKH (PK)|HoTen|CCCD, SDT, Email|TaiKhoan, MatKhau(hash)|DiaChi"]; '
@@ -219,8 +219,9 @@ p("Khi bật SQL, không tự nạp dữ liệu mẫu hay tự tạo/sửa CSDL.
 p("Tiếng Việt: cột NVARCHAR và SqlParameter. Không nối ?useUnicode=... vào connection string SQL Server "
   "vì hậu tố đó là cách dùng MySQL. Mật khẩu lưu hash PBKDF2, không nguyên văn; "
   "không commit connection string có mật khẩu.")
-p("Tình trạng: chưa có lược đồ và biến kết nối SQL thật trong môi trường kiểm tra. "
-  "Cần CREATE TABLE/PK/FK/view, thông tin server/database không bí mật và cấu hình xác thực trên máy chạy. "
+p("Tình trạng: ảnh đã xác nhận localhost/BanVeMayBay, MayBay.MaHHK và Ghe chỉ có MaGhe/MaMayBay/MaHV. "
+  "Đã có profile theo ảnh và công cụ xuất schema chỉ đọc; chưa kết nối SQL thật từ môi trường kiểm tra. "
+  "Còn cần CREATE TABLE/PK/FK/view, kiểu dữ liệu đầy đủ và cấu hình xác thực trên máy chạy. "
   "Nghiệp vụ khóa ghế theo chuyến, bán/nhập/hủy vé phải bổ sung theo schema thật; chưa được đánh dấu hoàn tất.")
 p("[CHÈN ẢNH THẬT: lược đồ SQL rõ nét; SELECT DB_NAME; giao dịch PK/FK/rollback và cập nhật ghế của nhóm.]")
 
@@ -228,7 +229,8 @@ new_page("V. Sản phẩm và kết quả kiểm thử")
 p("Source: https://github.com/thainam06/C- . Báo cáo nháp: docs/BaoCaoDoAn_Nhap.docx. "
   "Cần bổ sung link bản báo cáo DOC/PDF cuối sau khi điền thông tin và ảnh thực tế.")
 table(["Bộ kiểm tra Core", "Số kiểm tra qua"], [["Khách hàng", "29"], ["Hành khách", "28"],
-      ["Nhân viên / CTKM / Voucher", "47"], ["Yêu cầu đồ án mới", "45"], ["Tổng", "149"]])
+      ["Nhân viên / CTKM / Voucher", "47"], ["Yêu cầu đồ án mới", "45"],
+      ["Profile SQL theo ảnh (ngoại tuyến)", "22"], ["Tổng", "171"]])
 p("Build Release trên Linux: 0 lỗi, 0 cảnh báo. Test không chứng minh giao diện Windows hoặc SQL Server thật đã chạy. "
   "Xem docs/KET_QUA_KIEM_THU.md và KIEM_THU_WINDOWS.md để phân biệt phần đã kiểm tra và phần còn chờ.")
 p("Cần hoàn thiện trước khi nộp: (1) thông tin nhóm/lớp; (2) mapping SQL thật; "

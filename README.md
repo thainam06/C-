@@ -9,6 +9,15 @@ thực tế của nhóm như trạng thái đối chiếu bên dưới.
 
 ## Bản cập nhật theo PDF yêu cầu đồ án
 
+### CSDL BanVeMayBay theo ảnh đã gửi
+
+Đã có profile `docs/sql-mapping.BanVeMayBay.json`: `MHHK → MaHHK`, khóa ghế `MaGhe`,
+loại ghế suy ra từ hạng vé (không cần cột SQL LoaiGhe), danh sách hãng từ HangHangKhong.
+Chạy `tools/Chay-BanVeMayBay.ps1` trên Windows để dùng localhost/BanVeMayBay,
+hoặc xem lệnh trực tiếp trong [hướng dẫn SQL](docs/KET_NOI_SQL_SERVER.md).
+Các bảng chưa thấy đủ trong ảnh chưa được xác nhận. Module lỗi sẽ báo riêng,
+không đóng cả chương trình. Công cụ `-XuatCauTruc` xuất schema JSON chỉ đọc để sửa tiếp.
+
 Đã thêm menu desktop bên trái, màn chính–chi tiết bằng ListView, nút `...` chọn dữ
 liệu có biến static, bộ lọc nâng cao tại BUS, XLS/PDF tiếng Việt, tham số cấu hình,
 hóa đơn–CTHD dạng chỉ đọc và các bảng thống kê tiền.

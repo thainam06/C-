@@ -1,8 +1,49 @@
 # SQL Server và lớp MyConnection
 
-Nhóm đã chọn dùng CSDL SQL Server hiện có. Chưa nhận được script `CREATE TABLE`,
-tên server/database hoặc view hóa đơn của nhóm, nên kết nối và giao dịch SQL thực tế
-**chưa được kiểm chứng**. Không có thao tác DDL tự động lên CSDL nhóm.
+Nhóm dùng SQL Server hiện có. Ảnh đã xác nhận server **localhost**, database
+**BanVeMayBay** và một phần sơ đồ. Chưa nhận được script `CREATE TABLE`, kiểu dữ liệu
+và view hóa đơn của nhóm, nên kết nối/giao dịch SQL thực tế **chưa được kiểm chứng**.
+Không có thao tác DDL tự động lên CSDL nhóm.
+
+## Profile theo ảnh BanVeMayBay
+
+`docs/sql-mapping.BanVeMayBay.json` đã sửa các điểm nhìn rõ trong ảnh:
+
+- DTO `MayBay.MHHK` ánh xạ vào cột SQL **MaHHK**.
+- `Ghe` chỉ đọc/ghi **MaGhe, MaMayBay, MaHV**; PK là **MaGhe** toàn hệ thống.
+- Không yêu cầu cột SQL `LoaiGhe`. Đây là trường suy diễn, hiển thị theo hạng vé;
+  không xuất hiện trong câu SELECT/INSERT/UPDATE vật lý.
+- Danh sách hãng lấy từ `HangHangKhong(MaHHK, TenHang)`, chọn đúng FK khi lưu máy bay.
+- `HangVe`, `CTKM`, `Voucher` giữ các cột nhìn rõ trong ảnh.
+
+Các bảng/cột ngoài vùng ảnh (Khách hàng, Hành khách, Nhân viên, Tham số và view báo
+cáo) vẫn là ánh xạ dự kiến theo DTO, **chưa được xác nhận với SQL thực tế**.
+Một module lỗi không còn làm cả ứng dụng đóng: module đó báo lỗi và có nút Thử lại;
+các module đã khớp và menu Kết nối SQL Server vẫn mở được.
+
+Chạy trên Windows bằng PowerShell ở thư mục repository:
+
+```powershell
+.\tools\Chay-BanVeMayBay.ps1
+```
+
+Hoặc không dùng script:
+
+```powershell
+$env:QLMB_SQL_CONNECTION = 'Server=localhost;Database=BanVeMayBay;Integrated Security=True;Encrypt=True;TrustServerCertificate=False;Connect Timeout=10'
+$env:QLMB_SQL_MAPPING_FILE = "$PWD\docs\sql-mapping.BanVeMayBay.json"
+dotnet run --project QuanLyMayBay.csproj
+```
+
+Để xuất schema thực mà không xuất dữ liệu cá nhân:
+
+```powershell
+.\tools\Chay-BanVeMayBay.ps1 -XuatCauTruc
+```
+
+Lệnh tạo `BanVeMayBay.schema.local.json` (tên bảng/cột, kiểu dữ liệu, PK/FK), đã được
+gitignore. Có thể gửi file đó để hoàn thiện adapter các bảng còn thiếu. Trong ứng
+dụng cũng có nút **Xuất cấu trúc CSDL** ở menu Kết nối SQL Server.
 
 ## Cấu hình
 
@@ -29,10 +70,15 @@ Chế độ SQL không tự nạp/đổi dữ liệu mẫu M01–M10 trong CSDL 
 
 ## Quy tắc ánh xạ
 
-- Khóa `Columns` là tên property DTO; giá trị là tên cột SQL, không phải biểu thức SQL.
+- Khóa `Columns` là tên property DTO vật lý; giá trị là tên cột SQL, không phải biểu thức SQL.
 - `Table` dùng dạng `schema.table` hoặc view có cột phù hợp; phần tên được quote bằng `[]`.
-- `KeyColumns` dùng tên property DTO và phải khớp khóa thật. Ghế hiện có khóa
-  nghiệp vụ `(MaMayBay, MaGhe)`; nếu lược đồ nhóm khác cần điều chỉnh BUS tương ứng.
+- `KeyColumns` dùng tên property DTO và phải khớp khóa thật. JSON dùng khóa ghế
+  `(MaMayBay, MaGhe)`; profile BanVeMayBay dùng khóa toàn cục `MaGhe` theo ảnh.
+  BUS chặn trùng mã ghế toàn hệ thống khi bật profile SQL này.
+- `DerivedColumns` chỉ hỗ trợ quy tắc `Ghe.LoaiGhe = LoaiGheTuHangVe`, không chấp nhận
+  biểu thức SQL tùy ý hay trường suy diễn làm khóa. Các cột suy diễn không ghi xuống DB.
+- Khóa DTO dạng chuỗi cần khóa SQL kiểu chuỗi tương ứng. Nếu SQL dùng khóa số,
+  ứng dụng báo cần adapter thay vì ép kiểu mã như `01` thành `1` và ghi nhầm bản ghi.
 - DAO danh mục cần SELECT/INSERT/UPDATE/DELETE. Bảng/view có identity/computed
   columns hoặc không khớp DTO cần adapter riêng sau khi đọc lược đồ, không đoán mapping.
 - Các cột tiếng Việt phải dùng `NVARCHAR`; tham số truy vấn dùng `SqlParameter`.
