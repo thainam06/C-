@@ -41,4 +41,24 @@ public class HanhKhachDAO
             if (File.Exists(fileTam)) File.Delete(fileTam);
         }
     }
+
+    // CRUD MySQL theo mau HangHangKhongDAO cua nhom.
+    internal static readonly LenhDanhMucMySql Lenh = new(typeof(HanhKhach),
+        new[] { "MaHK", "HoTen", "NgaySinh", "CCCD", "GioiTinh", "MaKH", "LoaiKH" },
+        (reader, map) => new HanhKhach
+        {
+            MaHK = DanhMucMySql.Chuoi(reader, "MaHK"),
+            HoTen = DanhMucMySql.Chuoi(reader, "HoTen"),
+            NgaySinh = reader.IsDBNull(reader.GetOrdinal("NgaySinh")) ? null : reader.GetDateTime("NgaySinh"),
+            CCCD = DanhMucMySql.Chuoi(reader, "CCCD"),
+            GioiTinh = DanhMucMySql.Chuoi(reader, "GioiTinh"),
+            MaKH = DanhMucMySql.Chuoi(reader, "MaKH"),
+            LoaiKH = DanhMucMySql.Chuoi(reader, "LoaiKH"),
+        });
+
+    public List<HanhKhach> DocDS() => Doc();
+    public void Them(HanhKhach item) => Lenh.Them(item);
+    public void Sua(HanhKhach item) => Lenh.Sua(item);
+    public void Xoa(HanhKhach item) => Lenh.Xoa(item);
+    public void Xoa(string ma) => Lenh.Xoa(ma);
 }

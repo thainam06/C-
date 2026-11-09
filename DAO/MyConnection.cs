@@ -20,10 +20,19 @@ public static class MyConnection
         catch { connection.Dispose(); throw; }
     }
 
+    // Tra ket noi CHUA mo, cung quy uoc voi mau DAO cua nhom.
+    public static MySqlConnection GetConnection()
+    {
+        var chuoi = Environment.GetEnvironmentVariable("QLMB_MYSQL_CONNECTION");
+        if (string.IsNullOrWhiteSpace(chuoi))
+            throw new InvalidOperationException("Chưa cấu hình QLMB_MYSQL_CONNECTION cho MySQL.");
+        return new MySqlConnection(chuoi);
+    }
+
     public static DbConnection MoKetNoiDuLieu()
     {
         if (!DungMySql) return MoKetNoi();
-        var connection = new MySqlConnection(Environment.GetEnvironmentVariable("QLMB_MYSQL_CONNECTION"));
+        var connection = GetConnection();
         try { connection.Open(); return connection; }
         catch { connection.Dispose(); throw; }
     }

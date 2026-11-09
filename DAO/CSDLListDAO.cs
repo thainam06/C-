@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Data.Common;
+using MySqlConnector;
 using QuanLyMayBay.DTO;
 
 namespace QuanLyMayBay.DAO;
@@ -86,6 +87,8 @@ public static class CSDLListDAO
 
     private static List<object> ReadRows(Type type, AnhXaBangSql map, DbConnection connection, DbTransaction? transaction)
     {
+        if (MyConnection.DungMySql && DanhMucMySql.Tim(type) is { } dao)
+            return dao.Doc((MySqlConnection)connection, (MySqlTransaction?)transaction, map);
         var data = new List<object>();
         var fields = type.GetProperties().Where(x => x.CanRead && x.CanWrite && map.Columns.ContainsKey(x.Name)).ToArray();
         using var command = Command(connection, transaction, "SELECT " + string.Join(",", fields.Select(x => TenSql(map.Columns[x.Name])))
@@ -138,16 +141,7 @@ public static class CSDLListDAO
         var batches = tables.Select(x => (Batch: x, Map: DocAnhXa(x.Type))).ToList();
         using var connection = MyConnection.MoKetNoiDuLieu();
         if (MyConnection.DungMySql)
-            foreach (var batch in batches)
-            {
-                var names = batch.Map.Table.Split('.');
-                using var check = Command(connection, null,
-                    "SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=COALESCE(@schema,DATABASE()) AND TABLE_NAME=@table");
-                AddParameter(check, "@schema", names.Length == 2 ? names[0] : null);
-                AddParameter(check, "@table", names[^1]);
-                if (!string.Equals(Convert.ToString(check.ExecuteScalar()), "InnoDB", StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("Chỉ ghi bảng MySQL InnoDB để bảo đảm rollback và khóa giao dịch. Kiểm tra bảng " + batch.Map.Table);
-            }
+            foreach (var batch in batches) KiemTraBangMySql(connection, batch.Map);
         using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
         foreach (var batch in batches)
         {
@@ -163,7 +157,18 @@ public static class CSDLListDAO
         return true;
     }
 
-    private static void KiemTraGiaTriMySql(DbConnection connection, DbTransaction transaction, Type type, AnhXaBangSql map, List<object> rows)
+    internal static void KiemTraBangMySql(DbConnection connection, AnhXaBangSql map)
+    {
+        var names = map.Table.Split('.');
+        using var check = Command(connection, null,
+            "SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=COALESCE(@schema,DATABASE()) AND TABLE_NAME=@table");
+        AddParameter(check, "@schema", names.Length == 2 ? names[0] : null);
+        AddParameter(check, "@table", names[^1]);
+        if (!string.Equals(Convert.ToString(check.ExecuteScalar()), "InnoDB", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Chỉ ghi bảng MySQL InnoDB để bảo đảm rollback và khóa giao dịch. Kiểm tra bảng " + map.Table);
+    }
+
+    internal static void KiemTraGiaTriMySql(DbConnection connection, DbTransaction transaction, Type type, AnhXaBangSql map, List<object> rows)
     {
         var names = map.Table.Split('.');
         using var command = Command(connection, transaction,
@@ -202,8 +207,8 @@ public static class CSDLListDAO
         foreach (var row in rows)
         {
             using var command = Command(connection, transaction, "");
-            for (int i = 0; i < fields.Length; i++) AddParameter(command, "@p" + i, fields[i].GetValue(row));
-            string Param(PropertyInfo p) => "@p" + Array.IndexOf(fields, p);
+            for (int i = 0; i < fields.Length; i++) AddParameter(command, MyConnection.DungMySql ? "@" + fields[i].Name : "@p" + i, fields[i].GetValue(row));
+            string Param(PropertyInfo p) => MyConnection.DungMySql ? "@" + p.Name : "@p" + Array.IndexOf(fields, p);
             var where = string.Join(" AND ", keys.Select(x => TenSql(map.Columns[x.Name]) + "=" + Param(x)));
             var insert = "INSERT INTO " + Table(map) + " (" + string.Join(",", fields.Select(x => TenSql(map.Columns[x.Name])))
                 + ") VALUES (" + string.Join(",", fields.Select(Param)) + ");";
@@ -215,6 +220,8 @@ public static class CSDLListDAO
                 command.CommandText = exists
                     ? "UPDATE " + Table(map) + " SET " + string.Join(",", values.Select(x => TenSql(map.Columns[x.Name]) + "=" + Param(x))) + " WHERE " + where
                     : insert;
+                if (DanhMucMySql.Tim(type) is { } dao)
+                    command.CommandText = exists ? dao.LenhSua(map) : dao.LenhThem(map);
                 command.ExecuteNonQuery();
                 continue;
             }
@@ -244,7 +251,12 @@ public static class CSDLListDAO
             using var command = Command(connection, transaction, "");
             command.CommandText = "DELETE FROM " + Table(map) + " WHERE "
                 + string.Join(" AND ", keys.Select((x, i) => TenSql(map.Columns[x.Name]) + "=@k" + i));
-            for (int i = 0; i < values.Length; i++) AddParameter(command, "@k" + i, values[i]);
+            if (MyConnection.DungMySql && DanhMucMySql.Tim(type) is { } dao)
+            {
+                command.CommandText = dao.LenhXoa(map);
+                for (int i = 0; i < values.Length; i++) AddParameter(command, "@" + keys[i].Name, values[i]);
+            }
+            else for (int i = 0; i < values.Length; i++) AddParameter(command, "@k" + i, values[i]);
             command.ExecuteNonQuery();
         }
     }

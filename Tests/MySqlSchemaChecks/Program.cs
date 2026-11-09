@@ -72,6 +72,7 @@ internal static class MySqlSchemaChecks
         Sql("INSERT INTO ChiTietHoaDon(MaHD,MaVe,DonGiaVe,SL) VALUES('HD01','V01',1000000,2)");
         Check(Convert.ToDecimal(Scalar("SELECT ThanhTien FROM ChiTietHoaDon WHERE MaHD='HD01'")) == 2000000, "Computed invoice total preserved as generated column");
         Check(Scalar("SELECT NgayDat FROM DatVe WHERE MaDV='DV01'") is DateTime, "GETDATE default converted to CURRENT_TIMESTAMP");
+        MySqlDaoCrudChecks.Run(Check, connection);
         Console.WriteLine($"{count} uploaded-schema MySQL checks passed.");
         return 0;
     }

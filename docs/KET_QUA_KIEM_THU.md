@@ -1,3 +1,16 @@
+# Cập nhật DAO theo mẫu HangHangKhongDAO của nhóm
+
+- 10 DAO danh mục có DocDS/Them/Sua/Xoa; bổ sung MyConnection.GetConnection trả kết nối MySQL chưa mở. Các reader và câu lệnh này cũng được dùng trong đường Doc/Luu của BUS, không chỉ là ví dụ rời.
+- **92 kiểm tra MySqlSchemaChecks qua**, bao gồm 49 kiểm tra schema trước đó và 43 kiểm tra CRUD/khả năng tương thích mới: thêm/sửa/xóa cả 10 danh mục, tiếng Việt/dấu nháy, số thập phân và ngày NULL, lỗi khóa ngoại/trùng mã, độ dài/độ chính xác, dòng không tồn tại, sửa không đổi dữ liệu, mapping tên bảng/cột tùy chỉnh và DocDS → Luu.
+- **20 kiểm tra MySqlChecks qua** sau refactor: kiểm tra xung đột và rollback giao dịch nhiều bảng vẫn hoạt động. Hai bộ dùng MySQL 8.4 riêng qua Unix socket, không dùng CSDL nhóm.
+- **171 kiểm tra hồi quy qua**; build WinForms Release cuối cùng 0 lỗi/0 cảnh báo.
+- Đã gặp và sửa lỗi ép kiểu khi đọc HanhLyKg INT vào DTO decimal trong lượt thử đầu. Lượt cuối dùng chuyển đổi số đúng kiểu và cả hai bộ MySQL đã qua. Kiểm tra decimal so sánh theo giá trị, không so sánh chuỗi JSON 12.5 với 12.50.
+- Chưa bấm thử WinForms trên Windows. Phần nghiệp vụ đặt/bán/hủy vé và nguồn chi phí vẫn giữ trạng thái chưa hoàn tất.
+
+Xem DAO_THEO_MAU.md về cách gọi API. Các hàm CRUD trực tiếp ghi từng dòng, không có token phiên ở hàm Sua; giao diện qua BUS vẫn dùng kiểm tra phiên dữ liệu khi Luu danh sách. Không tự thay các quy tắc BUS bằng lời gọi DAO từ GUI.
+
+---
+
 # Kiểm tra DDL BanVeMayBay.sql được cung cấp
 
 - Đã nhận file nguồn SQL Server, chỉ có schema; chuyển thành `docs/mysql/BanVeMayBay.mysql.sql`, nhập thành công bằng MySQL 8.4 vào database test mới.

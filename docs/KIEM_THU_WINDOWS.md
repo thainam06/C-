@@ -1,3 +1,10 @@
+## Sau khi đổi DAO theo mẫu
+
+- Cấu hình MySQL rồi mở từng danh mục, chọn dòng và thử thêm/sửa/xóa qua BUS như trước.
+- Đọc Hạng vé có HanhLyKg kiểu INT không được báo lỗi ép kiểu sang decimal; Hành khách ngày sinh NULL vẫn phải hiển thị trống.
+- Thử tên có dấu nháy và tiếng Việt; lưu lại phải giữ nguyên chữ.
+- Thử hai phiên ứng dụng cùng sửa: phiên lưu sau phải báo xung đột thay vì ghi đè. Việc có các hàm DAO CRUD mới không bỏ kiểm tra này khỏi luồng BUS.
+
 ## Kiểm tra theo DDL đã cung cấp
 
 - Nhập script MySQL vào schema mới qua Workbench theo docs/mysql/README.md, cấu hình kết nối và mở project gốc.

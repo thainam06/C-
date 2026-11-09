@@ -4,6 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="../../docs/mysql/ThamSo.optional.sql" Link="ThamSo.optional.sql" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="../../Core/QuanLyMayBay.Core.csproj" />
     <None Include="../../docs/mysql-mapping.BanVeMayBay.json" Link="mysql-mapping.BanVeMayBay.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../docs/mysql/schema-manifest.json" Link="schema-manifest.json" CopyToOutputDirectory="PreserveNewest" />
