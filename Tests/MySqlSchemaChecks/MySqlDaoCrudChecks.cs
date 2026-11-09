@@ -47,8 +47,8 @@ internal static class MySqlDaoCrudChecks
         foreach (var test in cases) { test.Update(); check(test.HasUpdated(), test.Name + ": Sua + DocDS preserve typed fields"); }
         void Reject<T>(Action action, string name) where T : Exception
         { try { action(); } catch (T) { check(true, name); return; } throw new Exception("FAIL: " + name); }
-        Reject<MySqlException>(() => customer.Xoa("T_KH"), "Direct Xoa respects parent foreign key");
-        Reject<MySqlException>(() => staff.Them(new NhanVien("T_NV", "Duplicate", "User", "Test")), "Direct Them rejects duplicate rather than replacing row");
+        Reject<InvalidOperationException>(() => customer.Xoa("T_KH"), "Direct Xoa respects parent foreign key");
+        Reject<InvalidOperationException>(() => staff.Them(new NhanVien("T_NV", "Duplicate", "User", "Test")), "Direct Them rejects duplicate rather than replacing row");
         Reject<ArgumentException>(() => fare.Sua(new HangVe("HV02", "Hạng thương gia", 40.5m, 1)), "Direct Sua rejects fractional integer luggage");
         Reject<ArgumentException>(() => plane.Them(new MayBay("TOO_LONG_CODE", "VN")), "Direct Them enforces actual VARCHAR length");
         Reject<ArgumentException>(() => staff.Sua(new NhanVien("MISSING", "A", "B", "Test")), "Direct Sua reports missing key");

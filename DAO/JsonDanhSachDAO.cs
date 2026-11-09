@@ -16,6 +16,8 @@ public class JsonDanhSachDAO<T> where T : class, new()
             "QuanLyMayBay", tenFile));
     }
 
+    protected void GhiNhanDanhSach(IReadOnlyCollection<T> data) => sql.GhiNhanDaDoc(data);
+
     public List<T> Doc()
     {
         if (sql.ThuDoc(out var dataSql)) return dataSql;

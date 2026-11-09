@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Data.Common;
-using MySqlConnector;
 using QuanLyMayBay.DTO;
 
 namespace QuanLyMayBay.DAO;
@@ -79,6 +78,11 @@ public static class CSDLListDAO
         data = new List<T>(); version = null;
         if (!MyConnection.DaCauHinh) return false;
         var map = DocAnhXa(typeof(T));
+        if (MyConnection.DungMySql && DanhMucMySql.ThuDoc<T>(out data))
+        {
+            version = Version(data.Cast<object>(), map);
+            return true;
+        }
         using var connection = MyConnection.MoKetNoiDuLieu();
         data = ReadRows(typeof(T), map, connection, null).Cast<T>().ToList();
         version = Version(data.Cast<object>(), map);
@@ -87,8 +91,6 @@ public static class CSDLListDAO
 
     private static List<object> ReadRows(Type type, AnhXaBangSql map, DbConnection connection, DbTransaction? transaction)
     {
-        if (MyConnection.DungMySql && DanhMucMySql.Tim(type) is { } dao)
-            return dao.Doc((MySqlConnection)connection, (MySqlTransaction?)transaction, map);
         var data = new List<object>();
         var fields = type.GetProperties().Where(x => x.CanRead && x.CanWrite && map.Columns.ContainsKey(x.Name)).ToArray();
         using var command = Command(connection, transaction, "SELECT " + string.Join(",", fields.Select(x => TenSql(map.Columns[x.Name])))
@@ -130,7 +132,7 @@ public static class CSDLListDAO
         }
     }
 
-    private static string Version(IEnumerable<object> rows, AnhXaBangSql map) => string.Join("\n",
+    internal static string Version(IEnumerable<object> rows, AnhXaBangSql map) => string.Join("\n",
         rows.Select(row => JsonSerializer.Serialize(row.GetType().GetProperties()
             .Where(p => map.Columns.ContainsKey(p.Name)).OrderBy(p => p.Name)
             .ToDictionary(p => p.Name, p => p.GetValue(row)))).OrderBy(x => x, StringComparer.Ordinal));
@@ -220,8 +222,6 @@ public static class CSDLListDAO
                 command.CommandText = exists
                     ? "UPDATE " + Table(map) + " SET " + string.Join(",", values.Select(x => TenSql(map.Columns[x.Name]) + "=" + Param(x))) + " WHERE " + where
                     : insert;
-                if (DanhMucMySql.Tim(type) is { } dao)
-                    command.CommandText = exists ? dao.LenhSua(map) : dao.LenhThem(map);
                 command.ExecuteNonQuery();
                 continue;
             }
@@ -251,12 +251,7 @@ public static class CSDLListDAO
             using var command = Command(connection, transaction, "");
             command.CommandText = "DELETE FROM " + Table(map) + " WHERE "
                 + string.Join(" AND ", keys.Select((x, i) => TenSql(map.Columns[x.Name]) + "=@k" + i));
-            if (MyConnection.DungMySql && DanhMucMySql.Tim(type) is { } dao)
-            {
-                command.CommandText = dao.LenhXoa(map);
-                for (int i = 0; i < values.Length; i++) AddParameter(command, "@" + keys[i].Name, values[i]);
-            }
-            else for (int i = 0; i < values.Length; i++) AddParameter(command, "@k" + i, values[i]);
+            for (int i = 0; i < values.Length; i++) AddParameter(command, "@k" + i, values[i]);
             command.ExecuteNonQuery();
         }
     }
@@ -268,6 +263,7 @@ internal sealed class PhienBangSql<T> where T : new()
 {
     private string? version;
     public bool ThuDoc(out List<T> data) => CSDLListDAO.ThuDoc(out data, out version);
+    internal void GhiNhanDaDoc(IReadOnlyCollection<T> data) => version = CSDLListDAO.Version(data.Cast<object>(), CSDLListDAO.DocAnhXa(typeof(T)));
     internal LoGhiSql TaoLo(IReadOnlyCollection<T> data) => new(typeof(T), data.Cast<object>().ToList(), version, v => version = v);
     public bool ThuLuu(IReadOnlyCollection<T> data) => CSDLListDAO.ThuLuuNhieu(new[] { TaoLo(data) });
 }

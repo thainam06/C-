@@ -1,3 +1,14 @@
+# Viết lại DAO có đầy đủ SQL trong từng hàm theo file mẫu
+
+- Đã thay các hàm chuyển tiếp Lenh.DocDS/Them/Sua/Xoa bằng thân hàm CRUD trực tiếp trong cả 10 DAO: MySqlConnection từ GetConnection, try mở kết nối, SQL + MySqlCommand + tham số, reader/while tạo DTO, catch thông báo lỗi giữ InnerException, finally đóng kết nối.
+- DocDS là đường đọc MySQL thật khi BUS gọi Doc. DocDS ở 6 DAO có Luu vẫn ghi nhận snapshot. Luu nhiều bảng giữ giao dịch chung, kiểm tra xung đột và rollback.
+- Build WinForms Release **0 lỗi/0 cảnh báo**; **171 kiểm tra hồi quy qua**, **92 kiểm tra schema/CRUD qua**, **20 kiểm tra MySQL chung qua**. Cả hai bộ MySQL dùng MySQL 8.4 trong container riêng, không mở cổng mạng và không dùng CSDL nhóm.
+- Đã kiểm tra lại CRUD từng DAO, mapping tùy chỉnh, ngày NULL, đọc INT vào decimal, dấu nháy/Unicode, FK/UNIQUE, giới hạn độ dài/độ chính xác, bản ghi không tồn tại, snapshot DocDS→Luu và rollback/xung đột phiên.
+- Các lỗi FK/UNIQUE ở CRUD trực tiếp nay được bọc InvalidOperationException có MySqlException gốc trong InnerException theo cấu trúc catch của mẫu. Bộ kiểm tra đã được chỉnh theo hợp đồng này; các lỗi validation giữ ArgumentException.
+- Chưa chạy thao tác GUI WinForms trên Windows; nghiệp vụ bán/hủy vé và thống kê chi phí chưa được bổ sung trong lần sửa cấu trúc DAO này.
+
+---
+
 # Cập nhật DAO theo mẫu HangHangKhongDAO của nhóm
 
 - 10 DAO danh mục có DocDS/Them/Sua/Xoa; bổ sung MyConnection.GetConnection trả kết nối MySQL chưa mở. Các reader và câu lệnh này cũng được dùng trong đường Doc/Luu của BUS, không chỉ là ví dụ rời.

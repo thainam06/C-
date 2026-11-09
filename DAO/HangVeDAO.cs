@@ -1,23 +1,174 @@
+using System.Data;
+using System.Globalization;
+using MySqlConnector;
 using QuanLyMayBay.DTO;
 
 namespace QuanLyMayBay.DAO;
 
 public class HangVeDAO
 {
-    // CRUD MySQL theo mau HangHangKhongDAO cua nhom.
-    internal static readonly LenhDanhMucMySql Lenh = new(typeof(HangVe),
-        new[] { "MaHV", "TenHV", "HanhLyKg", "DonGiaVe" },
-        (reader, map) => new HangVe
+    public List<HangVe> DocDS()
+    {
+        List<HangVe> danhSach = new List<HangVe>();
+        using MySqlConnection connection = MyConnection.GetConnection();
+        try
         {
-            MaHV = DanhMucMySql.Chuoi(reader, "MaHV"),
-            TenHV = DanhMucMySql.Chuoi(reader, "TenHV"),
-            HanhLyKg = DanhMucMySql.SoThapPhan(reader, "HanhLyKg"),
-            DonGiaVe = DanhMucMySql.SoThapPhan(reader, "DonGiaVe"),
-        });
+            connection.Open();
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangVe));
+            string query = $"SELECT {DanhMucMySql.Cot(map, "MaHV")} AS `MaHV`, {DanhMucMySql.Cot(map, "TenHV")} AS `TenHV`, {DanhMucMySql.Cot(map, "HanhLyKg")} AS `HanhLyKg`, {DanhMucMySql.Cot(map, "DonGiaVe")} AS `DonGiaVe`";
+            query += $" FROM {DanhMucMySql.Bang(map)}";
+            using MySqlCommand command = new MySqlCommand(query, connection);
+            using MySqlDataReader reader = command.ExecuteReader();
+            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(HangVe));
+            while (reader.Read())
+            {
+                HangVe item = new HangVe();
+                item.MaHV = reader.IsDBNull(reader.GetOrdinal("MaHV")) ? "" : reader.GetString("MaHV").TrimEnd();
+                item.TenHV = reader.IsDBNull(reader.GetOrdinal("TenHV")) ? "" : reader.GetString("TenHV").TrimEnd();
+                item.HanhLyKg = Convert.ToDecimal(reader["HanhLyKg"], CultureInfo.InvariantCulture);
+                item.DonGiaVe = Convert.ToDecimal(reader["DonGiaVe"], CultureInfo.InvariantCulture);
+                danhSach.Add(item);
+            }
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Lỗi đọc thông tin hạng vé: " + ex.Message, ex);
+        }
+        finally
+        {
+            connection.Close();
+        }
+        return danhSach;
+    }
 
-    public List<HangVe> DocDS() => Lenh.DocDS<HangVe>();
-    public void Them(HangVe item) => Lenh.Them(item);
-    public void Sua(HangVe item) => Lenh.Sua(item);
-    public void Xoa(HangVe item) => Lenh.Xoa(item);
-    public void Xoa(string ma) => Lenh.Xoa(ma);
+    public void Them(HangVe item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        using MySqlConnection connection = MyConnection.GetConnection();
+        try
+        {
+            connection.Open();
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangVe));
+            CSDLListDAO.KiemTraBangMySql(connection, map);
+            using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
+            string query = $"INSERT INTO {DanhMucMySql.Bang(map)} ({DanhMucMySql.Cot(map, "MaHV")}, {DanhMucMySql.Cot(map, "TenHV")}, {DanhMucMySql.Cot(map, "HanhLyKg")}, {DanhMucMySql.Cot(map, "DonGiaVe")}) VALUES (@MaHV, @TenHV, @HanhLyKg, @DonGiaVe)";
+            using MySqlCommand command = new MySqlCommand(query, connection, transaction);
+            command.Parameters.AddWithValue("@MaHV", (object?)item.MaHV ?? DBNull.Value);
+            command.Parameters.AddWithValue("@TenHV", (object?)item.TenHV ?? DBNull.Value);
+            command.Parameters.AddWithValue("@HanhLyKg", item.HanhLyKg);
+            command.Parameters.AddWithValue("@DonGiaVe", item.DonGiaVe);
+            command.ExecuteNonQuery();
+            transaction.Commit();
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Lỗi ghi thông tin hạng vé: " + ex.Message, ex);
+        }
+        finally
+        {
+            connection.Close();
+        }
+    }
+
+    public void Sua(HangVe item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        using MySqlConnection connection = MyConnection.GetConnection();
+        try
+        {
+            connection.Open();
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangVe));
+            CSDLListDAO.KiemTraBangMySql(connection, map);
+            using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
+            string[] cacCot = new[] { "MaHV", "TenHV", "HanhLyKg", "DonGiaVe" };
+            string query = $"UPDATE {DanhMucMySql.Bang(map)} SET "
+                + string.Join(", ", cacCot.Where(x => !map.KeyColumns.Contains(x)).Select(x => DanhMucMySql.Cot(map, x) + "=@" + x))
+                + " WHERE " + DanhMucMySql.DieuKienKhoa(map);
+            using MySqlCommand command = new MySqlCommand(query, connection, transaction);
+            command.Parameters.AddWithValue("@MaHV", (object?)item.MaHV ?? DBNull.Value);
+            command.Parameters.AddWithValue("@TenHV", (object?)item.TenHV ?? DBNull.Value);
+            command.Parameters.AddWithValue("@HanhLyKg", item.HanhLyKg);
+            command.Parameters.AddWithValue("@DonGiaVe", item.DonGiaVe);
+            // Khoa dong truoc khi UPDATE; sua khong doi du lieu van hop le.
+            command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
+            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần sửa.");
+            command.CommandText = query;
+            if (cacCot.All(map.KeyColumns.Contains)) { transaction.Commit(); return; }
+            command.ExecuteNonQuery();
+            transaction.Commit();
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Lỗi sửa thông tin hạng vé: " + ex.Message, ex);
+        }
+        finally
+        {
+            connection.Close();
+        }
+    }
+
+    public void Xoa(string ma)
+    {
+        using MySqlConnection connection = MyConnection.GetConnection();
+        try
+        {
+            connection.Open();
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangVe));
+            if (string.IsNullOrWhiteSpace(ma)) throw new ArgumentException("Vui lòng nhập mã cần xóa.");
+            if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép. Hãy dùng Xoa(dto).");
+            CSDLListDAO.KiemTraBangMySql(connection, map);
+            using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+            DanhMucMySql.KiemTraBangKhoa<HangVe>(connection, transaction, map);
+            string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
+            using MySqlCommand command = new MySqlCommand(query, connection, transaction);
+            command.Parameters.AddWithValue("@" + map.KeyColumns[0], ma);
+            command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
+            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần xóa.");
+            command.CommandText = query;
+            command.ExecuteNonQuery();
+            transaction.Commit();
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Lỗi xóa thông tin hạng vé: " + ex.Message, ex);
+        }
+        finally
+        {
+            connection.Close();
+        }
+    }
+
+    public void Xoa(HangVe item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        using MySqlConnection connection = MyConnection.GetConnection();
+        try
+        {
+            connection.Open();
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangVe));
+            CSDLListDAO.KiemTraBangMySql(connection, map);
+            using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item, xoa: true);
+            string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
+            using MySqlCommand command = new MySqlCommand(query, connection, transaction);
+            foreach (string khoa in map.KeyColumns)
+                command.Parameters.AddWithValue("@" + khoa, typeof(HangVe).GetProperty(khoa)!.GetValue(item) ?? DBNull.Value);
+            command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
+            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần xóa.");
+            command.CommandText = query;
+            command.ExecuteNonQuery();
+            transaction.Commit();
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Lỗi xóa thông tin hạng vé: " + ex.Message, ex);
+        }
+        finally
+        {
+            connection.Close();
+        }
+    }
+
 }

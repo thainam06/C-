@@ -11,7 +11,8 @@ bán vé; nghiệp vụ đặt/bán/hủy vé và tồn ghế theo chuyến chư
 
 Đã có `DocDS`, `Them`, `Sua`, `Xoa` cho 10 DAO danh mục, gồm các DAO riêng cho
 Máy bay/Ghế/Hạng vé/Hãng hàng không. Xem [cách dùng và tích hợp BUS](docs/DAO_THEO_MAU.md).
-Mỗi DAO đọc các trường DTO rõ ràng; phần SQL có tham số/kết nối dùng chung.
+Mỗi DAO có trực tiếp SQL, MySqlCommand, vòng đọc DTO và try/catch/finally trong các hàm;
+không còn các hàm chỉ gọi Lenh.Them/Lenh.Sua. Giá trị SQL vẫn dùng tham số.
 
 ## MySQL và ListView (cập nhật mới)
 
