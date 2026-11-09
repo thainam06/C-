@@ -1,5 +1,4 @@
 using System.Data;
-using System.Globalization;
 using MySqlConnector;
 using QuanLyMayBay.DTO;
 
@@ -11,41 +10,42 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
 
     public List<Voucher> DocDS()
     {
-        List<Voucher> danhSach = new List<Voucher>();
+        List<Voucher> dsvc = new List<Voucher>();
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
             AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
-            string query = $"SELECT {DanhMucMySql.Cot(map, "MaVoucher")} AS `MaVoucher`, {DanhMucMySql.Cot(map, "MaCTKM")} AS `MaCTKM`, {DanhMucMySql.Cot(map, "GiamGia")} AS `GiamGia`";
-            query += $" FROM {DanhMucMySql.Bang(map)}";
+            string query = "SELECT MaVoucher,MaCTKM,GiamGia FROM Voucher";
+            query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection);
             using MySqlDataReader reader = command.ExecuteReader();
             DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(Voucher));
             while (reader.Read())
             {
-                Voucher item = new Voucher();
-                item.MaVoucher = reader.IsDBNull(reader.GetOrdinal("MaVoucher")) ? "" : reader.GetString("MaVoucher").TrimEnd();
-                item.MaCTKM = reader.IsDBNull(reader.GetOrdinal("MaCTKM")) ? "" : reader.GetString("MaCTKM").TrimEnd();
-                item.GiamGia = Convert.ToDecimal(reader["GiamGia"], CultureInfo.InvariantCulture);
-                danhSach.Add(item);
+                Voucher vc = new Voucher();
+                vc.MaVoucher = (reader.IsDBNull(reader.GetOrdinal("MaVoucher")) ? "" : reader.GetString("MaVoucher").TrimEnd());
+                vc.MaCTKM = (reader.IsDBNull(reader.GetOrdinal("MaCTKM")) ? "" : reader.GetString("MaCTKM").TrimEnd());
+                vc.GiamGia = reader.GetDecimal("GiamGia");
+                dsvc.Add(vc);
             }
+            reader.Close();
         }
         catch (MySqlException ex)
         {
-            throw new InvalidOperationException("Lỗi đọc thông tin voucher: " + ex.Message, ex);
+            throw new InvalidOperationException("Lỗi đọc thông tin voucher!" + " " + ex.Message, ex);
         }
         finally
         {
             connection.Close();
         }
-        GhiNhanDanhSach(danhSach);
-        return danhSach;
+        GhiNhanDanhSach(dsvc);
+        return dsvc;
     }
 
-    public void Them(Voucher item)
+    public void Them(Voucher vc)
     {
-        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(vc);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
@@ -53,18 +53,19 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
             AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
-            string query = $"INSERT INTO {DanhMucMySql.Bang(map)} ({DanhMucMySql.Cot(map, "MaVoucher")}, {DanhMucMySql.Cot(map, "MaCTKM")}, {DanhMucMySql.Cot(map, "GiamGia")}) VALUES (@MaVoucher, @MaCTKM, @GiamGia)";
+            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, vc);
+            string query = "INSERT INTO Voucher(MaVoucher,MaCTKM,GiamGia) VALUES (@MaVoucher,@MaCTKM,@GiamGia)";
+            query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
-            command.Parameters.AddWithValue("@MaVoucher", (object?)item.MaVoucher ?? DBNull.Value);
-            command.Parameters.AddWithValue("@MaCTKM", (object?)item.MaCTKM ?? DBNull.Value);
-            command.Parameters.AddWithValue("@GiamGia", item.GiamGia);
-            command.ExecuteNonQuery();
+            command.Parameters.AddWithValue("@MaVoucher", vc.MaVoucher);
+            command.Parameters.AddWithValue("@MaCTKM", vc.MaCTKM);
+            command.Parameters.AddWithValue("@GiamGia", vc.GiamGia);
+            int r = command.ExecuteNonQuery();
             transaction.Commit();
         }
         catch (MySqlException ex)
         {
-            throw new InvalidOperationException("Lỗi ghi thông tin voucher: " + ex.Message, ex);
+            throw new InvalidOperationException("Lỗi ghi thông tin voucher!" + " " + ex.Message, ex);
         }
         finally
         {
@@ -72,9 +73,9 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
         }
     }
 
-    public void Sua(Voucher item)
+    public void Sua(Voucher vc)
     {
-        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(vc);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
@@ -82,26 +83,22 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
             AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
-            string[] cacCot = new[] { "MaVoucher", "MaCTKM", "GiamGia" };
-            string query = $"UPDATE {DanhMucMySql.Bang(map)} SET "
-                + string.Join(", ", cacCot.Where(x => !map.KeyColumns.Contains(x)).Select(x => DanhMucMySql.Cot(map, x) + "=@" + x))
-                + " WHERE " + DanhMucMySql.DieuKienKhoa(map);
+            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, vc);
+            string query = "UPDATE Voucher SET MaCTKM=@MaCTKM, GiamGia=@GiamGia WHERE MaVoucher=@MaVoucher";
+            query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
-            command.Parameters.AddWithValue("@MaVoucher", (object?)item.MaVoucher ?? DBNull.Value);
-            command.Parameters.AddWithValue("@MaCTKM", (object?)item.MaCTKM ?? DBNull.Value);
-            command.Parameters.AddWithValue("@GiamGia", item.GiamGia);
-            // Khoa dong truoc khi UPDATE; sua khong doi du lieu van hop le.
+            command.Parameters.AddWithValue("@MaCTKM", vc.MaCTKM);
+            command.Parameters.AddWithValue("@GiamGia", vc.GiamGia);
+            command.Parameters.AddWithValue("@MaVoucher", vc.MaVoucher);
             command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
-            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần sửa.");
+            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần sửa/xóa.");
             command.CommandText = query;
-            if (cacCot.All(map.KeyColumns.Contains)) { transaction.Commit(); return; }
-            command.ExecuteNonQuery();
+            int r = command.ExecuteNonQuery();
             transaction.Commit();
         }
         catch (MySqlException ex)
         {
-            throw new InvalidOperationException("Lỗi sửa thông tin voucher: " + ex.Message, ex);
+            throw new InvalidOperationException("Lỗi sửa thông tin voucher!" + " " + ex.Message, ex);
         }
         finally
         {
@@ -111,64 +108,39 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
 
     public void Xoa(string ma)
     {
+        if (string.IsNullOrWhiteSpace(ma)) throw new ArgumentException("Vui lòng nhập mã cần xóa.");
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
             AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
-            if (string.IsNullOrWhiteSpace(ma)) throw new ArgumentException("Vui lòng nhập mã cần xóa.");
-            if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép. Hãy dùng Xoa(dto).");
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+            if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép; cần cung cấp đủ khóa để xóa.");
             DanhMucMySql.KiemTraBangKhoa<Voucher>(connection, transaction, map);
-            string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
+            string query = "DELETE FROM Voucher WHERE MaVoucher=@MaVoucher";
+            query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
-            command.Parameters.AddWithValue("@" + map.KeyColumns[0], ma);
+            command.Parameters.AddWithValue("@MaVoucher", ma);
             command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
-            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần xóa.");
+            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần sửa/xóa.");
             command.CommandText = query;
-            command.ExecuteNonQuery();
+            int r = command.ExecuteNonQuery();
             transaction.Commit();
         }
         catch (MySqlException ex)
         {
-            throw new InvalidOperationException("Lỗi xóa thông tin voucher: " + ex.Message, ex);
+            throw new InvalidOperationException("Lỗi xóa thông tin voucher!" + " " + ex.Message, ex);
         }
         finally
         {
             connection.Close();
         }
     }
-
     public void Xoa(Voucher item)
     {
         ArgumentNullException.ThrowIfNull(item);
-        using MySqlConnection connection = MyConnection.GetConnection();
-        try
-        {
-            connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
-            CSDLListDAO.KiemTraBangMySql(connection, map);
-            using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item, xoa: true);
-            string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
-            using MySqlCommand command = new MySqlCommand(query, connection, transaction);
-            foreach (string khoa in map.KeyColumns)
-                command.Parameters.AddWithValue("@" + khoa, typeof(Voucher).GetProperty(khoa)!.GetValue(item) ?? DBNull.Value);
-            command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
-            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần xóa.");
-            command.CommandText = query;
-            command.ExecuteNonQuery();
-            transaction.Commit();
-        }
-        catch (MySqlException ex)
-        {
-            throw new InvalidOperationException("Lỗi xóa thông tin voucher: " + ex.Message, ex);
-        }
-        finally
-        {
-            connection.Close();
-        }
+        Xoa(item.MaVoucher);
     }
 
 }

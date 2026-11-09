@@ -7,6 +7,12 @@ Tên đề tài chính thức: **Quản lý bán vé máy bay**. Các danh mục
 bán vé; nghiệp vụ đặt/bán/hủy vé và tồn ghế theo chuyến chưa hoàn tất.
 Đã chuyển DDL SQL Server nhóm gửi sang MySQL 8.4 như hướng dẫn bên dưới.
 
+## 5 DAO tải lên mới
+
+Đã tích hợp Hành khách, Nhân viên, Khách hàng, Voucher và CTKM từ 5 file người dùng gửi,
+chỉnh phần tương thích project theo lựa chọn của người dùng. Bản gốc nguyên vẹn ở
+[examples/DAO-nguoi-dung](examples/DAO-nguoi-dung/README.md); bản chạy ở `DAO/`.
+
 ## DAO theo mẫu của nhóm
 
 Đã có `DocDS`, `Them`, `Sua`, `Xoa` cho 10 DAO danh mục, gồm các DAO riêng cho

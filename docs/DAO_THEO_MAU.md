@@ -1,3 +1,15 @@
+## 5 file DAO người dùng gửi để tích hợp
+
+Bản hiện tại của HanhKhachDAO, NhanVienDAO, KhachHangDAO, VoucherDAO và CTKMDAO lấy từ 5 file tải lên mới. Giữ SQL, thứ tự tham số, biến DTO và try/catch/finally của file gửi; theo lựa chọn của người dùng chỉ điều chỉnh để chạy cùng project.
+
+- Đổi namespace VeMayBay → QuanLyMayBay, tên *DTO → tên DTO đang có, MySql.Data.MySqlClient → MySqlConnector.
+- Voucher.GiamGia dùng GetDecimal theo DTO decimal; đọc các cột có thể NULL, đặc biệt ngày sinh, và truyền DBNull khi lưu ngày trống.
+- SQL vẫn viết trực tiếp trong file. AnhXaCauLenh áp dụng mapping bảng/cột cho các lệnh CRUD tham số hóa một bảng trong 5 file; LoaiKH của DTO được đọc/ghi đúng cột LoaiHK của DDL, không đổi CSDL để theo tên cột sai.
+- Giữ constructor, Doc/Luu và snapshot cho BUS/JSON, kiểm tra kiểu/giới hạn và giao dịch đang có. Xoa(dto) của 5 file là cách gọi thuận tiện cho khóa một cột của từng danh mục; không phải API xóa khóa ghép tùy ý.
+- Bản gốc của cả 5 file nằm ở examples/DAO-nguoi-dung/, đối chiếu byte giống file tải lên. Các file ví dụ dùng namespace/provider gốc nên được loại khỏi Compile của ứng dụng.
+
+Đã build và kiểm tra MySQL; xem KET_QUA_KIEM_THU.md. Phần dưới mô tả kiến trúc chung của các DAO.
+
 # DAO theo mẫu HangHangKhongDAO của nhóm
 
 Đã áp dụng cách tách DAO theo danh mục, đọc danh sách và CRUD như file mẫu:
@@ -34,7 +46,7 @@ dao.Sua(new MayBay("M11", "THA")); // THA cũng phải tồn tại
 dao.Xoa("M11");                   // Không xóa nếu đang được tham chiếu
 ```
 
-Ví dụ minh họa API; không tự chạy đoạn này khi khởi động app. Cần cấu hình MySQL theo KET_NOI_MYSQL.md trước. `Them` luôn INSERT và báo lỗi nếu trùng khóa; `Sua` chỉ UPDATE dòng tồn tại; `Xoa(string ma)` dùng khóa chính một cột. Với mapping khóa ghép, dùng `Xoa(dto)` và điền đủ các khóa. Không sửa khóa chính qua hàm Sua.
+Ví dụ minh họa API; không tự chạy đoạn này khi khởi động app. Cần cấu hình MySQL theo KET_NOI_MYSQL.md trước. `Them` luôn INSERT và báo lỗi nếu trùng khóa; `Sua` chỉ UPDATE dòng tồn tại; `Xoa(string ma)` dùng khóa chính một cột. Các danh mục theo DDL nhóm dùng khóa một cột. Overload `Xoa(dto)` của 5 file mới chỉ chuyển tới khóa đó; cần adapter riêng nếu đổi sang khóa ghép. Không sửa khóa chính qua hàm Sua.
 
 Giá trị dùng tham số @MaMayBay, @MHHK... thay vì nối trực tiếp vào câu SQL như mẫu. Tên có dấu nháy, Unicode và chuỗi giống lệnh SQL được giữ như dữ liệu. Tên bảng/cột vẫn lấy từ mapping và quote theo MySQL; không hardcode LoaiKH thành cột sai vì CSDL dùng LoaiHK.
 

@@ -1,3 +1,13 @@
+# Tích hợp 5 file DAO tải lên mới
+
+- Thay phần CRUD của HanhKhach/NhanVien/KhachHang/Voucher/CTKM bằng nội dung từ 5 file người dùng gửi, theo lựa chọn "chỉnh tối thiểu để chạy trong project".
+- Chỉnh namespace/provider/tên DTO cho project, decimal giảm giá, NULL ngày sinh và cột LoaiKH → LoaiHK qua mapping; giữ tương thích BUS/Doc/Luu và các kiểm tra đã có.
+- Lưu nguyên 5 bản gốc ở examples/DAO-nguoi-dung; kiểm tra SHA-256 từng file trùng byte với file tải lên. Loại file tham khảo khỏi Compile của WinForms; không biên dịch namespace/provider của project khác.
+- Build WinForms Release 0 lỗi/0 cảnh báo. 171 kiểm tra hồi quy qua; 92 kiểm tra schema/CRUD và 20 kiểm tra MySQL chung qua trên MySQL 8.4 riêng, Unix socket, không dùng CSDL nhóm.
+- Đã kiểm tra đọc/thêm/sửa/xóa 5 DAO tích hợp cùng các DAO còn lại, mapping tùy chỉnh, giá trị NULL/decimal, lỗi FK/UNIQUE, snapshot và rollback. Chưa bấm thử WinForms trên Windows.
+
+---
+
 # Viết lại DAO có đầy đủ SQL trong từng hàm theo file mẫu
 
 - Đã thay các hàm chuyển tiếp Lenh.DocDS/Them/Sua/Xoa bằng thân hàm CRUD trực tiếp trong cả 10 DAO: MySqlConnection từ GetConnection, try mở kết nối, SQL + MySqlCommand + tham số, reader/while tạo DTO, catch thông báo lỗi giữ InnerException, finally đóng kết nối.

@@ -1,4 +1,5 @@
 using MySqlConnector;
+using System.Text.RegularExpressions;
 using QuanLyMayBay.DTO;
 
 namespace QuanLyMayBay.DAO;
@@ -24,6 +25,25 @@ internal static class DanhMucMySql
         };
         rows = data is List<T> typed ? typed : new();
         return data != null;
+    }
+
+    // SQL trong file nguoi dung giu ten thuoc tinh DTO; chuyen sang ten cot CSDL.
+    // Chi ho tro cac lenh CRUD tham so hoa mot bang, khong nhan SQL tuy y tu GUI.
+    internal static string AnhXaCauLenh(string query, AnhXaBangSql map)
+    {
+        var select = Regex.Match(query, @"^SELECT ([A-Za-z0-9_, ]+) FROM [A-Za-z0-9_]+$", RegexOptions.IgnoreCase);
+        if (select.Success)
+            return "SELECT " + string.Join(",", select.Groups[1].Value.Split(',').Select(p => p.Trim())
+                .Select(p => Cot(map, p) + " AS " + CSDLListDAO.TenSql(p))) + " FROM " + Bang(map);
+        // Table token after INSERT INTO/UPDATE/DELETE FROM; column tokens never alter @parameters.
+        var table = Regex.Match(query, @"^(?:INSERT INTO|UPDATE|DELETE FROM) ([A-Za-z0-9_]+)", RegexOptions.IgnoreCase);
+        if (!table.Success) throw new ArgumentException("Câu SQL không phải CRUD một bảng được hỗ trợ.");
+        var tableToken = table.Groups[1];
+        var before = query[..tableToken.Index];
+        var after = query[(tableToken.Index + tableToken.Length)..];
+        after = Regex.Replace(after, @"(?<![@\w])[A-Za-z_][A-Za-z0-9_]*", match =>
+            map.Columns.TryGetValue(match.Value, out var column) ? CSDLListDAO.TenSql(column) : match.Value);
+        return before + Bang(map) + after;
     }
 
     internal static string Bang(AnhXaBangSql map) => string.Join(".", map.Table.Split('.').Select(CSDLListDAO.TenSql));
