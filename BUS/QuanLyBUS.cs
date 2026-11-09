@@ -66,11 +66,11 @@ public class QuanLyBUS
     }
 
     private static bool DungKhoaGheToanCuc() => MyConnection.DaCauHinh
-        && SqlServerDanhSachDAO.DocAnhXa(typeof(Ghe)).KeyColumns.SequenceEqual(new[] { nameof(Ghe.MaGhe) });
+        && CSDLListDAO.DocAnhXa(typeof(Ghe)).KeyColumns.SequenceEqual(new[] { nameof(Ghe.MaGhe) });
 
     public ArrayList LayHangHangKhong()
     {
-        if (SqlServerDanhSachDAO.ThuDoc<HangHangKhong>(out var rows, out _)) return new ArrayList(rows);
+        if (CSDLListDAO.ThuDoc<HangHangKhong>(out var rows, out _)) return new ArrayList(rows);
         return new ArrayList(duLieu.MayBay.Select(x => x.MHHK).Distinct(StringComparer.OrdinalIgnoreCase)
             .Select(x => new HangHangKhong { MaHHK = x, TenHang = x }).ToList());
     }

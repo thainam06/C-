@@ -11,6 +11,7 @@ internal static class SqlProfileChecks
     public static void Main()
     {
         Environment.SetEnvironmentVariable("QLMB_SQL_CONNECTION", null);
+        Environment.SetEnvironmentVariable("QLMB_MYSQL_CONNECTION", null);
         var path = Path.Combine(AppContext.BaseDirectory, "sql-mapping.BanVeMayBay.json");
         Environment.SetEnvironmentVariable("QLMB_SQL_MAPPING_FILE", path);
         int count = 0;
@@ -20,27 +21,27 @@ internal static class SqlProfileChecks
         Directory.CreateDirectory(folder);
         try
         {
-            var mayBay = SqlServerDanhSachDAO.DocAnhXa(typeof(MayBay));
+            var mayBay = CSDLListDAO.DocAnhXa(typeof(MayBay));
             Check(mayBay.Table == "dbo.MayBay" && mayBay.Columns["MHHK"] == "MaHHK", "DTO MHHK maps to observed SQL MaHHK");
-            var ghe = SqlServerDanhSachDAO.DocAnhXa(typeof(Ghe));
+            var ghe = CSDLListDAO.DocAnhXa(typeof(Ghe));
             Check(ghe.Columns.Count == 3 && !ghe.Columns.ContainsKey("LoaiGhe"), "Only three physical seat columns selected/written");
             Check(ghe.DerivedColumns["LoaiGhe"] == "LoaiGheTuHangVe", "Seat type marked as derived");
             Check(ghe.KeyColumns.SequenceEqual(new[] { "MaGhe" }), "Seat key is global MaGhe as shown in diagram");
-            var hang = SqlServerDanhSachDAO.DocAnhXa(typeof(HangHangKhong));
+            var hang = CSDLListDAO.DocAnhXa(typeof(HangHangKhong));
             Check(hang.Columns.Keys.OrderBy(x => x).SequenceEqual(new[] { "MaHHK", "TenHang" }), "Airline choices map observed columns");
-            Check(SqlServerDanhSachDAO.DocAnhXa(typeof(HangVe)).Columns.Count == 4, "Ticket class mapping remains complete");
-            Check(SqlServerDanhSachDAO.DocAnhXa(typeof(CTKM)).Columns.ContainsKey("NgayKetThuc"), "Observed campaign columns mapped");
-            Check(SqlServerDanhSachDAO.DocAnhXa(typeof(Voucher)).Columns.ContainsKey("GiamGia"), "Observed voucher columns mapped");
-            Check(SqlServerDanhSachDAO.ChuanHoaKhoaSql("HV01     ") == "HV01", "CHAR padding does not mark retained SQL keys as deleted");
-            Check(SqlServerDanhSachDAO.ChuanHoaKhoaSql(" HV01 ") == " HV01", "Leading spaces are not silently merged into another key");
+            Check(CSDLListDAO.DocAnhXa(typeof(HangVe)).Columns.Count == 4, "Ticket class mapping remains complete");
+            Check(CSDLListDAO.DocAnhXa(typeof(CTKM)).Columns.ContainsKey("NgayKetThuc"), "Observed campaign columns mapped");
+            Check(CSDLListDAO.DocAnhXa(typeof(Voucher)).Columns.ContainsKey("GiamGia"), "Observed voucher columns mapped");
+            Check(CSDLListDAO.ChuanHoaKhoaSql("HV01     ") == "HV01", "CHAR padding does not mark retained SQL keys as deleted");
+            Check(CSDLListDAO.ChuanHoaKhoaSql(" HV01 ") == " HV01", "Leading spaces are not silently merged into another key");
             var normal = new Ghe("G1", "M1", "HV01", Ghe.Vip);
-            SqlServerDanhSachDAO.ApDungCotSuyDien(normal, ghe);
+            CSDLListDAO.ApDungCotSuyDien(normal, ghe);
             Check(normal.LoaiGhe == Ghe.Thuong, "HV01 derives normal seat without SQL LoaiGhe column");
             var vip = new Ghe("G2", "M1", "HV02");
-            SqlServerDanhSachDAO.ApDungCotSuyDien(vip, ghe);
+            CSDLListDAO.ApDungCotSuyDien(vip, ghe);
             Check(vip.LoaiGhe == Ghe.Vip, "HV02 derives VIP seat");
             vip.MaHV = " hv2 ";
-            SqlServerDanhSachDAO.ApDungCotSuyDien(vip, ghe);
+            CSDLListDAO.ApDungCotSuyDien(vip, ghe);
             Check(vip.LoaiGhe == Ghe.Vip, "Derived rule handles legacy code and whitespace");
             var profiles = JsonSerializer.Deserialize<Dictionary<string, AnhXaBangSql>>(File.ReadAllText(path))!;
             var tempMap = Path.Combine(folder, "mapping.json");
@@ -49,7 +50,7 @@ internal static class SqlProfileChecks
                 var candidate = JsonSerializer.Deserialize<Dictionary<string, AnhXaBangSql>>(JsonSerializer.Serialize(profiles))!;
                 change(candidate); File.WriteAllText(tempMap, JsonSerializer.Serialize(candidate));
                 Environment.SetEnvironmentVariable("QLMB_SQL_MAPPING_FILE", tempMap);
-                try { SqlServerDanhSachDAO.DocAnhXa(type); throw new Exception("FAIL: " + name); }
+                try { CSDLListDAO.DocAnhXa(type); throw new Exception("FAIL: " + name); }
                 catch (InvalidDataException) { Check(true, name); }
                 finally { Environment.SetEnvironmentVariable("QLMB_SQL_MAPPING_FILE", path); }
             }

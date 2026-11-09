@@ -10,6 +10,7 @@ internal static class HanhKhachChecks
     public static void Main()
     {
         Environment.SetEnvironmentVariable("QLMB_SQL_CONNECTION", null);
+        Environment.SetEnvironmentVariable("QLMB_MYSQL_CONNECTION", null);
         var folder = Path.Combine(Path.GetTempPath(), "hanhkhach-checks-" + Guid.NewGuid());
         Directory.CreateDirectory(folder);
         int passed = 0;

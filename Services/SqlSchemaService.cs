@@ -9,10 +9,11 @@ public static class SqlSchemaService
     // Chi doc metadata, khong lay du lieu khach hang hay mat khau.
     public static void XuatCauTruc(string path)
     {
-        using var connection = MyConnection.MoKetNoi();
+        using var connection = MyConnection.MoKetNoiDuLieu();
         List<Dictionary<string, object?>> Query(string sql)
         {
-            using var command = new SqlCommand(sql, connection);
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
             using var reader = command.ExecuteReader();
             var rows = new List<Dictionary<string, object?>>();
             while (reader.Read())
@@ -26,7 +27,11 @@ public static class SqlSchemaService
         var data = new
         {
             Database = connection.Database,
-            Columns = Query("""
+            Columns = Query(MyConnection.DungMySql ? """
+                SELECT TABLE_SCHEMA AS SchemaName,TABLE_NAME AS ObjectName,COLUMN_NAME AS ColumnName,
+                  COLUMN_TYPE AS DataType,IS_NULLABLE AS IsNullable,EXTRA AS Extra
+                FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME,ORDINAL_POSITION
+                """ : """
                 SELECT s.name AS SchemaName,o.name AS ObjectName,o.type_desc AS ObjectType,
                   c.name AS ColumnName,ty.name AS DataType,c.max_length AS MaxLengthBytes,
                   c.precision AS NumericPrecision,c.scale AS NumericScale,c.is_nullable AS IsNullable,
@@ -35,7 +40,11 @@ public static class SqlSchemaService
                 JOIN sys.columns c ON c.object_id=o.object_id JOIN sys.types ty ON ty.user_type_id=c.user_type_id
                 WHERE o.type IN ('U','V') AND o.is_ms_shipped=0 ORDER BY s.name,o.name,c.column_id
                 """),
-            PrimaryKeys = Query("""
+            PrimaryKeys = Query(MyConnection.DungMySql ? """
+                SELECT TABLE_SCHEMA AS SchemaName,TABLE_NAME AS TableName,COLUMN_NAME AS ColumnName,ORDINAL_POSITION AS KeyOrder
+                FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND CONSTRAINT_NAME='PRIMARY'
+                ORDER BY TABLE_NAME,ORDINAL_POSITION
+                """ : """
                 SELECT s.name AS SchemaName,t.name AS TableName,c.name AS ColumnName,ic.key_ordinal AS KeyOrder
                 FROM sys.tables t JOIN sys.schemas s ON s.schema_id=t.schema_id
                 JOIN sys.indexes i ON i.object_id=t.object_id AND i.is_primary_key=1
@@ -43,7 +52,13 @@ public static class SqlSchemaService
                 JOIN sys.columns c ON c.object_id=ic.object_id AND c.column_id=ic.column_id
                 ORDER BY s.name,t.name,ic.key_ordinal
                 """),
-            ForeignKeys = Query("""
+            ForeignKeys = Query(MyConnection.DungMySql ? """
+                SELECT CONSTRAINT_NAME AS ConstraintName,TABLE_SCHEMA AS ParentSchema,TABLE_NAME AS ParentTable,
+                  COLUMN_NAME AS ParentColumn,REFERENCED_TABLE_SCHEMA AS ReferencedSchema,
+                  REFERENCED_TABLE_NAME AS ReferencedTable,REFERENCED_COLUMN_NAME AS ReferencedColumn
+                FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL
+                ORDER BY CONSTRAINT_NAME,ORDINAL_POSITION
+                """ : """
                 SELECT fk.name AS ConstraintName,ps.name AS ParentSchema,p.name AS ParentTable,pc.name AS ParentColumn,
                   rs.name AS ReferencedSchema,r.name AS ReferencedTable,rc.name AS ReferencedColumn
                 FROM sys.foreign_keys fk JOIN sys.foreign_key_columns fkc ON fkc.constraint_object_id=fk.object_id

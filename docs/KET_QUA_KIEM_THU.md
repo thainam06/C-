@@ -1,3 +1,19 @@
+# Cập nhật MySQL và ListView ngày 09/11/2026
+
+- Build WinForms Release: 0 lỗi, 0 cảnh báo; đã đổi các bảng GUI còn lại từ DataGridView sang ListView.
+- 171 kiểm tra hồi quy Core/ngoại tuyến tiếp tục qua.
+- **20 kiểm tra MySQL thật qua**, dùng MySQL 8.4 trong Docker riêng, không mở port mạng, kết nối Unix socket. CSDL fixture `qlmb_dao_test`, không dùng CSDL nhóm.
+- Đã kiểm tra DAO insert/update/delete, Unicode, tham số hóa chuỗi chứa SQL, CHAR key, decimal/ngày, loại ghế suy diễn, stale session, lỗi UNIQUE không cập nhật nhầm khóa, FK, rollback nhiều bảng, xóa con trước cha, xuất metadata information_schema, chặn ghi bảng không phải InnoDB.
+- MySqlConnector 2.6.2; restore/build không có cảnh báo lỗ hổng NuGet.
+- Chưa có DDL MySQL của nhóm, chưa kiểm chứng ánh xạ/báo cáo với CSDL thực tế. Mẫu mapping là ví dụ cần đối chiếu. Chưa chạy bấm WinForms trên Windows; build không thay thế kiểm thử giao diện.
+- Báo cáo DOCX cũ chưa cập nhật nội dung MySQL; vẫn là bản nháp.
+
+Chạy hồi quy: `bash tools/test.sh`.
+Kiểm tra MySQL tùy chọn: đặt `QLMB_MYSQL_TEST_CONNECTION` trỏ tới **CSDL test riêng tên qlmb_dao_test đã tạo**, rồi `dotnet run --project Tests/MySqlChecks/Checks.csproj -c Release`.
+Test MySQL xóa/tạo các bảng fixture tại database test này; tuyệt đối không dùng dữ liệu thật. Không có biến test thì báo SKIP. Đây là kiểm tra adapter, không xác nhận schema riêng của nhóm.
+
+---
+
 # Kết quả kiểm tra ngày 08/11/2026
 
 ## Đã thực hiện trong môi trường Linux

@@ -1,3 +1,17 @@
+## Kiểm tra bổ sung MySQL/ListView
+
+Sau khi cấu hình theo KET_NOI_MYSQL.md và ghép đúng DDL:
+
+- Mở từng danh mục: bảng là ListView Details, cột và tiếng Việt đầy đủ, có thanh cuộn.
+- Chọn dòng để sửa/xóa; Nhập mới phải bỏ chọn dòng và cho nhập khóa mới. Chọn lại cùng dòng vẫn điền form được.
+- Hạng vé HV01/HV02 điền đúng loại ghế, bộ lọc và popup chọn dữ liệu vẫn hoạt động.
+- Xuất XLS/PDF từ danh sách đã lọc; mật khẩu không hiển thị/xuất.
+- Bảng tổng hợp và 4 bảng thống kê dùng ListView, số tiền theo tham số; xuất báo cáo đúng danh sách đang xem.
+- Mở 2 phiên, cùng đọc rồi sửa: phiên lưu sau phải báo xung đột nếu dữ liệu đã thay đổi.
+- Sai kết nối hoặc thiếu mapping phải báo lỗi, không tự chuyển sang JSON.
+
+Các bước này cần kiểm tra trên máy Windows thật, chưa được chạy trong môi trường Linux.
+
 # Kiểm tra trên Windows
 
 1. Mở **QuanLyMayBay.csproj**, restore các gói NuGet, chọn project này làm Startup Project.

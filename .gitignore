@@ -6,3 +6,5 @@ obj/
 sql-mapping.local.json
 artifacts/
 *.schema.local.json
+
+mysql-mapping.local.json

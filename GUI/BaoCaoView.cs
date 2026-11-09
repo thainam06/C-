@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Globalization;
 using QuanLyMayBay.BUS;
 using QuanLyMayBay.DTO;
 using QuanLyMayBay.Services;
@@ -16,7 +14,7 @@ internal class BaoCaoView : UserControl
     private readonly ComboBox group = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 185 };
     private readonly ComboBox period = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 100 };
     private readonly TabControl tabs = new() { Dock = DockStyle.Fill };
-    private readonly List<DataGridView> grids = new();
+    private readonly List<ListView> grids = new();
     private readonly Label summary = new() { Dock = DockStyle.Bottom, Height = 64, Padding = new Padding(8) };
     public BaoCaoView(ThongKeBUS bus, ThamSoBUS thamSo)
     {
@@ -32,8 +30,7 @@ internal class BaoCaoView : UserControl
         Button("Thống kê", Tinh); Button("Tải số liệu", LamMoi); Button("Xuất XLS", Xls); Button("Xuất PDF", Pdf);
         foreach (var name in new[] { "Theo nhân viên/quý", "Theo khách hàng/quý", "Theo sản phẩm/quý", "Theo kỳ / nhiều khóa" })
         {
-            var grid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White };
+            var grid = BangListView.Tao();
             var page = new TabPage(name); page.Controls.Add(grid); tabs.TabPages.Add(page); grids.Add(grid);
         }
         Controls.Add(tabs); Controls.Add(tools); Controls.Add(summary);
@@ -45,7 +42,7 @@ internal class BaoCaoView : UserControl
         try { bus.TaiLai(); Tinh(); }
         catch (Exception ex)
         {
-            foreach (var grid in grids) grid.DataSource = null;
+            foreach (var grid in grids) { grid.Items.Clear(); grid.Tag = null; }
             summary.Text = "Chưa lấy được số liệu. " + ex.Message;
         }
     }
@@ -53,11 +50,8 @@ internal class BaoCaoView : UserControl
     {
         var n = thamSo.SoLeTien;
         var total = bus.TongHop(from.Value, to.Value, n);
-        for (int i = 0; i < 3; i++) grids[i].DataSource = new BindingList<BangQuy>(bus.TheoQuy((NhomThongKe)i, (int)year.Value, from.Value, to.Value, n));
-        grids[3].DataSource = new BindingList<DongThongKe>(bus.TheoKy((NhomThongKe)group.SelectedIndex, (KyThongKe)period.SelectedIndex, from.Value, to.Value, n));
-        foreach (var grid in grids)
-            foreach (DataGridViewColumn column in grid.Columns)
-                if (column.ValueType == typeof(decimal)) column.DefaultCellStyle.Format = "N" + n;
+        for (int i = 0; i < 3; i++) BangListView.NapTuDong(grids[i], bus.TheoQuy((NhomThongKe)i, (int)year.Value, from.Value, to.Value, n), n);
+        BangListView.NapTuDong(grids[3], bus.TheoKy((NhomThongKe)group.SelectedIndex, (KyThongKe)period.SelectedIndex, from.Value, to.Value, n), n);
         var data = bus.LayDuLieu();
         summary.Text = $"Thu: {total.Thu.ToString("N" + n)} · Chi: {total.Chi.ToString("N" + n)} · Lợi nhuận: {total.LoiNhuan.ToString("N" + n)} VNĐ. "
             + $"Nguồn: {data.DoanhThu.Count} dòng CTHD, {data.ChiPhi.Count} phiếu chi. Bảng quý: năm {year.Value}.";
@@ -66,21 +60,21 @@ internal class BaoCaoView : UserControl
     {
         using var file = new SaveFileDialog { Filter = "Excel (*.xls)|*.xls", FileName = "ThongKe.xls" };
         if (file.ShowDialog(this) != DialogResult.OK) return;
-        var source = grids[tabs.SelectedIndex].DataSource;
-        if (source is BindingList<BangQuy> quarter) ExcelService.Xuat(file.FileName, quarter);
-        else if (source is BindingList<DongThongKe> data) ExcelService.Xuat(file.FileName, data);
+        var source = grids[tabs.SelectedIndex].Tag;
+        if (source is List<BangQuy> quarter) ExcelService.Xuat(file.FileName, quarter);
+        else if (source is List<DongThongKe> data) ExcelService.Xuat(file.FileName, data);
         else throw new ArgumentException("Chưa có kết quả thống kê.");
     }
     private void Pdf()
     {
         var grid = grids[tabs.SelectedIndex];
-        if (grid.DataSource == null) throw new ArgumentException("Chưa có kết quả thống kê.");
+        if (grid.Tag == null) throw new ArgumentException("Chưa có kết quả thống kê.");
         using var file = new SaveFileDialog { Filter = "PDF (*.pdf)|*.pdf", FileName = "ThongKe.pdf" };
         if (file.ShowDialog(this) != DialogResult.OK) return;
         PdfService.XuatBang(file.FileName, $"THỐNG KÊ {tabs.SelectedTab!.Text}\n{from.Value:dd/MM/yyyy} – {to.Value:dd/MM/yyyy} · Năm bảng quý {(int)year.Value}",
-            grid.Columns.Cast<DataGridViewColumn>().Select(x => x.HeaderText).ToList(),
-            grid.Rows.Cast<DataGridViewRow>().Select(x => x.Cells.Cast<DataGridViewCell>()
-                .Select(c => Convert.ToString(c.Value, CultureInfo.InvariantCulture) ?? "").ToArray()).ToList(), DonVi());
+            grid.Columns.Cast<ColumnHeader>().Select(x => x.Text).ToList(),
+            grid.Items.Cast<ListViewItem>().Select(x => x.SubItems.Cast<ListViewItem.ListViewSubItem>()
+                .Select(c => c.Text).ToArray()).ToList(), DonVi());
     }
     private string DonVi() => thamSo.Lay("TEN_DON_VI") + "\n" + thamSo.Lay("DIA_CHI") + " · " + thamSo.Lay("SDT");
 }

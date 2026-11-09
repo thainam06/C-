@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using QuanLyMayBay.BUS;
 using QuanLyMayBay.DTO;
 
@@ -8,7 +7,7 @@ namespace QuanLyMayBay.GUI;
 internal class MayBayGheView : UserControl
 {
     private readonly QuanLyBUS bus;
-    private readonly DataGridView bang = new();
+    private readonly ListView bang = BangListView.Tao();
     private readonly TextBox tuKhoa = new();
 
     public MayBayGheView(QuanLyBUS bus)
@@ -42,18 +41,6 @@ internal class MayBayGheView : UserControl
         search.Controls.Add(tim, 1, 0);
         search.Controls.Add(tatCa, 2, 0);
 
-        bang.Dock = DockStyle.Fill;
-        bang.ReadOnly = true;
-        bang.AllowUserToAddRows = false;
-        bang.AllowUserToDeleteRows = false;
-        bang.AutoGenerateColumns = false;
-        bang.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        bang.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        bang.MultiSelect = false;
-        bang.BackgroundColor = Color.White;
-        bang.BorderStyle = BorderStyle.FixedSingle;
-        bang.RowHeadersWidth = 28;
-        bang.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 245, 250);
         ThemCot("MaMayBay", "Mã máy bay");
         ThemCot("MHHK", "Mã hãng HK");
         ThemCot("MaGhe", "Mã ghế");
@@ -72,24 +59,11 @@ internal class MayBayGheView : UserControl
     public void LamMoi()
     {
         var danhSach = bus.LayBangTongHop(tuKhoa.Text).Cast<DongTongHop>().ToList();
-        bang.DataSource = new BindingList<DongTongHop>(danhSach);
-        bang.ClearSelection();
-        bang.CurrentCell = null;
+        BangListView.Nap(bang, danhSach);
     }
 
     private void ThemCot(string property, string title, string? format = null)
     {
-        var column = new DataGridViewTextBoxColumn
-        {
-            DataPropertyName = property, HeaderText = title, MinimumWidth = 90,
-            SortMode = DataGridViewColumnSortMode.NotSortable
-        };
-        column.DefaultCellStyle.NullValue = "";
-        if (format != null)
-        {
-            column.DefaultCellStyle.Format = format;
-            column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-        }
-        bang.Columns.Add(column);
+        bang.Columns.Add(new ColumnHeader { Name = property, Text = title, Width = 155 });
     }
 }

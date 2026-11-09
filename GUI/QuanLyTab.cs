@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Reflection;
 using System.Collections;
 using System.Globalization;
@@ -21,7 +20,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
     private readonly Func<string, List<T>> tim;
     private readonly Action<T, bool> luu;
     private readonly Action<T> xoa;
-    private readonly DataGridView bang = new();
+    private readonly ListView bang = BangListView.Tao();
     private readonly TextBox tuKhoa = new();
     private readonly Label thongBao = new();
     private readonly Button them;
@@ -218,34 +217,15 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
             ThucHien(NapBang);
         }), 2, 0);
 
-        bang.Dock = DockStyle.Fill;
-        bang.ReadOnly = true;
-        bang.AllowUserToAddRows = false;
-        bang.AllowUserToDeleteRows = false;
-        bang.AutoGenerateColumns = false;
-        bang.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        bang.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        bang.MultiSelect = false;
-        bang.RowHeadersVisible = false;
-        bang.BackgroundColor = Color.White;
-        bang.BorderStyle = BorderStyle.FixedSingle;
-        bang.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 245, 250);
         foreach (var field in truong)
         {
             if (field.LaMatKhau) continue;
-            var column = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = field.ThuocTinh, HeaderText = field.Nhan,
-                SortMode = DataGridViewColumnSortMode.NotSortable
-            };
-            if (field.So) column.DefaultCellStyle.Format = "N2";
-            if (field.LaNgaySinh || field.LaNgay) column.DefaultCellStyle.Format = "dd/MM/yyyy";
-            bang.Columns.Add(column);
+            bang.Columns.Add(new ColumnHeader { Name = field.ThuocTinh, Text = field.Nhan, Width = 155 });
         }
-        bang.SelectionChanged += (_, _) =>
+        bang.SelectedIndexChanged += (_, _) =>
         {
-            if (dangNap || bang.SelectedRows.Count == 0) return;
-            if (bang.SelectedRows[0].DataBoundItem is not T item) return;
+            if (dangNap || bang.SelectedItems.Count == 0) return;
+            if (bang.SelectedItems[0].Tag is not T item) return;
             dangChon = item;
             foreach (var field in truong)
             {
@@ -352,6 +332,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
     private void XoaForm()
     {
         dangChon = null;
+        foreach (ListViewItem item in bang.SelectedItems.Cast<ListViewItem>().ToArray()) item.Selected = false;
         foreach (var field in truong)
         {
             var input = oNhap[field.ThuocTinh];
@@ -373,9 +354,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         {
             var data = LocNangCaoBUS.Loc<T>(new ArrayList(tim(tuKhoa.Text)), bieuThuc).Cast<T>().ToList();
             dangHienThi = data;
-            bang.DataSource = new BindingList<T>(data);
-            bang.ClearSelection();
-            bang.CurrentCell = null;
+            BangListView.Nap(bang, data);
             XoaForm();
             Bao($"Có {data.Count} dòng. Chọn một dòng để sửa hoặc xóa.");
         }

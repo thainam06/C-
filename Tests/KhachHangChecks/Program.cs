@@ -11,6 +11,7 @@ internal static class KhachHangChecks
     public static void Main()
     {
         Environment.SetEnvironmentVariable("QLMB_SQL_CONNECTION", null);
+        Environment.SetEnvironmentVariable("QLMB_MYSQL_CONNECTION", null);
         // Du lieu gia lap, khong su dung thong tin ca nhan that.
         var folder = Path.Combine(Path.GetTempPath(), "khachhang-checks-" + Guid.NewGuid());
         Directory.CreateDirectory(folder);

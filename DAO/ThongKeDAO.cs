@@ -13,8 +13,8 @@ public class ThongKeDAO
         if (MyConnection.DaCauHinh)
         {
             // Anh xa toi view hoa don/chi tiet va phieu chi cua nhom, chi doc.
-            SqlServerDanhSachDAO.ThuDoc<DongDoanhThu>(out var revenue, out _);
-            SqlServerDanhSachDAO.ThuDoc<DongChiPhi>(out var cost, out _);
+            CSDLListDAO.ThuDoc<DongDoanhThu>(out var revenue, out _);
+            CSDLListDAO.ThuDoc<DongChiPhi>(out var cost, out _);
             return new() { DoanhThu = revenue, ChiPhi = cost };
         }
         if (!File.Exists(path)) return new();

@@ -12,6 +12,7 @@
     <Compile Include="../DAO/**/*.cs" />
     <Compile Include="../Services/**/*.cs" />
     <EmbeddedResource Include="../Assets/DejaVuSans.ttf" LogicalName="DejaVuSans.ttf" />
+    <PackageReference Include="MySqlConnector" Version="2.6.2" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.8" />
     <PackageReference Include="NPOI" Version="2.7.6" />
     <PackageReference Include="PDFsharp" Version="6.2.4" />

@@ -55,7 +55,7 @@ public class MainForm : Form
             ("Hóa đơn – Chi tiết", () => new HoaDonView(ledger.Lay(), parameters.Lay())),
             ("Thống kê", () => new BaoCaoView(ledger.Lay(), parameters.Lay())),
             ("Tham số", () => new ThamSoView(parameters.Lay())),
-            ("Kết nối SQL Server", () => new CauHinhSqlView())
+            ("Kết nối CSDL", () => new CauHinhSqlView())
         };
         var content = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
         var cache = new Dictionary<int, Control>();
@@ -104,7 +104,7 @@ public class MainForm : Form
                 {
                     Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical,
                     Text = "Chưa mở được " + pages[index].Ten + ".\r\n\r\n" + ex.Message
-                        + "\r\n\r\nCác màn hình khác vẫn có thể mở. Xem Kết nối SQL Server để xuất cấu trúc CSDL và kiểm tra mapping."
+                        + "\r\n\r\nCác màn hình khác vẫn có thể mở. Xem Kết nối CSDL để xuất cấu trúc CSDL và kiểm tra mapping."
                 };
                 var retry = new Button { Text = "Thử lại", Dock = DockStyle.Top, Height = 38 };
                 retry.Click += (_, _) => { cache.Remove(index); content.Controls.Remove(error); error.Dispose(); HienTrang(); };

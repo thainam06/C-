@@ -47,7 +47,7 @@ public class DuLieuDAO
 
     public void Luu(DuLieu duLieu)
     {
-        if (SqlServerDanhSachDAO.ThuLuuNhieu(new[]
+        if (CSDLListDAO.ThuLuuNhieu(new[]
             { sqlMayBay.TaoLo(duLieu.MayBay), sqlHangVe.TaoLo(duLieu.HangVe), sqlGhe.TaoLo(duLieu.Ghe) })) return;
         var thuMuc = Path.GetDirectoryName(Path.GetFullPath(duongDan))!;
         Directory.CreateDirectory(thuMuc);

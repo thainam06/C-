@@ -7,20 +7,19 @@ internal class CauHinhSqlView : UserControl
     {
         Dock = DockStyle.Fill;
         var help = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical,
-            Text = "KẾT NỐI SQL SERVER\r\n\r\n"
-            + "1. Xem docs/KET_NOI_SQL_SERVER.md. Cần lược đồ thực tế của nhóm.\r\n"
-            + "2. Cấu hình biến môi trường QLMB_SQL_CONNECTION trên máy chạy ứng dụng. Không commit mật khẩu.\r\n"
-            + "3. Cấu hình QLMB_SQL_MAPPING_FILE trỏ tới file ánh xạ DTO → bảng/cột thực tế.\r\n"
-            + "4. Khởi động lại ứng dụng. Khi chưa có chuỗi SQL, ứng dụng dùng JSON cục bộ.\r\n\r\n"
-            + "Không tự tạo/sửa CSDL nhóm, không tự chép dữ liệu mẫu JSON vào SQL.\r\n"
-            + "Giữ Encrypt=True và kiểm tra chứng chỉ; Unicode dùng NVARCHAR và tham số SqlCommand.\r\n"
-            + "Không thêm ?useUnicode=... vào chuỗi SQL Server (đó là cú pháp MySQL).\r\n\r\n"
-            + "Trạng thái cấu hình SQL: " + (MyConnection.DaCauHinh ? "Đã có biến kết nối" : "Chưa có, đang dùng JSON") };
-        var test = new Button { Dock = DockStyle.Top, Height = 38, Text = "Kiểm tra kết nối SQL (chỉ đọc DB_NAME)" };
+            Text = "KẾT NỐI MYSQL\r\n\r\n"
+            + "1. Xem docs/KET_NOI_MYSQL.md. Cần cấu trúc MySQL thực tế của nhóm.\r\n"
+            + "2. Đặt QLMB_MYSQL_CONNECTION trên máy chạy ứng dụng. Không commit mật khẩu.\r\n"
+            + "3. Đặt QLMB_MYSQL_MAPPING_FILE trỏ tới file JSON ánh xạ DTO → bảng/cột thực tế.\r\n"
+            + "4. Khởi động lại ứng dụng. Khi không cấu hình CSDL, ứng dụng dùng JSON cục bộ.\r\n\r\n"
+            + "Không tự tạo/sửa CSDL nhóm và không tự nạp dữ liệu mẫu vào MySQL.\r\n"
+            + "File mysql-mapping.example.json chỉ là mẫu, cần đối chiếu tên bảng/cột, kiểu và khóa thực tế.\r\n\r\n"
+            + "Trạng thái: " + (MyConnection.DungMySql ? "MySQL" : MyConnection.DaCauHinh ? "SQL Server (cấu hình cũ)" : "JSON cục bộ") };
+        var test = new Button { Dock = DockStyle.Top, Height = 38, Text = "Kiểm tra kết nối CSDL" };
         test.Click += (_, _) =>
         {
             try { MessageBox.Show("Kết nối thành công, CSDL: " + MyConnection.KiemTra()); }
-            catch { MessageBox.Show("Chưa kết nối được. Kiểm tra server, database, quyền truy cập, chứng chỉ và biến QLMB_SQL_CONNECTION. Không gửi mật khẩu vào chat."); }
+            catch { MessageBox.Show("Chưa kết nối được. Kiểm tra server, database, quyền truy cập, chứng chỉ và biến kết nối. Không gửi mật khẩu vào chat."); }
         };
         var schema = new Button { Dock = DockStyle.Top, Height = 38, Text = "Xuất cấu trúc CSDL (không xuất dữ liệu người dùng)" };
         schema.Click += (_, _) =>

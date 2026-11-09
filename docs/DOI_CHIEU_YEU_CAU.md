@@ -1,3 +1,5 @@
+> Cập nhật 09/11/2026: theo yêu cầu mới, ứng dụng hỗ trợ MySQL qua DAO và toàn bộ bảng GUI dùng ListView. Xem KET_NOI_MYSQL.md và KET_QUA_KIEM_THU.md. Nội dung SQL Server bên dưới là đối chiếu trước đó; chưa có DDL MySQL của nhóm để xác nhận tương thích schema thực tế. Báo cáo DOCX chưa cập nhật thay đổi này.
+
 # Đối chiếu C-w7-YeuCauDoAn.pdf
 
 Trạng thái ngày 08/11/2026. Chưa thể gọi là hoàn thành toàn bộ đồ án khi các mục

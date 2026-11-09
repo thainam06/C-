@@ -15,6 +15,7 @@ internal static class DoAnChecks
     public static void Main(string[] args)
     {
         Environment.SetEnvironmentVariable("QLMB_SQL_CONNECTION", null);
+        Environment.SetEnvironmentVariable("QLMB_MYSQL_CONNECTION", null);
         var folder = Path.Combine(Path.GetTempPath(), "doan-" + Guid.NewGuid());
         Directory.CreateDirectory(folder);
         int passed = 0;
@@ -157,8 +158,8 @@ internal static class DoAnChecks
             Environment.SetEnvironmentVariable("QLMB_SQL_MAPPING_FILE", mapPath);
             File.WriteAllText(mapPath, JsonSerializer.Serialize(new Dictionary<string,AnhXaBangSql>
             { ["NhanVien"] = new() { Table="dbo.NhanVien", KeyColumns=new(){"MaNV"}, Columns=new() { ["MaNV"]="MaNV", ["Ho"]="Ho", ["Ten"]="Ten", ["ChucVu"]="ChucVu" } } }));
-            Check(SqlServerDanhSachDAO.DocAnhXa(typeof(NhanVien)).KeyColumns.Single() == "MaNV", "SQL mapping validates required columns and key");
-            Check(SqlServerDanhSachDAO.TenSql("x]; DROP TABLE y;--") == "[x]]; DROP TABLE y;--]", "SQL identifiers are quoted rather than interpolated executable text");
+            Check(CSDLListDAO.DocAnhXa(typeof(NhanVien)).KeyColumns.Single() == "MaNV", "SQL mapping validates required columns and key");
+            Check(CSDLListDAO.TenSql("x]; DROP TABLE y;--") == "[x]]; DROP TABLE y;--]", "SQL identifiers are quoted rather than interpolated executable text");
             try { MyConnection.KiemTra(); throw new Exception("Expected missing SQL configuration"); }
             catch (InvalidOperationException) { Check(true, "SQL connection is not claimed when unconfigured"); }
             Environment.SetEnvironmentVariable("QLMB_SQL_MAPPING_FILE", null);

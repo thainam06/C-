@@ -7,6 +7,15 @@ Tên đề tài chính thức: **Quản lý bán vé máy bay**. Các danh mục
 bán vé; phần đặt/bán/hủy vé, hóa đơn và ghế theo chuyến cần ghép với CSDL SQL Server
 thực tế của nhóm như trạng thái đối chiếu bên dưới.
 
+## MySQL và ListView (cập nhật mới)
+
+Đã thêm **MySQL qua DAO (MySqlConnector)** và đổi toàn bộ bảng GUI sang **ListView**.
+Xem [cấu hình MySQL](docs/KET_NOI_MYSQL.md). Nhóm đã có CSDL MySQL riêng nên app
+không tự tạo/sửa bảng. `docs/mysql-mapping.example.json` chỉ là mẫu chưa xác nhận;
+cần DDL hoặc metadata thực tế để ghép đúng. Có thể xuất metadata trong menu Kết nối CSDL.
+Đặt `QLMB_MYSQL_CONNECTION` và `QLMB_MYSQL_MAPPING_FILE` rồi chạy project gốc.
+Cấu hình SQL Server bên dưới là hướng dẫn cũ; MySQL được ưu tiên khi đã cấu hình.
+
 ## Bản cập nhật theo PDF yêu cầu đồ án
 
 ### CSDL BanVeMayBay theo ảnh đã gửi
