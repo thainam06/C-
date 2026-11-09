@@ -1,3 +1,11 @@
+## Kiểm tra theo DDL đã cung cấp
+
+- Nhập script MySQL vào schema mới qua Workbench theo docs/mysql/README.md, cấu hình kết nối và mở project gốc.
+- Thêm/đọc Hành khách: cột nguồn LoaiHK hiển thị ở trường LoaiKH; bỏ tick ngày sinh, lưu và mở lại phải vẫn trống, không tự hiện ngày hôm nay.
+- Thêm Hạng vé với hành lý 20.5 hoặc giá vé 1000000.25 phải báo không khớp độ chính xác cột, không tự làm tròn; nhập số nguyên phải lưu được.
+- Mã vượt 10 ký tự phải bị chặn; khi lưu lỗi các dữ liệu trước đó không đổi.
+- Nếu dùng Tham số, nhập script bổ sung ThamSo.optional.sql một lần. Màn thống kê/hóa đơn chưa có adapter nguồn báo cáo từ file gốc, cần ghép tiếp theo docs/mysql/README.md.
+
 ## Kiểm tra bổ sung MySQL/ListView
 
 Sau khi cấu hình theo KET_NOI_MYSQL.md và ghép đúng DDL:

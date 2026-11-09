@@ -1,3 +1,16 @@
+# Kiểm tra DDL BanVeMayBay.sql được cung cấp
+
+- Đã nhận file nguồn SQL Server, chỉ có schema; chuyển thành `docs/mysql/BanVeMayBay.mysql.sql`, nhập thành công bằng MySQL 8.4 vào database test mới.
+- Giữ 15 bảng, 23 FK, 13 CHECK; kiểm tra PK đủ từng bảng, số cột, UNIQUE chuyến/ghế, DEFAULT tiếng Việt/GETDATE, cột tính ThanhTien.
+- **49 kiểm tra MySqlSchemaChecks qua** trên chính schema đã chuyển. Bao gồm profile mặc định đóng gói, LoaiKH → LoaiHK, NULL ngày sinh qua DAO/BUS, trường tùy chọn NULL, mật khẩu băm vừa VARCHAR(255), kiểm tra phần lẻ INT/DECIMAL(18,0) và độ dài VARCHAR trước khi lưu.
+- **171 kiểm tra hồi quy qua**, **20 kiểm tra MySqlChecks qua**. Build WinForms Release 0 lỗi/0 cảnh báo. Không chạy các build chung Core đồng thời.
+- Các test MySQL dùng container riêng không mở port mạng, Unix socket; database `qlmb_schema_test` và `qlmb_dao_test` chỉ chứa dữ liệu giả lập. Không kết nối/sửa CSDL của nhóm.
+- Chưa chuyển dữ liệu SQL Server thực tế; không kiểm tra WinForms bằng thao tác trên Windows; không xem việc import schema là hoàn thành nghiệp vụ đặt/bán/hủy vé hay thống kê chi phí. Báo cáo DOCX cũ chưa cập nhật.
+
+Chạy bộ mới: tạo database test trống tên **qlmb_schema_test**, nhập `docs/mysql/BanVeMayBay.mysql.sql` vào đó, đặt `QLMB_SCHEMA_TEST_CONNECTION` tới database test, rồi `dotnet run --project Tests/MySqlSchemaChecks/Checks.csproj -c Release`. Bộ test thêm dữ liệu giả lập; muốn chạy lại cần chuẩn bị database test trống và nhập schema lại. Tuyệt đối không dùng dữ liệu thật. Không cấu hình biến test thì báo SKIP.
+
+---
+
 # Cập nhật MySQL và ListView ngày 09/11/2026
 
 - Build WinForms Release: 0 lỗi, 0 cảnh báo; đã đổi các bảng GUI còn lại từ DataGridView sang ListView.

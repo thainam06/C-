@@ -1,6 +1,7 @@
 using System.Data;
 using System.Globalization;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Data.Common;
 using QuanLyMayBay.DTO;
@@ -21,8 +22,14 @@ public static class CSDLListDAO
 
     public static AnhXaBangSql DocAnhXa(Type type)
     {
-        var path = Environment.GetEnvironmentVariable(MyConnection.DungMySql ? "QLMB_MYSQL_MAPPING_FILE" : "QLMB_SQL_MAPPING_FILE") ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "QuanLyMayBay", MyConnection.DungMySql ? "mysql-mapping.json" : "sql-mapping.json");
+        var path = Environment.GetEnvironmentVariable(MyConnection.DungMySql ? "QLMB_MYSQL_MAPPING_FILE" : "QLMB_SQL_MAPPING_FILE");
+        if (path == null)
+        {
+            path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "QuanLyMayBay", MyConnection.DungMySql ? "mysql-mapping.json" : "sql-mapping.json");
+            if (MyConnection.DungMySql && !File.Exists(path))
+                path = Path.Combine(AppContext.BaseDirectory, "mysql-mapping.BanVeMayBay.json");
+        }
         if (!File.Exists(path)) throw new InvalidDataException("Thiếu file ánh xạ. Cấu hình QLMB_MYSQL_MAPPING_FILE (MySQL) hoặc QLMB_SQL_MAPPING_FILE (SQL Server) theo CSDL của nhóm.");
         var maps = JsonSerializer.Deserialize<Dictionary<string, AnhXaBangSql>>(File.ReadAllText(path), Options);
         if (maps == null || !maps.TryGetValue(type.Name, out var map) || map == null)
@@ -156,8 +163,39 @@ public static class CSDLListDAO
         return true;
     }
 
+    private static void KiemTraGiaTriMySql(DbConnection connection, DbTransaction transaction, Type type, AnhXaBangSql map, List<object> rows)
+    {
+        var names = map.Table.Split('.');
+        using var command = Command(connection, transaction,
+            "SELECT COLUMN_NAME,DATA_TYPE,NUMERIC_SCALE,CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS "
+            + "WHERE TABLE_SCHEMA=COALESCE(@schema,DATABASE()) AND TABLE_NAME=@table");
+        AddParameter(command, "@schema", names.Length == 2 ? names[0] : null);
+        AddParameter(command, "@table", names[^1]);
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var name = reader.GetString(0);
+            var propertyName = map.Columns.FirstOrDefault(x => x.Value.Equals(name, StringComparison.OrdinalIgnoreCase)).Key;
+            if (propertyName == null) continue;
+            var property = type.GetProperty(propertyName)!;
+            var dataType = reader.GetString(1);
+            int? scale = dataType is "tinyint" or "smallint" or "mediumint" or "int" or "bigint" ? 0
+                : dataType is "decimal" ? Convert.ToInt32(reader.GetValue(2)) : null;
+            var maxLength = reader.IsDBNull(3) ? (long?)null : Convert.ToInt64(reader.GetValue(3));
+            foreach (var row in rows)
+            {
+                var value = property.GetValue(row);
+                if (value is decimal number && scale is >= 0 and <= 28 && decimal.Round(number, scale.Value) != number)
+                    throw new ArgumentException($"{type.Name}.{propertyName}: cột MySQL chỉ nhận {scale} chữ số thập phân. Không tự làm tròn dữ liệu.");
+                if (value is string text && maxLength.HasValue && text.EnumerateRunes().Count() > maxLength.Value)
+                    throw new ArgumentException($"{type.Name}.{propertyName}: vượt quá {maxLength} ký tự của cột MySQL.");
+            }
+        }
+    }
+
     private static void Upsert(DbConnection connection, DbTransaction transaction, Type type, AnhXaBangSql map, List<object> rows)
     {
+        if (MyConnection.DungMySql) KiemTraGiaTriMySql(connection, transaction, type, map, rows);
         var fields = type.GetProperties().Where(x => map.Columns.ContainsKey(x.Name)).ToArray();
         var keys = fields.Where(x => map.KeyColumns.Contains(x.Name)).ToArray();
         var values = fields.Where(x => !map.KeyColumns.Contains(x.Name)).ToArray();

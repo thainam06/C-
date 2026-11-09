@@ -25,7 +25,7 @@ public class KhachHangBUS
             foreach (var kh in danhSach)
             {
                 if (kh == null) throw new InvalidDataException();
-                KiemTraThongTin(kh);
+                KiemTraThongTin(kh, dangDoc: true);
                 if (!ma.Add(kh.MaKH) || !cccd.Add(kh.CCCD) || !taiKhoan.Add(kh.TaiKhoan)
                     || !LaMatKhauDaBam(kh.MatKhau))
                     throw new InvalidDataException();
@@ -52,22 +52,23 @@ public class KhachHangBUS
 
     private static bool LaChuSo(string value) => value.All(c => c >= '0' && c <= '9');
 
-    private static void KiemTraThongTin(KhachHang kh)
+    private static void KiemTraThongTin(KhachHang kh, bool dangDoc = false)
     {
         BatBuoc(kh.MaKH, "mã khách hàng");
         BatBuoc(kh.HoTen, "họ tên");
         var cccd = BatBuoc(kh.CCCD, "CCCD");
         if (cccd.Length != 12 || !LaChuSo(cccd))
             throw new ArgumentException("CCCD phải gồm đúng 12 chữ số.");
-        var sdt = BatBuoc(kh.SDT, "số điện thoại");
+        var choPhepTrong = dangDoc && MyConnection.DaCauHinh;
+        var sdt = choPhepTrong ? kh.SDT : BatBuoc(kh.SDT, "số điện thoại");
         var cacSo = sdt.StartsWith('+') ? sdt[1..] : sdt;
-        if (cacSo.Length < 9 || cacSo.Length > 15 || !LaChuSo(cacSo))
+        if (sdt.Length > 0 && (cacSo.Length < 9 || cacSo.Length > 15 || !LaChuSo(cacSo)))
             throw new ArgumentException("Số điện thoại phải có 9–15 chữ số, có thể bắt đầu bằng dấu +.");
-        var email = BatBuoc(kh.Email, "email");
-        if (!MailAddress.TryCreate(email, out var diaChi) || !CungMa(diaChi.Address, email))
+        var email = choPhepTrong ? kh.Email : BatBuoc(kh.Email, "email");
+        if (email.Length > 0 && (!MailAddress.TryCreate(email, out var diaChi) || !CungMa(diaChi.Address, email)))
             throw new ArgumentException("Địa chỉ email không hợp lệ.");
         BatBuoc(kh.TaiKhoan, "tài khoản");
-        BatBuoc(kh.DiaChi, "địa chỉ");
+        if (!choPhepTrong) BatBuoc(kh.DiaChi, "địa chỉ");
     }
 
     private static string BamMatKhau(string matKhau)

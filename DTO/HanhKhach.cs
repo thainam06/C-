@@ -4,7 +4,7 @@ namespace QuanLyMayBay.DTO
     {
         public string MaHK { get; set; } = string.Empty;
         public string HoTen { get; set; } = string.Empty;
-        public DateTime NgaySinh { get; set; } = DateTime.Today;
+        public DateTime? NgaySinh { get; set; } = DateTime.Today;
         public string CCCD { get; set; } = string.Empty;
         public string GioiTinh { get; set; } = string.Empty;
         public string MaKH { get; set; } = string.Empty;
@@ -12,7 +12,7 @@ namespace QuanLyMayBay.DTO
 
         public HanhKhach() { }
 
-        public HanhKhach(string maHK, string hoTen, DateTime ngaySinh, string cccd,
+        public HanhKhach(string maHK, string hoTen, DateTime? ngaySinh, string cccd,
             string gioiTinh, string maKH, string loaiKH)
         {
             MaHK = maHK;

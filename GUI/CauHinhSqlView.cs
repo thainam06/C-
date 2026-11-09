@@ -8,12 +8,12 @@ internal class CauHinhSqlView : UserControl
         Dock = DockStyle.Fill;
         var help = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical,
             Text = "KẾT NỐI MYSQL\r\n\r\n"
-            + "1. Xem docs/KET_NOI_MYSQL.md. Cần cấu trúc MySQL thực tế của nhóm.\r\n"
+            + "1. Xem docs/KET_NOI_MYSQL.md. Đã có script MySQL từ BanVeMayBay.sql của nhóm.\r\n"
             + "2. Đặt QLMB_MYSQL_CONNECTION trên máy chạy ứng dụng. Không commit mật khẩu.\r\n"
             + "3. Đặt QLMB_MYSQL_MAPPING_FILE trỏ tới file JSON ánh xạ DTO → bảng/cột thực tế.\r\n"
             + "4. Khởi động lại ứng dụng. Khi không cấu hình CSDL, ứng dụng dùng JSON cục bộ.\r\n\r\n"
             + "Không tự tạo/sửa CSDL nhóm và không tự nạp dữ liệu mẫu vào MySQL.\r\n"
-            + "File mysql-mapping.example.json chỉ là mẫu, cần đối chiếu tên bảng/cột, kiểu và khóa thực tế.\r\n\r\n"
+            + "Profile BanVeMayBay đã ghép: MHHK → MaHHK, LoaiKH → LoaiHK. Xem docs/mysql/README.md để nhập vào CSDL MySQL mới.\r\n\r\n"
             + "Trạng thái: " + (MyConnection.DungMySql ? "MySQL" : MyConnection.DaCauHinh ? "SQL Server (cấu hình cũ)" : "JSON cục bộ") };
         var test = new Button { Dock = DockStyle.Top, Height = 38, Text = "Kiểm tra kết nối CSDL" };
         test.Click += (_, _) =>

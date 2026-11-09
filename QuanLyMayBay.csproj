@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Tests/**/*.cs;Core/**/*.cs;BUS/**/*.cs;DAO/**/*.cs;DTO/**/*.cs;Services/**/*.cs;tools/**/*.cs" />
+    <None Update="docs/mysql-mapping.BanVeMayBay.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" TargetPath="mysql-mapping.BanVeMayBay.json" />
     <ProjectReference Include="Core/QuanLyMayBay.Core.csproj" />
   </ItemGroup>
 </Project>

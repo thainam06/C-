@@ -1,0 +1,894 @@
+{
+  "source": "BanVeMayBay.sql (user upload, SQL Server)",
+  "sourceSha256": "483bf139b61c3fcba3692404bd8436c885c33a564827a80fb393d7fe4a9db853",
+  "tables": {
+    "ChiTietHoaDon": {
+      "columns": [
+        {
+          "name": "MaHD",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaVe",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "DonGiaVe",
+          "type": "decimal(18, 0)",
+          "nullable": false
+        },
+        {
+          "name": "SL",
+          "type": "int",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "ThanhTien",
+          "type": "decimal(29,0)",
+          "generated": "SL * DonGiaVe"
+        }
+      ],
+      "pk": [
+        "MaHD",
+        "MaVe"
+      ],
+      "unique": []
+    },
+    "ChuyenBay": {
+      "columns": [
+        {
+          "name": "MaChuyenBay",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaHHK",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaSanBayDi",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaSanBayDen",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaMayBay",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "NgayKhoiHanh",
+          "type": "datetime(3)",
+          "nullable": false
+        },
+        {
+          "name": "NgayDen",
+          "type": "datetime(3)",
+          "nullable": false
+        },
+        {
+          "name": "ThoiGianBay",
+          "type": "int",
+          "nullable": true
+        },
+        {
+          "name": "ThoiGianDen",
+          "type": "time(6)",
+          "nullable": true
+        },
+        {
+          "name": "TongSoGhe",
+          "type": "int",
+          "nullable": false
+        },
+        {
+          "name": "SoVeDaBan",
+          "type": "int",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "GiaVe",
+          "type": "decimal(18, 0)",
+          "nullable": false
+        },
+        {
+          "name": "TrangThai",
+          "type": "varchar(30)",
+          "nullable": false,
+          "default": "'Chưa khởi hành'"
+        }
+      ],
+      "pk": [
+        "MaChuyenBay"
+      ],
+      "unique": []
+    },
+    "CTKM": {
+      "columns": [
+        {
+          "name": "MaCTKM",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "TenCTKM",
+          "type": "varchar(100)",
+          "nullable": false
+        },
+        {
+          "name": "NgayBatDau",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "NgayKetThuc",
+          "type": "date",
+          "nullable": false
+        }
+      ],
+      "pk": [
+        "MaCTKM"
+      ],
+      "unique": []
+    },
+    "DatVe": {
+      "columns": [
+        {
+          "name": "MaDV",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaKH",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaNV",
+          "type": "varchar(10)",
+          "nullable": true
+        },
+        {
+          "name": "MaChuyenBay",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "NgayDat",
+          "type": "datetime(3)",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        },
+        {
+          "name": "TongTien",
+          "type": "decimal(18, 0)",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "GiamGia",
+          "type": "decimal(18, 2)",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "TrangThai",
+          "type": "varchar(30)",
+          "nullable": false,
+          "default": "'Chờ thanh toán'"
+        },
+        {
+          "name": "MaVoucher",
+          "type": "varchar(20)",
+          "nullable": true
+        }
+      ],
+      "pk": [
+        "MaDV"
+      ],
+      "unique": [
+        [
+          "MaDV",
+          "MaChuyenBay"
+        ]
+      ]
+    },
+    "Ghe": {
+      "columns": [
+        {
+          "name": "MaGhe",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaMayBay",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaHV",
+          "type": "varchar(10)",
+          "nullable": false
+        }
+      ],
+      "pk": [
+        "MaGhe"
+      ],
+      "unique": []
+    },
+    "HangHangKhong": {
+      "columns": [
+        {
+          "name": "MaHHK",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "TenHang",
+          "type": "varchar(100)",
+          "nullable": false
+        }
+      ],
+      "pk": [
+        "MaHHK"
+      ],
+      "unique": []
+    },
+    "HangVe": {
+      "columns": [
+        {
+          "name": "MaHV",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "TenHV",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "HanhLyKg",
+          "type": "int",
+          "nullable": false
+        },
+        {
+          "name": "DonGiaVe",
+          "type": "decimal(18, 0)",
+          "nullable": false
+        }
+      ],
+      "pk": [
+        "MaHV"
+      ],
+      "unique": []
+    },
+    "HanhKhach": {
+      "columns": [
+        {
+          "name": "MaHK",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "HoTen",
+          "type": "varchar(100)",
+          "nullable": false
+        },
+        {
+          "name": "NgaySinh",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "CCCD",
+          "type": "varchar(12)",
+          "nullable": true
+        },
+        {
+          "name": "GioiTinh",
+          "type": "varchar(10)",
+          "nullable": true
+        },
+        {
+          "name": "MaKH",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "LoaiHK",
+          "type": "varchar(30)",
+          "nullable": true
+        }
+      ],
+      "pk": [
+        "MaHK"
+      ],
+      "unique": []
+    },
+    "HoaDon": {
+      "columns": [
+        {
+          "name": "MaHD",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaKH",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaNV",
+          "type": "varchar(10)",
+          "nullable": true
+        },
+        {
+          "name": "MaDV",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "NgayLap",
+          "type": "datetime(3)",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        },
+        {
+          "name": "TongTien",
+          "type": "decimal(18, 0)",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "PhuongThucTT",
+          "type": "varchar(30)",
+          "nullable": true
+        },
+        {
+          "name": "TrangThai",
+          "type": "varchar(30)",
+          "nullable": false,
+          "default": "'Chưa thanh toán'"
+        }
+      ],
+      "pk": [
+        "MaHD"
+      ],
+      "unique": []
+    },
+    "KhachHang": {
+      "columns": [
+        {
+          "name": "MaKH",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "HoTen",
+          "type": "varchar(100)",
+          "nullable": false
+        },
+        {
+          "name": "CCCD",
+          "type": "varchar(12)",
+          "nullable": false
+        },
+        {
+          "name": "SDT",
+          "type": "varchar(15)",
+          "nullable": true
+        },
+        {
+          "name": "Email",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "TaiKhoan",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "MatKhau",
+          "type": "varchar(255)",
+          "nullable": false
+        },
+        {
+          "name": "DiaChi",
+          "type": "varchar(200)",
+          "nullable": true
+        }
+      ],
+      "pk": [
+        "MaKH"
+      ],
+      "unique": [
+        [
+          "CCCD"
+        ],
+        [
+          "TaiKhoan"
+        ]
+      ]
+    },
+    "MayBay": {
+      "columns": [
+        {
+          "name": "MaMayBay",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaHHK",
+          "type": "varchar(10)",
+          "nullable": false
+        }
+      ],
+      "pk": [
+        "MaMayBay"
+      ],
+      "unique": []
+    },
+    "NhanVien": {
+      "columns": [
+        {
+          "name": "MaNV",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "Ho",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "Ten",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "ChucVu",
+          "type": "varchar(50)",
+          "nullable": true
+        }
+      ],
+      "pk": [
+        "MaNV"
+      ],
+      "unique": []
+    },
+    "SanBay": {
+      "columns": [
+        {
+          "name": "MaSanBay",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "Ten",
+          "type": "varchar(100)",
+          "nullable": false
+        },
+        {
+          "name": "LoaiSanBay",
+          "type": "varchar(50)",
+          "nullable": true
+        }
+      ],
+      "pk": [
+        "MaSanBay"
+      ],
+      "unique": []
+    },
+    "Ve": {
+      "columns": [
+        {
+          "name": "MaVe",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaChuyenBay",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaHV",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaGhe",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "MaHK",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "DonGiaVe",
+          "type": "decimal(18, 0)",
+          "nullable": false
+        },
+        {
+          "name": "Ngay",
+          "type": "datetime(3)",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        },
+        {
+          "name": "MaDV",
+          "type": "varchar(10)",
+          "nullable": true
+        }
+      ],
+      "pk": [
+        "MaVe"
+      ],
+      "unique": [
+        [
+          "MaChuyenBay",
+          "MaGhe"
+        ]
+      ]
+    },
+    "Voucher": {
+      "columns": [
+        {
+          "name": "MaVoucher",
+          "type": "varchar(20)",
+          "nullable": false
+        },
+        {
+          "name": "MaCTKM",
+          "type": "varchar(10)",
+          "nullable": false
+        },
+        {
+          "name": "GiamGia",
+          "type": "decimal(18, 2)",
+          "nullable": false
+        }
+      ],
+      "pk": [
+        "MaVoucher"
+      ],
+      "unique": []
+    }
+  },
+  "foreignKeys": [
+    {
+      "table": "ChiTietHoaDon",
+      "name": "FK_ChiTietHoaDon_HoaDon",
+      "columns": [
+        "MaHD"
+      ],
+      "parent": "HoaDon",
+      "references": [
+        "MaHD"
+      ]
+    },
+    {
+      "table": "ChiTietHoaDon",
+      "name": "FK_ChiTietHoaDon_Ve",
+      "columns": [
+        "MaVe"
+      ],
+      "parent": "Ve",
+      "references": [
+        "MaVe"
+      ]
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "FK_CB_HHK",
+      "columns": [
+        "MaHHK"
+      ],
+      "parent": "HangHangKhong",
+      "references": [
+        "MaHHK"
+      ]
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "FK_CB_MayBay",
+      "columns": [
+        "MaMayBay"
+      ],
+      "parent": "MayBay",
+      "references": [
+        "MaMayBay"
+      ]
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "FK_CB_SBDen",
+      "columns": [
+        "MaSanBayDen"
+      ],
+      "parent": "SanBay",
+      "references": [
+        "MaSanBay"
+      ]
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "FK_CB_SBDi",
+      "columns": [
+        "MaSanBayDi"
+      ],
+      "parent": "SanBay",
+      "references": [
+        "MaSanBay"
+      ]
+    },
+    {
+      "table": "DatVe",
+      "name": "FK_DV_CB",
+      "columns": [
+        "MaChuyenBay"
+      ],
+      "parent": "ChuyenBay",
+      "references": [
+        "MaChuyenBay"
+      ]
+    },
+    {
+      "table": "DatVe",
+      "name": "FK_DV_KH",
+      "columns": [
+        "MaKH"
+      ],
+      "parent": "KhachHang",
+      "references": [
+        "MaKH"
+      ]
+    },
+    {
+      "table": "DatVe",
+      "name": "FK_DV_NV",
+      "columns": [
+        "MaNV"
+      ],
+      "parent": "NhanVien",
+      "references": [
+        "MaNV"
+      ]
+    },
+    {
+      "table": "DatVe",
+      "name": "FK_DV_Voucher",
+      "columns": [
+        "MaVoucher"
+      ],
+      "parent": "Voucher",
+      "references": [
+        "MaVoucher"
+      ]
+    },
+    {
+      "table": "Ghe",
+      "name": "FK_Ghe_HangVe",
+      "columns": [
+        "MaHV"
+      ],
+      "parent": "HangVe",
+      "references": [
+        "MaHV"
+      ]
+    },
+    {
+      "table": "Ghe",
+      "name": "FK_Ghe_MayBay",
+      "columns": [
+        "MaMayBay"
+      ],
+      "parent": "MayBay",
+      "references": [
+        "MaMayBay"
+      ]
+    },
+    {
+      "table": "HanhKhach",
+      "name": "FK_HK_KH",
+      "columns": [
+        "MaKH"
+      ],
+      "parent": "KhachHang",
+      "references": [
+        "MaKH"
+      ]
+    },
+    {
+      "table": "HoaDon",
+      "name": "FK_HD_DV",
+      "columns": [
+        "MaDV"
+      ],
+      "parent": "DatVe",
+      "references": [
+        "MaDV"
+      ]
+    },
+    {
+      "table": "HoaDon",
+      "name": "FK_HD_KH",
+      "columns": [
+        "MaKH"
+      ],
+      "parent": "KhachHang",
+      "references": [
+        "MaKH"
+      ]
+    },
+    {
+      "table": "HoaDon",
+      "name": "FK_HD_NV",
+      "columns": [
+        "MaNV"
+      ],
+      "parent": "NhanVien",
+      "references": [
+        "MaNV"
+      ]
+    },
+    {
+      "table": "MayBay",
+      "name": "FK_MayBay_HHK",
+      "columns": [
+        "MaHHK"
+      ],
+      "parent": "HangHangKhong",
+      "references": [
+        "MaHHK"
+      ]
+    },
+    {
+      "table": "Ve",
+      "name": "FK_Ve_CB",
+      "columns": [
+        "MaChuyenBay"
+      ],
+      "parent": "ChuyenBay",
+      "references": [
+        "MaChuyenBay"
+      ]
+    },
+    {
+      "table": "Ve",
+      "name": "FK_Ve_DatVe",
+      "columns": [
+        "MaDV",
+        "MaChuyenBay"
+      ],
+      "parent": "DatVe",
+      "references": [
+        "MaDV",
+        "MaChuyenBay"
+      ]
+    },
+    {
+      "table": "Ve",
+      "name": "FK_Ve_Ghe",
+      "columns": [
+        "MaGhe"
+      ],
+      "parent": "Ghe",
+      "references": [
+        "MaGhe"
+      ]
+    },
+    {
+      "table": "Ve",
+      "name": "FK_Ve_HK",
+      "columns": [
+        "MaHK"
+      ],
+      "parent": "HanhKhach",
+      "references": [
+        "MaHK"
+      ]
+    },
+    {
+      "table": "Ve",
+      "name": "FK_Ve_HV",
+      "columns": [
+        "MaHV"
+      ],
+      "parent": "HangVe",
+      "references": [
+        "MaHV"
+      ]
+    },
+    {
+      "table": "Voucher",
+      "name": "FK_Voucher_CTKM",
+      "columns": [
+        "MaCTKM"
+      ],
+      "parent": "CTKM",
+      "references": [
+        "MaCTKM"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "table": "ChiTietHoaDon",
+      "name": "CK_ChiTietHoaDon_1",
+      "expression": "((`SL`>(0)))"
+    },
+    {
+      "table": "ChiTietHoaDon",
+      "name": "CK_ChiTietHoaDon_DonGiaVe",
+      "expression": "((`DonGiaVe`>=(0)))"
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "CK_ChuyenBay_1",
+      "expression": "((`GiaVe`>=(0)))"
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "CK_ChuyenBay_2",
+      "expression": "((`SoVeDaBan`>=(0)))"
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "CK_ChuyenBay_3",
+      "expression": "((`TongSoGhe`>=(0)))"
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "CK_CB_Ngay",
+      "expression": "((`NgayDen`>=`NgayKhoiHanh`))"
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "CK_CB_SanBay",
+      "expression": "((`MaSanBayDi`<>`MaSanBayDen`))"
+    },
+    {
+      "table": "ChuyenBay",
+      "name": "CK_CB_SoVe",
+      "expression": "((`SoVeDaBan`<=`TongSoGhe`))"
+    },
+    {
+      "table": "CTKM",
+      "name": "CK_CTKM_Ngay",
+      "expression": "((`NgayKetThuc`>=`NgayBatDau`))"
+    },
+    {
+      "table": "HangVe",
+      "name": "CK_HangVe_1",
+      "expression": "((`DonGiaVe`>=(0)))"
+    },
+    {
+      "table": "HangVe",
+      "name": "CK_HangVe_2",
+      "expression": "((`HanhLyKg`>=(0)))"
+    },
+    {
+      "table": "Ve",
+      "name": "CK__Ve__DonGiaVe__00200768",
+      "expression": "((`DonGiaVe`>=(0)))"
+    },
+    {
+      "table": "Voucher",
+      "name": "CK_Voucher_1",
+      "expression": "((`GiamGia`>=(0)))"
+    }
+  ]
+}

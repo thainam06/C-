@@ -2,7 +2,7 @@
 
 Ứng dụng dùng MySqlConnector trong lớp `MyConnection`; các DAO gọi `CSDLListDAO` để đọc/ghi bằng lệnh có tham số, giao dịch và kiểm tra phiên dữ liệu. GUI chỉ gọi BUS, không chứa SQL. Các bảng giao diện dùng WinForms ListView (Details), chọn dòng để sửa/xóa; vẫn có lọc, xuất Excel/PDF.
 
-Nhóm đã có CSDL MySQL riêng: **không chạy script tạo bảng hoặc tự nạp JSON vào CSDL**. File `mysql-mapping.example.json` là ví dụ theo DTO, chưa xác nhận khớp CSDL của nhóm. Cần đối chiếu DDL: tên bảng/cột phân biệt hoa thường tùy server, kiểu dữ liệu, khóa chính, khóa ngoại, bảng InnoDB, cột bắt buộc/auto increment, UNIQUE. Không dùng tiền tố `dbo` của SQL Server trong MySQL. Những bảng/view chưa có sẽ báo lỗi riêng khi mở màn hình tương ứng.
+Đã nhận `BanVeMayBay.sql` của nhóm: nguồn là DDL SQL Server. Đã chuyển đủ 15 bảng/23 FK/13 CHECK sang MySQL 8.4 tại `docs/mysql/BanVeMayBay.mysql.sql` và có profile cụ thể `docs/mysql-mapping.BanVeMayBay.json`. Xem [các bước nhập CSDL mới](mysql/README.md). Không chạy script tạo bảng vào CSDL đang có dữ liệu; app không tự sửa schema. Profile `mysql-mapping.example.json` cũ chỉ là ví dụ chung.
 
 ## Cấu hình trên Windows
 
@@ -11,11 +11,11 @@ Mở PowerShell tại repository, cấu hình trong cửa sổ đó rồi chạy
 ```powershell
 cd "C:\Users\boydy\source\repos\c#\C-"
 $env:QLMB_MYSQL_CONNECTION = Read-Host "Nhap chuoi ket noi MySQL tren may ban"
-$env:QLMB_MYSQL_MAPPING_FILE = "$PWD\mysql-mapping.local.json"
+$env:QLMB_MYSQL_MAPPING_FILE = "$PWD\docs\mysql-mapping.BanVeMayBay.json"
 dotnet run --project .\QuanLyMayBay.csproj
 ```
 
-Trước đó sao chép `docs/mysql-mapping.example.json` thành `mysql-mapping.local.json` và sửa theo DDL. File local đã được gitignore. Không nhập mật khẩu trong chat hoặc commit vào git. `Read-Host` nhập tại máy, không lưu chuỗi thật trong lệnh lịch sử; chuỗi vẫn tồn tại trong bộ nhớ phiên PowerShell. Đóng cửa sổ khi dùng xong. Nếu chạy bằng Visual Studio, cần mở VS từ phiên có những biến môi trường này hoặc cấu hình biến người dùng rồi mở lại VS.
+Profile trên đã ghép theo file nguồn. Nếu đổi cấu trúc CSDL, sao chép sang `mysql-mapping.local.json` rồi sửa và đặt biến trỏ tới file local. Không nhập mật khẩu trong chat hoặc commit vào git. `Read-Host` nhập tại máy, không lưu chuỗi thật trong lệnh lịch sử; chuỗi vẫn tồn tại trong bộ nhớ phiên PowerShell. Đóng cửa sổ khi dùng xong. Nếu chạy bằng Visual Studio, cần mở VS từ phiên có những biến môi trường này hoặc cấu hình biến người dùng rồi mở lại VS.
 
 Mẫu chuỗi (thay bằng tài khoản có quyền trên database của nhóm):
 
@@ -43,4 +43,4 @@ Chỉ xuất metadata bảng/cột, kiểu, PK/FK từ information_schema; khôn
 - Lưu nhiều bảng trong cùng giao dịch Serializable: ghi cha trước, xóa con trước. FK/UNIQUE hoặc lỗi lưu sẽ rollback; không tắt foreign_key_checks.
 - So sánh dữ liệu đã đọc với CSDL trước khi lưu; nếu phiên khác sửa thì yêu cầu tải lại, tránh ghi đè.
 - Trường `Ghe.LoaiGhe` có thể suy ra từ `MaHV` qua `DerivedColumns`, chỉ dùng nếu CSDL không lưu cột đó. HV01 → Ghế thường/Hạng phổ thông; HV02 → Ghế VIP/Hạng thương gia.
-- Báo cáo cần hai view `vDoanhThuThongKe`, `vChiPhiThongKe` với các trường trong mapping. Chưa có DDL hóa đơn thực tế thì chưa thể ghép các view chính xác. Phần này chỉ đọc.
+- Báo cáo cần hai view `vDoanhThuThongKe`, `vChiPhiThongKe` với các trường trong mapping báo cáo mẫu. File nguồn không có các view này hoặc bảng chi phí; cần thống nhất cách tính tiền/chiết khấu trước khi tạo adapter. Profile cụ thể chưa giả lập nguồn này. Phần này chỉ đọc.

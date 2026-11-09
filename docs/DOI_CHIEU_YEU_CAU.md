@@ -1,3 +1,5 @@
+> Đã nhận DDL BanVeMayBay.sql và chuyển 15 bảng/23 FK/13 CHECK sang MySQL 8.4, sửa LoaiKH → LoaiHK và ngày sinh NULL. Xem docs/mysql/README.md; nghiệp vụ bán/hủy vé, nguồn chi phí và view báo cáo vẫn chưa hoàn tất. Các dòng "chưa có DDL" phía dưới là trạng thái trước khi nhận file này.
+
 > Cập nhật 09/11/2026: theo yêu cầu mới, ứng dụng hỗ trợ MySQL qua DAO và toàn bộ bảng GUI dùng ListView. Xem KET_NOI_MYSQL.md và KET_QUA_KIEM_THU.md. Nội dung SQL Server bên dưới là đối chiếu trước đó; chưa có DDL MySQL của nhóm để xác nhận tương thích schema thực tế. Báo cáo DOCX chưa cập nhật thay đổi này.
 
 # Đối chiếu C-w7-YeuCauDoAn.pdf

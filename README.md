@@ -4,16 +4,19 @@
 Nhân viên, CTKM và Voucher.
 
 Tên đề tài chính thức: **Quản lý bán vé máy bay**. Các danh mục hỗ trợ quy trình
-bán vé; phần đặt/bán/hủy vé, hóa đơn và ghế theo chuyến cần ghép với CSDL SQL Server
-thực tế của nhóm như trạng thái đối chiếu bên dưới.
+bán vé; nghiệp vụ đặt/bán/hủy vé và tồn ghế theo chuyến chưa hoàn tất.
+Đã chuyển DDL SQL Server nhóm gửi sang MySQL 8.4 như hướng dẫn bên dưới.
 
 ## MySQL và ListView (cập nhật mới)
 
 Đã thêm **MySQL qua DAO (MySqlConnector)** và đổi toàn bộ bảng GUI sang **ListView**.
-Xem [cấu hình MySQL](docs/KET_NOI_MYSQL.md). Nhóm đã có CSDL MySQL riêng nên app
-không tự tạo/sửa bảng. `docs/mysql-mapping.example.json` chỉ là mẫu chưa xác nhận;
-cần DDL hoặc metadata thực tế để ghép đúng. Có thể xuất metadata trong menu Kết nối CSDL.
-Đặt `QLMB_MYSQL_CONNECTION` và `QLMB_MYSQL_MAPPING_FILE` rồi chạy project gốc.
+Đã nhận `BanVeMayBay.sql` của nhóm (DDL SQL Server), chuyển đủ **15 bảng/23 FK/13 CHECK**
+sang MySQL 8.4 và ghép profile DAO cụ thể. Xem [nhập CSDL MySQL mới](docs/mysql/README.md)
+và [cấu hình kết nối](docs/KET_NOI_MYSQL.md). `MHHK → MaHHK`, `LoaiKH → LoaiHK`,
+ngày sinh hỗ trợ NULL; hành lý/giá vé được kiểm tra đúng độ chính xác cột nguồn.
+Ứng dụng đóng gói profile BanVeMayBay, chỉ cần đặt `QLMB_MYSQL_CONNECTION` sau khi nhập schema.
+Không tự tạo/sửa bảng hoặc chép dữ liệu mẫu. File gốc không có chi phí, tham số và view báo cáo;
+bảng tham số có script bổ sung tùy chọn, phần báo cáo tiền vẫn cần nguồn/quy tắc nghiệp vụ.
 Cấu hình SQL Server bên dưới là hướng dẫn cũ; MySQL được ưu tiên khi đã cấu hình.
 
 ## Bản cập nhật theo PDF yêu cầu đồ án

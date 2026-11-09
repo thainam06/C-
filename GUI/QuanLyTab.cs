@@ -75,7 +75,8 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 {
                     Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy",
                     MaxDate = field.LaNgaySinh ? DateTime.Today : DateTimePicker.MaximumDateTime,
-                    Value = DateTime.Today
+                    Value = DateTime.Today,
+                    ShowCheckBox = Nullable.GetUnderlyingType(ThuocTinh(field).PropertyType) != null
                 };
             else if (field.So)
                 input = new NumericUpDown
@@ -232,7 +233,8 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 var value = ThuocTinh(field).GetValue(item);
                 var input = oNhap[field.ThuocTinh];
                 if (field.LaMatKhau) input.Text = "";
-                else if (input is DateTimePicker ngay) ngay.Value = (DateTime)value!;
+                else if (input is DateTimePicker ngay)
+                { ngay.Value = value is DateTime date ? date : DateTime.Today; ngay.Checked = value != null; }
                 else if (input is NumericUpDown number) number.Value = (decimal)value!;
                 else if (input is ComboBox combo) ChonTheoMa(combo, (string)value!);
                 else input.Text = (string)value!;
@@ -321,8 +323,8 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         foreach (var field in truong)
         {
             var input = oNhap[field.ThuocTinh];
-            object value = input is NumericUpDown number ? number.Value
-                : input is DateTimePicker ngay ? ngay.Value.Date
+            object? value = input is NumericUpDown number ? number.Value
+                : input is DateTimePicker ngay ? (ngay.ShowCheckBox && !ngay.Checked ? null : (object)ngay.Value.Date)
                 : field.LaMatKhau ? input.Text : DocChuoi(input);
             ThuocTinh(field).SetValue(item, value);
         }

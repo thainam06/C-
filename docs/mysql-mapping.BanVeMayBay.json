@@ -1,0 +1,125 @@
+{
+  "MayBay": {
+    "Table": "MayBay",
+    "Columns": {
+      "MaMayBay": "MaMayBay",
+      "MHHK": "MaHHK"
+    },
+    "KeyColumns": [
+      "MaMayBay"
+    ]
+  },
+  "HangVe": {
+    "Table": "HangVe",
+    "Columns": {
+      "MaHV": "MaHV",
+      "TenHV": "TenHV",
+      "HanhLyKg": "HanhLyKg",
+      "DonGiaVe": "DonGiaVe"
+    },
+    "KeyColumns": [
+      "MaHV"
+    ]
+  },
+  "Ghe": {
+    "Table": "Ghe",
+    "Columns": {
+      "MaGhe": "MaGhe",
+      "MaMayBay": "MaMayBay",
+      "MaHV": "MaHV"
+    },
+    "KeyColumns": [
+      "MaGhe"
+    ],
+    "DerivedColumns": {
+      "LoaiGhe": "LoaiGheTuHangVe"
+    }
+  },
+  "KhachHang": {
+    "Table": "KhachHang",
+    "Columns": {
+      "MaKH": "MaKH",
+      "HoTen": "HoTen",
+      "CCCD": "CCCD",
+      "SDT": "SDT",
+      "Email": "Email",
+      "TaiKhoan": "TaiKhoan",
+      "MatKhau": "MatKhau",
+      "DiaChi": "DiaChi"
+    },
+    "KeyColumns": [
+      "MaKH"
+    ]
+  },
+  "HanhKhach": {
+    "Table": "HanhKhach",
+    "Columns": {
+      "MaHK": "MaHK",
+      "HoTen": "HoTen",
+      "NgaySinh": "NgaySinh",
+      "CCCD": "CCCD",
+      "GioiTinh": "GioiTinh",
+      "MaKH": "MaKH",
+      "LoaiKH": "LoaiHK"
+    },
+    "KeyColumns": [
+      "MaHK"
+    ]
+  },
+  "NhanVien": {
+    "Table": "NhanVien",
+    "Columns": {
+      "MaNV": "MaNV",
+      "Ho": "Ho",
+      "Ten": "Ten",
+      "ChucVu": "ChucVu"
+    },
+    "KeyColumns": [
+      "MaNV"
+    ]
+  },
+  "CTKM": {
+    "Table": "CTKM",
+    "Columns": {
+      "MaCTKM": "MaCTKM",
+      "TenCTKM": "TenCTKM",
+      "NgayBatDau": "NgayBatDau",
+      "NgayKetThuc": "NgayKetThuc"
+    },
+    "KeyColumns": [
+      "MaCTKM"
+    ]
+  },
+  "Voucher": {
+    "Table": "Voucher",
+    "Columns": {
+      "MaVoucher": "MaVoucher",
+      "MaCTKM": "MaCTKM",
+      "GiamGia": "GiamGia"
+    },
+    "KeyColumns": [
+      "MaVoucher"
+    ]
+  },
+  "ThamSo": {
+    "Table": "ThamSo",
+    "Columns": {
+      "MaThamSo": "MaThamSo",
+      "GiaTri": "GiaTri",
+      "MoTa": "MoTa"
+    },
+    "KeyColumns": [
+      "MaThamSo"
+    ]
+  },
+  "HangHangKhong": {
+    "Table": "HangHangKhong",
+    "Columns": {
+      "MaHHK": "MaHHK",
+      "TenHang": "TenHang"
+    },
+    "KeyColumns": [
+      "MaHHK"
+    ]
+  }
+}

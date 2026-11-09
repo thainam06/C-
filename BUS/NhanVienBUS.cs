@@ -18,7 +18,7 @@ public class NhanVienBUS
         {
             foreach (var nv in danhSach)
             {
-                KiemTra(nv);
+                KiemTra(nv, dangDoc: true);
                 if (!ma.Add(nv.MaNV)) throw new InvalidDataException();
             }
         }
@@ -33,12 +33,12 @@ public class NhanVienBUS
 
     private static NhanVien SaoChep(NhanVien nv) => new(nv.MaNV, nv.Ho, nv.Ten, nv.ChucVu);
 
-    private static void KiemTra(NhanVien nv)
+    private static void KiemTra(NhanVien nv, bool dangDoc = false)
     {
         BatBuoc(nv.MaNV, "mã nhân viên");
         BatBuoc(nv.Ho, "họ");
         BatBuoc(nv.Ten, "tên");
-        BatBuoc(nv.ChucVu, "chức vụ");
+        if (!dangDoc || !MyConnection.DaCauHinh) BatBuoc(nv.ChucVu, "chức vụ");
     }
 
     public ArrayList TimKiem(string tuKhoa = "")
@@ -70,7 +70,7 @@ public class NhanVienBUS
     {
         var next = NhapLoatBUS.HopNhat(danhSach, rows, x => x.MaNV,
             x => new NhanVien(BatBuoc(x.MaNV, "mã nhân viên"), BatBuoc(x.Ho, "họ"),
-                BatBuoc(x.Ten, "tên"), BatBuoc(x.ChucVu, "chức vụ")), KiemTra);
+                BatBuoc(x.Ten, "tên"), BatBuoc(x.ChucVu, "chức vụ")), nv => KiemTra(nv));
         dao.Luu(next); danhSach = next;
     }
 

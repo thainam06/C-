@@ -24,7 +24,7 @@ public class HanhKhachBUS
         {
             foreach (var hk in danhSach)
             {
-                KiemTraThongTin(hk);
+                KiemTraThongTin(hk, dangDoc: true);
                 if (!ma.Add(hk.MaHK) || (hk.CCCD.Length > 0 && !cccd.Add(hk.CCCD))
                     || !cacKhachHang.Contains(hk.MaKH))
                     throw new InvalidDataException();
@@ -48,15 +48,15 @@ public class HanhKhachBUS
     private static HanhKhach SaoChep(HanhKhach hk) => new(hk.MaHK, hk.HoTen,
         hk.NgaySinh, hk.CCCD, hk.GioiTinh, hk.MaKH, hk.LoaiKH);
 
-    private static void KiemTraThongTin(HanhKhach hk)
+    private static void KiemTraThongTin(HanhKhach hk, bool dangDoc = false)
     {
         BatBuoc(hk.MaHK, "mã hành khách");
         BatBuoc(hk.HoTen, "họ tên");
         BatBuoc(hk.MaKH, "khách hàng");
-        BatBuoc(hk.LoaiKH, "loại khách hàng");
-        if (hk.NgaySinh.Date < new DateTime(1753, 1, 1) || hk.NgaySinh.Date > DateTime.Today)
+        if (!dangDoc || !MyConnection.DaCauHinh) BatBuoc(hk.LoaiKH, "loại khách hàng");
+        if (hk.NgaySinh is DateTime ngaySinh && (ngaySinh.Date < new DateTime(1753, 1, 1) || ngaySinh.Date > DateTime.Today))
             throw new ArgumentException("Ngày sinh không hợp lệ hoặc lớn hơn hôm nay.");
-        if (!new[] { "Nam", "Nữ", "Khác" }.Contains(hk.GioiTinh))
+        if (!(dangDoc && MyConnection.DaCauHinh && hk.GioiTinh.Length == 0) && !new[] { "Nam", "Nữ", "Khác" }.Contains(hk.GioiTinh))
             throw new ArgumentException("Vui lòng chọn giới tính Nam, Nữ hoặc Khác.");
         if (hk.CCCD == null || (hk.CCCD.Length > 0
             && (hk.CCCD.Length != 12 || !hk.CCCD.All(c => c >= '0' && c <= '9'))))
@@ -71,7 +71,7 @@ public class HanhKhachBUS
         var nguon = new ArrayList(danhSach);
         foreach (HanhKhach hk in nguon)
         {
-            var cacCot = new[] { hk.MaHK, hk.HoTen, hk.NgaySinh.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+            var cacCot = new[] { hk.MaHK, hk.HoTen, hk.NgaySinh?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "",
                 hk.CCCD, hk.GioiTinh, hk.MaKH, hk.LoaiKH };
             if (cacCot.Any(x => x.Contains(tuKhoa.Trim(), StringComparison.OrdinalIgnoreCase)))
                 ketQua.Add(SaoChep(hk));
@@ -85,7 +85,7 @@ public class HanhKhachBUS
         var gioiTinh = new[] { "Nam", "Nữ", "Khác" }
             .FirstOrDefault(x => CungMa(x, hk.GioiTinh?.Trim() ?? "")) ?? "";
         var moi = new HanhKhach(BatBuoc(hk.MaHK, "mã hành khách"), BatBuoc(hk.HoTen, "họ tên"),
-            hk.NgaySinh.Date, hk.CCCD?.Trim() ?? "", gioiTinh,
+            hk.NgaySinh?.Date, hk.CCCD?.Trim() ?? "", gioiTinh,
             BatBuoc(hk.MaKH, "khách hàng"), BatBuoc(hk.LoaiKH, "loại khách hàng"));
         KiemTraThongTin(moi);
         var khachHang = LayKhachHang().Cast<KhachHang>().FirstOrDefault(x => CungMa(x.MaKH, moi.MaKH));
