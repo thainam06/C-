@@ -1,3 +1,9 @@
+# Bản đồng bộ DAO/DTO mới
+
+Đã chuyển toàn bộ namespace sang VeMayBay, lớp *DTO và MySql.Data.MySqlClient theo 11 file mới. Xem [hướng dẫn hiện tại](DONG_BO_MAU_DAO_DTO.md); các mô tả provider/kiểu nullable/decimal bên dưới là lịch sử trước lần đồng bộ này.
+
+---
+
 ## 5 file DAO người dùng gửi để tích hợp
 
 Bản hiện tại của HanhKhachDAO, NhanVienDAO, KhachHangDAO, VoucherDAO và CTKMDAO lấy từ 5 file tải lên mới. Giữ SQL, thứ tự tham số, biến DTO và try/catch/finally của file gửi; theo lựa chọn của người dùng chỉ điều chỉnh để chạy cùng project.
@@ -36,13 +42,13 @@ DanhMucMySql.cs chỉ hỗ trợ ánh xạ tên bảng/cột, điều phối đ�
 ## Dùng các hàm theo mẫu
 
 ```csharp
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
 var dao = new MayBayDAO();
-List<MayBay> danhSach = dao.DocDS();
-dao.Them(new MayBay("M11", "VN")); // HangHangKhong phải có VN trước
-dao.Sua(new MayBay("M11", "THA")); // THA cũng phải tồn tại
+List<MayBayDTO> danhSach = dao.DocDS();
+dao.Them(new MayBayDTO("M11", "VN")); // HangHangKhong phải có VN trước
+dao.Sua(new MayBayDTO("M11", "THA")); // THA cũng phải tồn tại
 dao.Xoa("M11");                   // Không xóa nếu đang được tham chiếu
 ```
 

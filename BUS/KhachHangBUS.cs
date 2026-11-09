@@ -1,16 +1,16 @@
 using System.Collections;
 using System.Net.Mail;
 using System.Security.Cryptography;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public class KhachHangBUS
 {
     private readonly KhachHangDAO dao;
     private readonly HanhKhachDAO hanhKhachDAO;
-    private List<KhachHang> danhSach;
+    private List<KhachHangDTO> danhSach;
 
     public KhachHangBUS(KhachHangDAO? dao = null, HanhKhachDAO? hanhKhachDAO = null)
     {
@@ -46,13 +46,13 @@ public class KhachHangBUS
         return value.Trim();
     }
 
-    private static KhachHang SaoChep(KhachHang kh, bool kemMatKhau = true) => new(
+    private static KhachHangDTO SaoChep(KhachHangDTO kh, bool kemMatKhau = true) => new(
         kh.MaKH, kh.HoTen, kh.CCCD, kh.SDT, kh.Email, kh.TaiKhoan,
         kemMatKhau ? kh.MatKhau : string.Empty, kh.DiaChi);
 
     private static bool LaChuSo(string value) => value.All(c => c >= '0' && c <= '9');
 
-    private static void KiemTraThongTin(KhachHang kh, bool dangDoc = false)
+    private static void KiemTraThongTin(KhachHangDTO kh, bool dangDoc = false)
     {
         BatBuoc(kh.MaKH, "mã khách hàng");
         BatBuoc(kh.HoTen, "họ tên");
@@ -97,7 +97,7 @@ public class KhachHangBUS
     {
         var ketQua = new ArrayList();
         var nguon = new ArrayList(danhSach);
-        foreach (KhachHang kh in nguon)
+        foreach (KhachHangDTO kh in nguon)
         {
             var cacCot = new[] { kh.MaKH, kh.HoTen, kh.CCCD, kh.SDT, kh.Email, kh.TaiKhoan, kh.DiaChi };
             if (cacCot.Any(x => x.Contains(tuKhoa.Trim(), StringComparison.OrdinalIgnoreCase)))
@@ -106,10 +106,10 @@ public class KhachHangBUS
         return ketQua;
     }
 
-    public void Luu(KhachHang kh, bool sua)
+    public void Luu(KhachHangDTO kh, bool sua)
     {
         ArgumentNullException.ThrowIfNull(kh);
-        var moi = new KhachHang(
+        var moi = new KhachHangDTO(
             BatBuoc(kh.MaKH, "mã khách hàng"), BatBuoc(kh.HoTen, "họ tên"),
             BatBuoc(kh.CCCD, "CCCD"), BatBuoc(kh.SDT, "số điện thoại"),
             BatBuoc(kh.Email, "email"), BatBuoc(kh.TaiKhoan, "tài khoản"),

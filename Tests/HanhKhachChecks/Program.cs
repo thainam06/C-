@@ -1,9 +1,9 @@
 using System.Text.Json;
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.BUS;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.Tests;
+namespace VeMayBay.Tests;
 
 internal static class HanhKhachChecks
 {
@@ -26,7 +26,7 @@ internal static class HanhKhachChecks
             catch (ArgumentException) { Check(true, name); return; }
             throw new Exception("FAIL: " + name);
         }
-        HanhKhach Sample(string ma = "HK01", string cccd = "001000000011", string maKH = "KH01") =>
+        HanhKhachDTO Sample(string ma = "HK01", string cccd = "001000000011", string maKH = "KH01") =>
             new(ma, "Nguyễn Hành Khách Mẫu", new DateTime(2001, 1, 2), cccd, "Nam", maKH, "Người lớn");
         try
         {
@@ -38,17 +38,17 @@ internal static class HanhKhachChecks
             var passengers = new HanhKhachBUS(hkDao, khDao);
             Check(passengers.TimKiem().Count == 0 && passengers.LayKhachHang().Count == 0, "First run is empty");
             Reject(() => passengers.Luu(Sample(), false), "Unknown customer rejected");
-            customers.Luu(new KhachHang("KH01", "Khách Hàng Mẫu", "001000000001", "0900000001",
+            customers.Luu(new KhachHangDTO("KH01", "Khách Hàng Mẫu", "001000000001", "0900000001",
                 "kh01@example.test", "kh01", "Fake password!", "Địa chỉ mẫu"), false);
             Check(passengers.LayKhachHang().Count == 1
-                && passengers.LayKhachHang().Cast<KhachHang>().Single().MatKhau == "",
+                && passengers.LayKhachHang().Cast<KhachHangDTO>().Single().MatKhau == "",
                 "Customer dropdown reads newly saved customer without password");
             var customerSnapshot = File.ReadAllText(customerPath);
             var sample = Sample(" HK01 ", "001000000011", "kh01");
             sample.GioiTinh = "nữ";
             sample.NgaySinh = new DateTime(2001, 1, 2, 13, 30, 0);
             passengers.Luu(sample, false);
-            var first = passengers.TimKiem().Cast<HanhKhach>().Single();
+            var first = passengers.TimKiem().Cast<HanhKhachDTO>().Single();
             Check(first.MaHK == "HK01" && first.MaKH == "KH01" && first.GioiTinh == "Nữ"
                 && first.NgaySinh == new DateTime(2001, 1, 2) && first.CCCD == "001000000011",
                 "Create normalizes code, parent, gender and date while preserving leading zeroes");
@@ -78,7 +78,7 @@ internal static class HanhKhachChecks
                 "Search supports name, birth date, parent and type ignoring case");
             first.HoTen = "Changed outside BUS";
             Check(passengers.TimKiem("Changed outside BUS").Count == 0, "Search returns detached copies");
-            var edit = passengers.TimKiem().Cast<HanhKhach>().Single(x => x.MaHK == "HK01");
+            var edit = passengers.TimKiem().Cast<HanhKhachDTO>().Single(x => x.MaHK == "HK01");
             edit.HoTen = "Họ tên đã sửa";
             edit.LoaiKH = "Loại kiểm thử";
             passengers.Luu(edit, true);
@@ -88,12 +88,12 @@ internal static class HanhKhachChecks
             Reject(() => passengers.Luu(Sample("MISSING", "001000000099"), true), "Updating absent passenger rejected");
             Reject(() => passengers.Xoa("MISSING"), "Deleting absent passenger rejected");
             Check(File.ReadAllText(customerPath) == customerSnapshot, "Passenger CRUD does not overwrite customer file");
-            customers.Luu(new KhachHang("KH02", "Khách thứ hai", "001000000002", "0900000002",
+            customers.Luu(new KhachHangDTO("KH02", "Khách thứ hai", "001000000002", "0900000002",
                 "kh02@example.test", "kh02", "Fake password!", "Địa chỉ mẫu"), false);
             Check(passengers.LayKhachHang().Count == 2, "Customer choices refresh after adding another customer");
             edit.MaKH = "KH02";
             passengers.Luu(edit, true);
-            Check(passengers.TimKiem().Cast<HanhKhach>().Single(x => x.MaHK == "HK01").MaKH == "KH02",
+            Check(passengers.TimKiem().Cast<HanhKhachDTO>().Single(x => x.MaHK == "HK01").MaKH == "KH02",
                 "Can move a passenger to another valid customer");
             passengers.Xoa("hk02");
             passengers.Xoa("HK03");

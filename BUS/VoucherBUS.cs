@@ -1,22 +1,22 @@
 using System.Collections;
 using System.Globalization;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public class VoucherBUS
 {
     private readonly VoucherDAO dao;
     private readonly CTKMDAO ctkmDAO;
-    private List<Voucher> danhSach;
+    private List<VoucherDTO> danhSach;
 
     public VoucherBUS(VoucherDAO? dao = null, CTKMDAO? ctkmDAO = null)
     {
         this.ctkmDAO = ctkmDAO ?? new CTKMDAO();
         this.dao = dao ?? new VoucherDAO(Path.Combine(this.ctkmDAO.ThuMuc, "voucher.json"));
         danhSach = this.dao.Doc();
-        var cacCTKM = LayCTKM().Cast<CTKM>().Select(x => x.MaCTKM).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var cacCTKM = LayCTKM().Cast<CTKMDTO>().Select(x => x.MaCTKM).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var ma = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         try
         {
@@ -36,14 +36,16 @@ public class VoucherBUS
     private static string BatBuoc(string? value, string ten) => !string.IsNullOrWhiteSpace(value)
         ? value.Trim() : throw new ArgumentException($"Vui lòng nhập/chọn {ten}.");
 
-    private static Voucher SaoChep(Voucher v) => new(v.MaVoucher, v.MaCTKM, v.GiamGia);
+    private static VoucherDTO SaoChep(VoucherDTO v) => new(v.MaVoucher, v.MaCTKM, v.GiamGia);
 
-    private static void KiemTra(Voucher v)
+    private static void KiemTra(VoucherDTO v)
     {
         BatBuoc(v.MaVoucher, "mã Voucher");
         BatBuoc(v.MaCTKM, "CTKM");
-        if (v.GiamGia <= 0 || v.GiamGia > 100)
-            throw new ArgumentException("Giảm giá phải lớn hơn 0% và không quá 100%.");
+        if (!double.IsFinite(v.GiamGia) || v.GiamGia <= 0 || v.GiamGia > 100)
+            throw new ArgumentException("Giảm giá phải là số hữu hạn, lớn hơn 0% và không quá 100%.");
+        if (decimal.Round(Convert.ToDecimal(v.GiamGia), 2) != Convert.ToDecimal(v.GiamGia))
+            throw new ArgumentException("Giảm giá chỉ nhận tối đa 2 chữ số thập phân theo CSDL.");
     }
 
     public ArrayList LayCTKM() => new CTKMBUS(ctkmDAO, dao).TimKiem();
@@ -51,19 +53,19 @@ public class VoucherBUS
     public ArrayList TimKiem(string tuKhoa = "")
     {
         var ketQua = new ArrayList();
-        foreach (Voucher v in new ArrayList(danhSach))
+        foreach (VoucherDTO v in new ArrayList(danhSach))
             if (new[] { v.MaVoucher, v.MaCTKM, v.GiamGia.ToString(CultureInfo.InvariantCulture) }
                 .Any(x => x.Contains(tuKhoa.Trim(), StringComparison.OrdinalIgnoreCase)))
                 ketQua.Add(SaoChep(v));
         return ketQua;
     }
 
-    public void Luu(Voucher voucher, bool sua)
+    public void Luu(VoucherDTO voucher, bool sua)
     {
         ArgumentNullException.ThrowIfNull(voucher);
-        var moi = new Voucher(BatBuoc(voucher.MaVoucher, "mã Voucher"), BatBuoc(voucher.MaCTKM, "CTKM"), voucher.GiamGia);
+        var moi = new VoucherDTO(BatBuoc(voucher.MaVoucher, "mã Voucher"), BatBuoc(voucher.MaCTKM, "CTKM"), voucher.GiamGia);
         KiemTra(moi);
-        var km = LayCTKM().Cast<CTKM>()
+        var km = LayCTKM().Cast<CTKMDTO>()
             .FirstOrDefault(x => string.Equals(x.MaCTKM, moi.MaCTKM, StringComparison.OrdinalIgnoreCase));
         if (km == null) throw new ArgumentException("Mã CTKM không tồn tại. Hãy thêm CTKM trước.");
         moi.MaCTKM = km.MaCTKM;
@@ -77,14 +79,14 @@ public class VoucherBUS
         danhSach = data;
     }
 
-    public void NhapDanhSach(List<Voucher> rows)
+    public void NhapDanhSach(List<VoucherDTO> rows)
     {
-        var parents = LayCTKM().Cast<CTKM>().ToDictionary(x => x.MaCTKM, StringComparer.OrdinalIgnoreCase);
+        var parents = LayCTKM().Cast<CTKMDTO>().ToDictionary(x => x.MaCTKM, StringComparer.OrdinalIgnoreCase);
         var next = NhapLoatBUS.HopNhat(danhSach, rows, x => x.MaVoucher, x =>
         {
             var ma = BatBuoc(x.MaVoucher, "mã Voucher");
             if (!parents.TryGetValue(BatBuoc(x.MaCTKM, "CTKM"), out var km)) throw new ArgumentException("CTKM không tồn tại.");
-            return new Voucher(ma, km.MaCTKM, x.GiamGia);
+            return new VoucherDTO(ma, km.MaCTKM, x.GiamGia);
         }, KiemTra);
         dao.Luu(next); danhSach = next;
     }

@@ -3,7 +3,7 @@ using System.Reflection;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 
-namespace QuanLyMayBay.Services;
+namespace VeMayBay.Services;
 
 public static class ExcelService
 {
@@ -31,6 +31,7 @@ public static class ExcelService
             {
                 var value = fields[j].GetValue(rows[i]);
                 var cell = row.CreateCell(j);
+                if (value is double real && !double.IsFinite(real)) throw new ArgumentException("Không xuất NaN hoặc vô cực vào Excel.");
                 if (value is DateTime date) cell.SetCellValue(date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture));
                 else if (value is decimal number && number.ToString(CultureInfo.InvariantCulture).Count(char.IsDigit) > 15)
                     cell.SetCellValue(number.ToString(CultureInfo.InvariantCulture));
@@ -93,6 +94,7 @@ public static class ExcelService
                     }
                     else if (cell?.CellType == CellType.Numeric) value = Convert.ChangeType(cell.NumericCellValue, type, CultureInfo.InvariantCulture);
                     else value = Convert.ChangeType(text, type, CultureInfo.InvariantCulture);
+                    if (value is double real && !double.IsFinite(real)) throw new FormatException("Không nhận NaN hoặc vô cực.");
                     column.Field.SetValue(item, value);
                 }
                 catch (Exception ex) when (ex is FormatException or OverflowException or ArgumentException)

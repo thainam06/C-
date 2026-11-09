@@ -1,8 +1,8 @@
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DTO;
-using QuanLyMayBay.DAO;
+using VeMayBay.BUS;
+using VeMayBay.DTO;
+using VeMayBay.DAO;
 
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 public class MainForm : Form
 {
@@ -89,7 +89,7 @@ public class MainForm : Form
                 {
                     case MayBayGheView v: v.LamMoi(); break;
                     case MainSubView v: v.LamMoi(); break;
-                    case QuanLyTab<Ghe> v: v.LamMoi(); break;
+                    case QuanLyTab<GheDTO> v: v.LamMoi(); break;
                     case HanhKhachView v: v.LamMoi(); break;
                     case VoucherView v: v.LamMoi(); break;
                     case BaoCaoView v: v.LamMoi(); break;
@@ -125,21 +125,21 @@ public class MainForm : Form
     private static Control MayBayForm(QuanLyBUS bus)
     {
         var hang = MyConnection.DaCauHinh
-            ? new Truong("MHHK", "Hãng hàng không", LuaChonCoNhan: () => bus.LayHangHangKhong().Cast<HangHangKhong>()
+            ? new Truong("MHHK", "Hãng hàng không", LuaChonCoNhan: () => bus.LayHangHangKhong().Cast<HangHangKhongDTO>()
                 .Select(x => new MucLuaChon(x.MaHHK, $"{x.MaHHK} – {x.TenHang}")).ToList())
             : new Truong("MHHK", "Mã hãng hàng không");
-        return new QuanLyTab<MayBay>(new[] { new Truong("MaMayBay", "Mã máy bay", Khoa: true), hang },
-            q => bus.TimMayBay(q).Cast<MayBay>().ToList(),
+        return new QuanLyTab<MayBayDTO>(new[] { new Truong("MaMayBay", "Mã máy bay", Khoa: true), hang },
+            q => bus.TimMayBay(q).Cast<MayBayDTO>().ToList(),
             (x, sua) => bus.LuuMayBay(x.MaMayBay, x.MHHK, sua), x => bus.XoaMayBay(x.MaMayBay));
     }
 
     private static Control HangVeForm(QuanLyBUS bus)
     {
-        var tab = new QuanLyTab<HangVe>(new[]
+        var tab = new QuanLyTab<HangVeDTO>(new[]
         {
             new Truong("MaHV", "Mã hạng vé", Khoa: true), new Truong("TenHV", "Tên hạng vé", LuaChon: bus.LayTenHangVe),
             new Truong("HanhLyKg", "Hành lý (kg)", So: true), new Truong("DonGiaVe", "Đơn giá vé (VNĐ)", So: true)
-        }, q => bus.TimHangVe(q).Cast<HangVe>().ToList(),
+        }, q => bus.TimHangVe(q).Cast<HangVeDTO>().ToList(),
             (x, sua) => bus.LuuHangVe(x.MaHV, x.TenHV, x.HanhLyKg, x.DonGiaVe, sua), x => bus.XoaHangVe(x.MaHV));
         tab.RangBuocLuaChon("MaHV", "TenHV", QuanLyBUS.TenHangVeTheoMa);
         return tab;
@@ -147,14 +147,14 @@ public class MainForm : Form
 
     private static Control GheForm(QuanLyBUS bus)
     {
-        var tab = new QuanLyTab<Ghe>(new[]
+        var tab = new QuanLyTab<GheDTO>(new[]
         {
             new Truong("MaGhe", "Mã ghế", Khoa: true),
-            new Truong("MaHV", "Hạng vé", LuaChon: () => bus.TimHangVe().Cast<HangVe>()
+            new Truong("MaHV", "Hạng vé", LuaChon: () => bus.TimHangVe().Cast<HangVeDTO>()
                 .Where(x => QuanLyBUS.LoaiGheTheoHangVe(x.MaHV) != null).OrderBy(x => x.MaHV).Select(x => x.MaHV).ToList()),
-            new Truong("MaMayBay", "Máy bay", Khoa: true, LuaChon: () => bus.TimMayBay().Cast<MayBay>().Select(x => x.MaMayBay).ToList()),
-            new Truong("LoaiGhe", "Loại ghế", LuaChon: () => new List<string> { Ghe.Thuong, Ghe.Vip })
-        }, q => bus.TimGhe(q).Cast<Ghe>().ToList(),
+            new Truong("MaMayBay", "Máy bay", Khoa: true, LuaChon: () => bus.TimMayBay().Cast<MayBayDTO>().Select(x => x.MaMayBay).ToList()),
+            new Truong("LoaiGhe", "Loại ghế", LuaChon: () => new List<string> { GheDTO.Thuong, GheDTO.Vip })
+        }, q => bus.TimGhe(q).Cast<GheDTO>().ToList(),
             (x, sua) => bus.LuuGhe(x.MaGhe, x.MaMayBay, x.MaHV, sua, x.LoaiGhe), x => bus.XoaGhe(x.MaGhe, x.MaMayBay));
         tab.RangBuocLuaChon("MaHV", "LoaiGhe", QuanLyBUS.LoaiGheTheoHangVe);
         return tab;

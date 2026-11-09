@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text.Json;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public enum NhomThongKe { NhanVien, KhachHang, SanPham, KhachHangSanPham, NhanVienSanPhamNam }
 public enum KyThongKe { Ngay, Thang, Quy, Nam }

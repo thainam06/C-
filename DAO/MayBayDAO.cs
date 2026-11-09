@@ -1,27 +1,27 @@
 using System.Data;
-using MySqlConnector;
-using QuanLyMayBay.DTO;
+using MySql.Data.MySqlClient;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 public class MayBayDAO
 {
-    public List<MayBay> DocDS()
+    public List<MayBayDTO> DocDS()
     {
-        List<MayBay> danhSach = new List<MayBay>();
+        List<MayBayDTO> danhSach = new List<MayBayDTO>();
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBay));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBayDTO));
             string query = $"SELECT {DanhMucMySql.Cot(map, "MaMayBay")} AS `MaMayBay`, {DanhMucMySql.Cot(map, "MHHK")} AS `MHHK`";
             query += $" FROM {DanhMucMySql.Bang(map)}";
             using MySqlCommand command = new MySqlCommand(query, connection);
             using MySqlDataReader reader = command.ExecuteReader();
-            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(MayBay));
+            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(MayBayDTO));
             while (reader.Read())
             {
-                MayBay item = new MayBay();
+                MayBayDTO item = new MayBayDTO();
                 item.MaMayBay = reader.IsDBNull(reader.GetOrdinal("MaMayBay")) ? "" : reader.GetString("MaMayBay").TrimEnd();
                 item.MHHK = reader.IsDBNull(reader.GetOrdinal("MHHK")) ? "" : reader.GetString("MHHK").TrimEnd();
                 danhSach.Add(item);
@@ -38,14 +38,14 @@ public class MayBayDAO
         return danhSach;
     }
 
-    public void Them(MayBay item)
+    public void Them(MayBayDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBay));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBayDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
@@ -66,14 +66,14 @@ public class MayBayDAO
         }
     }
 
-    public void Sua(MayBay item)
+    public void Sua(MayBayDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBay));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBayDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
@@ -108,12 +108,12 @@ public class MayBayDAO
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBay));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBayDTO));
             if (string.IsNullOrWhiteSpace(ma)) throw new ArgumentException("Vui lòng nhập mã cần xóa.");
             if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép. Hãy dùng Xoa(dto).");
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraBangKhoa<MayBay>(connection, transaction, map);
+            DanhMucMySql.KiemTraBangKhoa<MayBayDTO>(connection, transaction, map);
             string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
             command.Parameters.AddWithValue("@" + map.KeyColumns[0], ma);
@@ -133,21 +133,21 @@ public class MayBayDAO
         }
     }
 
-    public void Xoa(MayBay item)
+    public void Xoa(MayBayDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBay));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(MayBayDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item, xoa: true);
             string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
             foreach (string khoa in map.KeyColumns)
-                command.Parameters.AddWithValue("@" + khoa, typeof(MayBay).GetProperty(khoa)!.GetValue(item) ?? DBNull.Value);
+                command.Parameters.AddWithValue("@" + khoa, typeof(MayBayDTO).GetProperty(khoa)!.GetValue(item) ?? DBNull.Value);
             command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
             if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần xóa.");
             command.CommandText = query;

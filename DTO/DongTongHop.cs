@@ -1,4 +1,4 @@
-namespace QuanLyMayBay.DTO;
+namespace VeMayBay.DTO;
 
 public class DongTongHop
 {

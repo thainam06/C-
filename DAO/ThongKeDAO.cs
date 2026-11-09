@@ -1,7 +1,7 @@
 using System.Text.Json;
-using QuanLyMayBay.DTO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 public class ThongKeDAO
 {

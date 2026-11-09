@@ -1,10 +1,10 @@
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using System.Text.Json;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
-using QuanLyMayBay.BUS;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
+using VeMayBay.BUS;
 
-namespace QuanLyMayBay.Tests;
+namespace VeMayBay.Tests;
 
 // Requires an isolated EMPTY fixture database, with docs/mysql/BanVeMayBay.mysql.sql imported first.
 internal static class MySqlSchemaChecks
@@ -36,11 +36,11 @@ internal static class MySqlSchemaChecks
         }
         Check(Convert.ToInt32(Scalar("SELECT COUNT(*) FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE()")) == 23, "All 23 FK constraints imported");
         Check(Convert.ToInt32(Scalar("SELECT COUNT(*) FROM information_schema.CHECK_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE()")) == 13, "All 13 CHECK constraints imported");
-        Check(CSDLListDAO.DocAnhXa(typeof(HanhKhach)).Columns["LoaiKH"] == "LoaiHK", "Packaged default profile maps uploaded passenger column");
+        Check(CSDLListDAO.DocAnhXa(typeof(HanhKhachDTO)).Columns["LoaiKH"] == "LoaiHK", "Packaged default profile maps uploaded passenger column");
         Sql("INSERT INTO HangHangKhong VALUES('VN','Vietnam Airlines')");
         var air = new DuLieuDAO(); var data = air.Doc();
         data.MayBay.Add(new("M01", "VN")); data.HangVe.Add(new("HV01", "Hạng phổ thông", 20, 1000000)); data.Ghe.Add(new("G01", "M01", "HV01")); air.Luu(data);
-        Check(air.Doc().Ghe.Single().LoaiGhe == Ghe.Thuong, "Seat mapping matches uploaded schema without LoaiGhe column");
+        Check(air.Doc().Ghe.Single().LoaiGhe == GheDTO.Thuong, "Seat mapping matches uploaded schema without LoaiGhe column");
         data = air.Doc(); data.HangVe[0].HanhLyKg = 20.5m;
         Reject<ArgumentException>(() => air.Luu(data), "Integer luggage column rejects fractional kilos without rounding");
         Check(air.Doc().HangVe.Single().HanhLyKg == 20, "Rejected scale leaves original row intact");
@@ -49,15 +49,18 @@ internal static class MySqlSchemaChecks
         data = air.Doc(); data.MayBay[0].MaMayBay = "TOO_LONG_CODE";
         Reject<ArgumentException>(() => air.Luu(data), "Uploaded VARCHAR(10) length enforced before write");
         var customer = new KhachHangBUS();
-        customer.Luu(new KhachHang("KH01", "Nguyễn An", "001000000001", "0901234567", "an@example.test", "an", "TestPassword!", "Hà Nội"), false);
+        customer.Luu(new KhachHangDTO("KH01", "Nguyễn An", "001000000001", "0901234567", "an@example.test", "an", "TestPassword!", "Hà Nội"), false);
         Check(new KhachHangBUS().TimKiem().Count == 1, "Customer password hash fits VARCHAR(255)");
         Sql("UPDATE KhachHang SET SDT=NULL,Email=NULL,DiaChi=NULL WHERE MaKH='KH01'");
         Sql("INSERT INTO HanhKhach(MaHK,HoTen,MaKH,LoaiHK) VALUES('HK01','Nguyễn Bình','KH01','Người lớn')");
-        var hkDao = new HanhKhachDAO(); var hk = hkDao.Doc().Single();
-        Check(hk.LoaiKH == "Người lớn" && hk.NgaySinh == null, "LoaiKH maps LoaiHK and NULL birth date is preserved");
+        var hkDao = new HanhKhachDAO();
+        Reject<InvalidDataException>(() => hkDao.Doc(), "Required DateTime DTO reports SQL NULL birth date instead of inventing a date");
+        Sql("UPDATE HanhKhach SET NgaySinh='2000-01-01' WHERE MaHK='HK01'");
+        var hk = hkDao.Doc().Single();
+        Check(hk.LoaiKH == "Người lớn" && hk.NgaySinh == new DateTime(2000,1,1), "LoaiKH maps LoaiHK and required birth date is loaded");
         Check(new HanhKhachBUS().TimKiem().Count == 1, "Existing nullable customer/passenger fields do not block opening module");
         hkDao.Luu(new[] { hk });
-        Check(Scalar("SELECT NgaySinh FROM HanhKhach WHERE MaHK='HK01'") is DBNull, "DAO round trip retains NULL birth date");
+        Check(Convert.ToDateTime(Scalar("SELECT NgaySinh FROM HanhKhach WHERE MaHK='HK01'")) == new DateTime(2000,1,1), "DAO round trip retains required birth date");
         Sql("INSERT INTO NhanVien VALUES('NV01','Trần','An',NULL)");
         Check(new NhanVienBUS().TimKiem().Count == 1, "Nullable job title can be read");
         Sql("INSERT INTO SanBay VALUES('SGN','Tân Sơn Nhất',NULL),('HAN','Nội Bài',NULL)");

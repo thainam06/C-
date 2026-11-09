@@ -1,8 +1,8 @@
 using Microsoft.Data.SqlClient;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using System.Data.Common;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 public static class MyConnection
 {

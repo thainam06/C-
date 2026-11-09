@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 internal static class BangListView
 {
@@ -25,6 +25,7 @@ internal static class BangListView
                     return value switch
                     {
                         DateTime date => date.ToString("dd/MM/yyyy"),
+                        double number => number.ToString("N" + soLe, CultureInfo.CurrentCulture),
                         decimal number => number.ToString("N" + soLe, CultureInfo.CurrentCulture),
                         _ => Convert.ToString(value, CultureInfo.CurrentCulture) ?? ""
                     };

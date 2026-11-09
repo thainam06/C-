@@ -1,8 +1,8 @@
 using Microsoft.Data.SqlClient;
-using QuanLyMayBay.DAO;
+using VeMayBay.DAO;
 using System.Text.Json;
 
-namespace QuanLyMayBay.Services;
+namespace VeMayBay.Services;
 
 public static class SqlSchemaService
 {

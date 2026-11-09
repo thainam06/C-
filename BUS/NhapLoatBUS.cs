@@ -1,4 +1,4 @@
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public static class NhapLoatBUS
 {

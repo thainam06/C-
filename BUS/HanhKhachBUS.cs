@@ -1,22 +1,22 @@
 using System.Collections;
 using System.Globalization;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public class HanhKhachBUS
 {
     private readonly HanhKhachDAO dao;
     private readonly KhachHangDAO khachHangDAO;
-    private List<HanhKhach> danhSach;
+    private List<HanhKhachDTO> danhSach;
 
     public HanhKhachBUS(HanhKhachDAO? dao = null, KhachHangDAO? khachHangDAO = null)
     {
         this.khachHangDAO = khachHangDAO ?? new KhachHangDAO();
         this.dao = dao ?? new HanhKhachDAO(Path.Combine(this.khachHangDAO.ThuMuc, "hanhkhach.json"));
         danhSach = this.dao.Doc();
-        var cacKhachHang = LayKhachHang().Cast<KhachHang>()
+        var cacKhachHang = LayKhachHang().Cast<KhachHangDTO>()
             .Select(x => x.MaKH).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var ma = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var cccd = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -45,10 +45,10 @@ public class HanhKhachBUS
         return value.Trim();
     }
 
-    private static HanhKhach SaoChep(HanhKhach hk) => new(hk.MaHK, hk.HoTen,
+    private static HanhKhachDTO SaoChep(HanhKhachDTO hk) => new(hk.MaHK, hk.HoTen,
         hk.NgaySinh, hk.CCCD, hk.GioiTinh, hk.MaKH, hk.LoaiKH);
 
-    private static void KiemTraThongTin(HanhKhach hk, bool dangDoc = false)
+    private static void KiemTraThongTin(HanhKhachDTO hk, bool dangDoc = false)
     {
         BatBuoc(hk.MaHK, "mã hành khách");
         BatBuoc(hk.HoTen, "họ tên");
@@ -69,9 +69,9 @@ public class HanhKhachBUS
     {
         var ketQua = new ArrayList();
         var nguon = new ArrayList(danhSach);
-        foreach (HanhKhach hk in nguon)
+        foreach (HanhKhachDTO hk in nguon)
         {
-            var cacCot = new[] { hk.MaHK, hk.HoTen, hk.NgaySinh?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "",
+            var cacCot = new[] { hk.MaHK, hk.HoTen, hk.NgaySinh.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
                 hk.CCCD, hk.GioiTinh, hk.MaKH, hk.LoaiKH };
             if (cacCot.Any(x => x.Contains(tuKhoa.Trim(), StringComparison.OrdinalIgnoreCase)))
                 ketQua.Add(SaoChep(hk));
@@ -79,16 +79,16 @@ public class HanhKhachBUS
         return ketQua;
     }
 
-    public void Luu(HanhKhach hk, bool sua)
+    public void Luu(HanhKhachDTO hk, bool sua)
     {
         ArgumentNullException.ThrowIfNull(hk);
         var gioiTinh = new[] { "Nam", "Nữ", "Khác" }
             .FirstOrDefault(x => CungMa(x, hk.GioiTinh?.Trim() ?? "")) ?? "";
-        var moi = new HanhKhach(BatBuoc(hk.MaHK, "mã hành khách"), BatBuoc(hk.HoTen, "họ tên"),
-            hk.NgaySinh?.Date, hk.CCCD?.Trim() ?? "", gioiTinh,
+        var moi = new HanhKhachDTO(BatBuoc(hk.MaHK, "mã hành khách"), BatBuoc(hk.HoTen, "họ tên"),
+            hk.NgaySinh.Date, hk.CCCD?.Trim() ?? "", gioiTinh,
             BatBuoc(hk.MaKH, "khách hàng"), BatBuoc(hk.LoaiKH, "loại khách hàng"));
         KiemTraThongTin(moi);
-        var khachHang = LayKhachHang().Cast<KhachHang>().FirstOrDefault(x => CungMa(x.MaKH, moi.MaKH));
+        var khachHang = LayKhachHang().Cast<KhachHangDTO>().FirstOrDefault(x => CungMa(x.MaKH, moi.MaKH));
         if (khachHang == null) throw new ArgumentException("Mã khách hàng không tồn tại. Hãy thêm khách hàng trước.");
         moi.MaKH = khachHang.MaKH;
         var index = danhSach.FindIndex(x => CungMa(x.MaHK, moi.MaHK));

@@ -1,3 +1,11 @@
+## Đồng bộ theo DTO mới
+
+- Mở QuanLyMayBay.csproj, restore MySql.Data và build. Namespace lớp là VeMayBay, DTO có hậu tố DTO.
+- Mở Voucher: chọn dòng 12.75%, điền lại NumericUpDown rồi lưu và xuất/nhập Excel; không được lỗi ép decimal/double, dữ liệu vẫn là 12.75.
+- Hành khách yêu cầu ngày sinh, không có checkbox bỏ trống. Nếu CSDL có NULL, thông báo phải chỉ rõ bản ghi thiếu ngày; không tự gán ngày hôm nay.
+- Kiểm tra các màn Máy bay/Ghế/Hạng vé/Khách hàng/Hành khách/Nhân viên/CTKM/Voucher: ListView chọn/sửa/xóa và popup liên kết vẫn hoạt động.
+- Các bước dưới đây mô tả phiên bản cũ; bước thử bỏ tick ngày sinh không còn áp dụng. Thao tác GUI này chưa chạy trên Windows trong môi trường kiểm tra.
+
 ## Sau khi đổi DAO theo mẫu
 
 - Cấu hình MySQL rồi mở từng danh mục, chọn dòng và thử thêm/sửa/xóa qua BUS như trước.

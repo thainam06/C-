@@ -1,6 +1,6 @@
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.Services;
-namespace QuanLyMayBay.GUI;
+using VeMayBay.DAO;
+using VeMayBay.Services;
+namespace VeMayBay.GUI;
 internal class CauHinhSqlView : UserControl
 {
     public CauHinhSqlView()

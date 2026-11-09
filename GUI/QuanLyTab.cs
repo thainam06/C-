@@ -1,10 +1,10 @@
 using System.Reflection;
 using System.Collections;
 using System.Globalization;
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.Services;
+using VeMayBay.BUS;
+using VeMayBay.Services;
 
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 internal record MucLuaChon(string GiaTri, string HienThi);
 
@@ -235,7 +235,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
                 if (field.LaMatKhau) input.Text = "";
                 else if (input is DateTimePicker ngay)
                 { ngay.Value = value is DateTime date ? date : DateTime.Today; ngay.Checked = value != null; }
-                else if (input is NumericUpDown number) number.Value = (decimal)value!;
+                else if (input is NumericUpDown number) number.Value = Convert.ToDecimal(value, CultureInfo.InvariantCulture);
                 else if (input is ComboBox combo) ChonTheoMa(combo, (string)value!);
                 else input.Text = (string)value!;
                 input.Enabled = !field.Khoa;
@@ -323,7 +323,7 @@ internal class QuanLyTab<T> : UserControl where T : class, new()
         foreach (var field in truong)
         {
             var input = oNhap[field.ThuocTinh];
-            object? value = input is NumericUpDown number ? number.Value
+            object? value = input is NumericUpDown number ? Convert.ChangeType(number.Value, Nullable.GetUnderlyingType(ThuocTinh(field).PropertyType) ?? ThuocTinh(field).PropertyType, CultureInfo.InvariantCulture)
                 : input is DateTimePicker ngay ? (ngay.ShowCheckBox && !ngay.Checked ? null : (object)ngay.Value.Date)
                 : field.LaMatKhau ? input.Text : DocChuoi(input);
             ThuocTinh(field).SetValue(item, value);

@@ -1,6 +1,6 @@
-namespace QuanLyMayBay.DTO;
+namespace VeMayBay.DTO;
 
-public class HangHangKhong
+public class HangHangKhongDTO
 {
     public string MaHHK { get; set; } = string.Empty;
     public string TenHang { get; set; } = string.Empty;

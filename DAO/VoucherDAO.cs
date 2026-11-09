@@ -1,32 +1,32 @@
 using System.Data;
-using MySqlConnector;
-using QuanLyMayBay.DTO;
+using MySql.Data.MySqlClient;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
-public class VoucherDAO : JsonDanhSachDAO<Voucher>
+public class VoucherDAO : JsonDanhSachDAO<VoucherDTO>
 {
     public VoucherDAO(string? duongDan = null) : base("voucher.json", duongDan) { }
 
-    public List<Voucher> DocDS()
+    public List<VoucherDTO> DocDS()
     {
-        List<Voucher> dsvc = new List<Voucher>();
+        List<VoucherDTO> dsvc = new List<VoucherDTO>();
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(VoucherDTO));
             string query = "SELECT MaVoucher,MaCTKM,GiamGia FROM Voucher";
             query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection);
             using MySqlDataReader reader = command.ExecuteReader();
-            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(Voucher));
+            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(VoucherDTO));
             while (reader.Read())
             {
-                Voucher vc = new Voucher();
+                VoucherDTO vc = new VoucherDTO();
                 vc.MaVoucher = (reader.IsDBNull(reader.GetOrdinal("MaVoucher")) ? "" : reader.GetString("MaVoucher").TrimEnd());
                 vc.MaCTKM = (reader.IsDBNull(reader.GetOrdinal("MaCTKM")) ? "" : reader.GetString("MaCTKM").TrimEnd());
-                vc.GiamGia = reader.GetDecimal("GiamGia");
+                vc.GiamGia = reader.GetDouble("GiamGia");
                 dsvc.Add(vc);
             }
             reader.Close();
@@ -43,14 +43,14 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
         return dsvc;
     }
 
-    public void Them(Voucher vc)
+    public void Them(VoucherDTO vc)
     {
         ArgumentNullException.ThrowIfNull(vc);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(VoucherDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, vc);
@@ -73,14 +73,14 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
         }
     }
 
-    public void Sua(Voucher vc)
+    public void Sua(VoucherDTO vc)
     {
         ArgumentNullException.ThrowIfNull(vc);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(VoucherDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, vc);
@@ -113,11 +113,11 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Voucher));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(VoucherDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép; cần cung cấp đủ khóa để xóa.");
-            DanhMucMySql.KiemTraBangKhoa<Voucher>(connection, transaction, map);
+            DanhMucMySql.KiemTraBangKhoa<VoucherDTO>(connection, transaction, map);
             string query = "DELETE FROM Voucher WHERE MaVoucher=@MaVoucher";
             query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
@@ -137,7 +137,7 @@ public class VoucherDAO : JsonDanhSachDAO<Voucher>
             connection.Close();
         }
     }
-    public void Xoa(Voucher item)
+    public void Xoa(VoucherDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         Xoa(item.MaVoucher);

@@ -1,10 +1,10 @@
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using System.Text.Json;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
-using QuanLyMayBay.Services;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
+using VeMayBay.Services;
 
-namespace QuanLyMayBay.Tests;
+namespace VeMayBay.Tests;
 
 // Opt-in only. Creates/drops fixture tables exclusively in database qlmb_dao_test.
 internal static class MySqlChecks
@@ -58,7 +58,7 @@ internal static class MySqlChecks
         data.MayBay.Add(new("M01", "VN")); data.HangVe.Add(new("HV01", "Hạng phổ thông", 20.25m, 1250000.50m));
         data.HangVe.Add(new("HV02", "Hạng thương gia", 40, 2500000)); data.Ghe.Add(new("G01", "M01", "HV02")); air.Luu(data);
         var saved = air.Doc();
-        Check(saved.Ghe.Single().LoaiGhe == Ghe.Vip, "Derived VIP from physical three-column seat table");
+        Check(saved.Ghe.Single().LoaiGhe == GheDTO.Vip, "Derived VIP from physical three-column seat table");
         Check(saved.HangVe.Single(x => x.MaHV == "HV01").DonGiaVe == 1250000.50m, "Decimal money exact round trip");
         saved.MayBay.Add(new("M02", "VN")); saved.Ghe.Add(new("G02", "M02", "missing"));
         Reject<MySqlException>(() => air.Luu(saved), "Foreign key violation fails multi-table save");
@@ -68,8 +68,8 @@ internal static class MySqlChecks
         var promo = new CTKMDAO(); var campaigns = promo.Doc();
         campaigns.Add(new("KM01", "Khuyến mãi", new DateTime(2026,11,9), new DateTime(2026,12,31))); promo.Luu(campaigns);
         Check(promo.Doc().Single().NgayKetThuc == new DateTime(2026,12,31), "Date round trip");
-        var vouchers = new VoucherDAO(); var v = vouchers.Doc(); v.Add(new("V01", "KM01", 12.5m)); vouchers.Luu(v);
-        Check(vouchers.Doc().Single().GiamGia == 12.5m, "Percentage decimal round trip");
+        var vouchers = new VoucherDAO(); var v = vouchers.Doc(); v.Add(new("V01", "KM01", 12.5d)); vouchers.Luu(v);
+        Check(vouchers.Doc().Single().GiamGia == 12.5d, "Percentage decimal round trip");
         campaigns = promo.Doc(); campaigns.Clear();
         Reject<MySqlException>(() => promo.Luu(campaigns), "Referenced campaign deletion blocked");
         var metadata = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");

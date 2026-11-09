@@ -3,12 +3,12 @@ using System.Text.Json;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using PdfSharp.Pdf.IO;
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
-using QuanLyMayBay.Services;
+using VeMayBay.BUS;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
+using VeMayBay.Services;
 
-namespace QuanLyMayBay.Tests;
+namespace VeMayBay.Tests;
 
 internal static class DoAnChecks
 {
@@ -24,28 +24,46 @@ internal static class DoAnChecks
         { try { action(); } catch (ArgumentException) { Check(true, name); return; } throw new Exception("FAIL: " + name); }
         try
         {
-            var vouchers = new ArrayList { new Voucher("A", "K1", 5), new Voucher("B", "K1", 10), new Voucher("C", "K2", 50) };
-            Check(LocNangCaoBUS.Loc<Voucher>(vouchers, "GiamGia >= 10 AND NOT (MaCTKM = 'K2')").Cast<Voucher>().Single().MaVoucher == "B", "AND/NOT/parentheses and numeric compare");
-            Check(LocNangCaoBUS.Loc<Voucher>(vouchers, "MaVoucher = 'A' OR MaVoucher = 'B' AND GiamGia > 20").Count == 1, "AND precedence over OR");
-            Check(LocNangCaoBUS.Loc<Voucher>(vouchers, "GiamGia ≥ 10 AND GiamGia ≤ 50 AND MaCTKM <> 'K1'").Count == 1, "Unicode comparisons and not equal");
-            Check(LocNangCaoBUS.Loc<Voucher>(vouchers, "MaCTKM ~ 'k1'").Count == 2, "Contains filter ignores case");
-            Check(LocNangCaoBUS.Loc<NhanVien>(new ArrayList { new NhanVien("N", "O'Neil", "An", "Bán vé") }, "Ho = 'O''Neil'").Count == 1, "Escaped quotes in filter");
-            Check(LocNangCaoBUS.Loc<CTKM>(new ArrayList { new CTKM("K", "Ưu đãi", new(2026, 1, 1), new(2026, 12, 31)) }, "NgayBatDau >= '01/01/2026' AND NgayKetThuc < '2027-01-01'").Count == 1, "Date comparisons on two fields");
-            Reject(() => LocNangCaoBUS.Loc<Voucher>(new ArrayList(), "Missing = 1"), "Invalid field rejected even with empty input");
-            Reject(() => LocNangCaoBUS.Loc<KhachHang>(new ArrayList(), "MatKhau ~ 'x'"), "Password cannot be filtered");
-            Reject(() => LocNangCaoBUS.Loc<Voucher>(vouchers, "GiamGia >= 10; DROP TABLE Voucher"), "SQL-like injection rejected by filter parser");
-            Reject(() => LocNangCaoBUS.Loc<Voucher>(vouchers, "(GiamGia > 1"), "Unbalanced expression rejected");
-            Reject(() => LocNangCaoBUS.Loc<Voucher>(vouchers, string.Concat(Enumerable.Repeat("NOT ", 40)) + "GiamGia = 1"), "Filter nesting limit enforced");
-            Reject(() => LocNangCaoBUS.Loc<CTKM>(new ArrayList(), "NgayBatDau >= 'wrong-date'"), "Invalid typed date rejected");
+            var vouchers = new ArrayList { new VoucherDTO("A", "K1", 5), new VoucherDTO("B", "K1", 10), new VoucherDTO("C", "K2", 50) };
+            Check(LocNangCaoBUS.Loc<VoucherDTO>(vouchers, "GiamGia >= 10 AND NOT (MaCTKM = 'K2')").Cast<VoucherDTO>().Single().MaVoucher == "B", "AND/NOT/parentheses and numeric compare");
+            Check(LocNangCaoBUS.Loc<VoucherDTO>(vouchers, "MaVoucher = 'A' OR MaVoucher = 'B' AND GiamGia > 20").Count == 1, "AND precedence over OR");
+            Check(LocNangCaoBUS.Loc<VoucherDTO>(vouchers, "GiamGia ≥ 10 AND GiamGia ≤ 50 AND MaCTKM <> 'K1'").Count == 1, "Unicode comparisons and not equal");
+            Check(LocNangCaoBUS.Loc<VoucherDTO>(vouchers, "MaCTKM ~ 'k1'").Count == 2, "Contains filter ignores case");
+            Check(LocNangCaoBUS.Loc<NhanVienDTO>(new ArrayList { new NhanVienDTO("N", "O'Neil", "An", "Bán vé") }, "Ho = 'O''Neil'").Count == 1, "Escaped quotes in filter");
+            Check(LocNangCaoBUS.Loc<CTKMDTO>(new ArrayList { new CTKMDTO("K", "Ưu đãi", new(2026, 1, 1), new(2026, 12, 31)) }, "NgayBatDau >= '01/01/2026' AND NgayKetThuc < '2027-01-01'").Count == 1, "Date comparisons on two fields");
+            Reject(() => LocNangCaoBUS.Loc<VoucherDTO>(new ArrayList(), "Missing = 1"), "Invalid field rejected even with empty input");
+            Reject(() => LocNangCaoBUS.Loc<KhachHangDTO>(new ArrayList(), "MatKhau ~ 'x'"), "Password cannot be filtered");
+            Reject(() => LocNangCaoBUS.Loc<VoucherDTO>(vouchers, "GiamGia >= 10; DROP TABLE Voucher"), "SQL-like injection rejected by filter parser");
+            Reject(() => LocNangCaoBUS.Loc<VoucherDTO>(vouchers, "(GiamGia > 1"), "Unbalanced expression rejected");
+            Reject(() => LocNangCaoBUS.Loc<VoucherDTO>(vouchers, string.Concat(Enumerable.Repeat("NOT ", 40)) + "GiamGia = 1"), "Filter nesting limit enforced");
+            Reject(() => LocNangCaoBUS.Loc<CTKMDTO>(new ArrayList(), "NgayBatDau >= 'wrong-date'"), "Invalid typed date rejected");
+
+            var doublePath = Path.Combine(folder, "voucher-double.xls");
+            var doubleRows = new[] { new VoucherDTO("0001", "KM01", 12.75d) };
+            ExcelService.Xuat(doublePath, doubleRows);
+            var doubleRead = ExcelService.Nhap<VoucherDTO>(doublePath).Single();
+            Check(doubleRead.MaVoucher == "0001" && doubleRead.GiamGia == 12.75d, "Double voucher percentage survives Excel round trip with leading zeroes");
+            Check(LocNangCaoBUS.Loc<VoucherDTO>(new ArrayList(doubleRows), "GiamGia >= 12.5 AND GiamGia < 13").Count == 1,
+                "Fractional double percentage supports numeric filtering");
+            Reject(() => ExcelService.Xuat(Path.Combine(folder, "invalid-double.xls"), new[] { new VoucherDTO("V", "K", double.NaN) }),
+                "Excel export rejects non-finite double percentage");
+            using (var workbook = new HSSFWorkbook())
+            {
+                var sheet = workbook.CreateSheet(); var header = sheet.CreateRow(0); var row = sheet.CreateRow(1);
+                foreach (var field in new[] { "MaVoucher", "MaCTKM", "GiamGia" }.Select((name, index) => (name, index))) header.CreateCell(field.index).SetCellValue(field.name);
+                row.CreateCell(0).SetCellValue("V"); row.CreateCell(1).SetCellValue("K"); row.CreateCell(2).SetCellValue("NaN");
+                using var stream = File.Create(Path.Combine(folder, "nan-input.xls")); workbook.Write(stream, true);
+            }
+            Reject(() => ExcelService.Nhap<VoucherDTO>(Path.Combine(folder, "nan-input.xls")), "Excel import rejects non-finite double percentage");
 
             var nvDao = new NhanVienDAO(Path.Combine(folder, "nhanvien.json"));
             var nv = new NhanVienBUS(nvDao);
-            nv.Luu(new NhanVien("N0", "Giữ", "Lại", "Quản lý"), false);
-            var source = new List<NhanVien> { new("0001", "Nguyễn Văn", "An", "Bán vé"), new("0002", "=1+1", "Bình", "Hỗ trợ") };
+            nv.Luu(new NhanVienDTO("N0", "Giữ", "Lại", "Quản lý"), false);
+            var source = new List<NhanVienDTO> { new("0001", "Nguyễn Văn", "An", "Bán vé"), new("0002", "=1+1", "Bình", "Hỗ trợ") };
             var excelPath = Path.Combine(folder, "nhanvien.xls");
             ExcelService.Xuat(excelPath, source);
             Check(File.ReadAllBytes(excelPath).Take(4).SequenceEqual(new byte[] { 0xD0, 0xCF, 0x11, 0xE0 }), "Export is real binary XLS");
-            var read = ExcelService.Nhap<NhanVien>(excelPath);
+            var read = ExcelService.Nhap<NhanVienDTO>(excelPath);
             Check(read.Count == 2 && read[0].MaNV == "0001" && read[0].Ho == "Nguyễn Văn", "XLS round trip preserves Vietnamese and leading zeroes");
             using (var stream = File.OpenRead(excelPath))
             using (var book = WorkbookFactory.Create(stream))
@@ -56,11 +74,11 @@ internal static class DoAnChecks
             Reject(() => nv.NhapDanhSach(new() { new("GOOD", "A", "B", "C"), new("BAD", "A", "B", "") }), "Entire batch validated before saving");
             Check(before == File.ReadAllText(Path.Combine(folder, "nhanvien.json")) && nv.TimKiem("GOOD").Count == 0, "Invalid batch changes neither file nor memory");
             Reject(() => nv.NhapDanhSach(new() { new("X", "A", "B", "C"), new("x", "A", "B", "C") }), "Duplicate IDs inside import rejected");
-            var high = new List<HangVe> { new("H", "Hạng phổ thông", 20, 1234567890123456789.123m) };
+            var high = new List<HangVeDTO> { new("H", "Hạng phổ thông", 20, 1234567890123456789.123m) };
             var highPath = Path.Combine(folder, "precision.xls"); ExcelService.Xuat(highPath, high);
-            Check(ExcelService.Nhap<HangVe>(highPath).Single().DonGiaVe == high[0].DonGiaVe, "XLS preserves decimals beyond Excel numeric precision");
+            Check(ExcelService.Nhap<HangVeDTO>(highPath).Single().DonGiaVe == high[0].DonGiaVe, "XLS preserves decimals beyond Excel numeric precision");
             var khPath = Path.Combine(folder, "privacy.xls");
-            ExcelService.Xuat(khPath, new[] { new KhachHang("K", "Mẫu", "001000000001", "0900000001", "a@example.test", "demo", "Fake password!", "Mẫu") });
+            ExcelService.Xuat(khPath, new[] { new KhachHangDTO("K", "Mẫu", "001000000001", "0900000001", "a@example.test", "demo", "Fake password!", "Mẫu") });
             using (var stream = File.OpenRead(khPath))
             using (var book = WorkbookFactory.Create(stream))
                 Check(book.GetSheetAt(0).GetRow(0).Cells.All(x => x.StringCellValue != "MatKhau"), "Password excluded from XLS");
@@ -73,21 +91,21 @@ internal static class DoAnChecks
                 row.GetCell(1).SetCellFormula("1+1");
                 using var stream = File.Create(formulaPath); book.Write(stream, true);
             }
-            Reject(() => ExcelService.Nhap<NhanVien>(formulaPath), "Formula cells rejected during import");
+            Reject(() => ExcelService.Nhap<NhanVienDTO>(formulaPath), "Formula cells rejected during import");
             var missingPath = Path.Combine(folder, "missing.xls");
             using (var book = new HSSFWorkbook())
             {
                 book.CreateSheet().CreateRow(0).CreateCell(0).SetCellValue("MaNV");
                 using var output = File.Create(missingPath); book.Write(output, true);
             }
-            Reject(() => ExcelService.Nhap<NhanVien>(missingPath), "Missing mandatory Excel headers rejected");
+            Reject(() => ExcelService.Nhap<NhanVienDTO>(missingPath), "Missing mandatory Excel headers rejected");
             var passwordPath = Path.Combine(folder, "password.xls");
             using (var book = new HSSFWorkbook())
             {
                 book.CreateSheet().CreateRow(0).CreateCell(0).SetCellValue("matkhau");
                 using var output = File.Create(passwordPath); book.Write(output, true);
             }
-            Reject(() => ExcelService.Nhap<KhachHang>(passwordPath), "Password import header blocked ignoring case");
+            Reject(() => ExcelService.Nhap<KhachHangDTO>(passwordPath), "Password import header blocked ignoring case");
             var datePath = Path.Combine(folder, "dates.xls");
             using (var book = new HSSFWorkbook())
             {
@@ -100,13 +118,13 @@ internal static class DoAnChecks
                 row.CreateCell(3).SetCellValue(new DateTime(2024, 3, 1)); row.GetCell(3).CellStyle = style;
                 using var stream = File.Create(datePath); book.Write(stream, true);
             }
-            Check(ExcelService.Nhap<CTKM>(datePath).Single().NgayBatDau == new DateTime(2024, 2, 29), "Numeric Excel dates import correctly");
+            Check(ExcelService.Nhap<CTKMDTO>(datePath).Single().NgayBatDau == new DateTime(2024, 2, 29), "Numeric Excel dates import correctly");
 
             var thamSo = new ThamSoBUS(new ThamSoDAO(Path.Combine(folder, "thamso.json")));
             Check(thamSo.SoLeTien == 0 && thamSo.Lay("TEN_DON_VI").Length > 0, "Parameter defaults exist");
-            thamSo.Luu(new ThamSo { MaThamSo = "SO_LE_TIEN", GiaTri = "2", MoTa = "Tiền" }, true);
+            thamSo.Luu(new ThamSoDTO { MaThamSo = "SO_LE_TIEN", GiaTri = "2", MoTa = "Tiền" }, true);
             Check(new ThamSoBUS(new ThamSoDAO(Path.Combine(folder, "thamso.json"))).SoLeTien == 2, "Parameter updates persist");
-            Reject(() => thamSo.Luu(new ThamSo { MaThamSo = "SO_LE_TIEN", GiaTri = "5" }, true), "Invalid money precision rejected");
+            Reject(() => thamSo.Luu(new ThamSoDTO { MaThamSo = "SO_LE_TIEN", GiaTri = "5" }, true), "Invalid money precision rejected");
             var statsDao = new ThongKeDAO(Path.Combine(folder, "thongke.json"));
             var stats = new ThongKeBUS(statsDao);
             DongDoanhThu Revenue(string hd, int stt, DateTime date, string kh, string employee, string product, int quantity, decimal price, decimal discount = 0)
@@ -158,7 +176,7 @@ internal static class DoAnChecks
             Environment.SetEnvironmentVariable("QLMB_SQL_MAPPING_FILE", mapPath);
             File.WriteAllText(mapPath, JsonSerializer.Serialize(new Dictionary<string,AnhXaBangSql>
             { ["NhanVien"] = new() { Table="dbo.NhanVien", KeyColumns=new(){"MaNV"}, Columns=new() { ["MaNV"]="MaNV", ["Ho"]="Ho", ["Ten"]="Ten", ["ChucVu"]="ChucVu" } } }));
-            Check(CSDLListDAO.DocAnhXa(typeof(NhanVien)).KeyColumns.Single() == "MaNV", "SQL mapping validates required columns and key");
+            Check(CSDLListDAO.DocAnhXa(typeof(NhanVienDTO)).KeyColumns.Single() == "MaNV", "SQL mapping validates required columns and key");
             Check(CSDLListDAO.TenSql("x]; DROP TABLE y;--") == "[x]]; DROP TABLE y;--]", "SQL identifiers are quoted rather than interpolated executable text");
             try { MyConnection.KiemTra(); throw new Exception("Expected missing SQL configuration"); }
             catch (InvalidOperationException) { Check(true, "SQL connection is not claimed when unconfigured"); }

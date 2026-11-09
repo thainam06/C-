@@ -1,8 +1,8 @@
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DTO;
-using QuanLyMayBay.Services;
+using VeMayBay.BUS;
+using VeMayBay.DTO;
+using VeMayBay.Services;
 
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 internal class BaoCaoView : UserControl
 {

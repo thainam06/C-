@@ -1,8 +1,8 @@
 using System.Collections;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public class QuanLyBUS
 {
@@ -57,7 +57,7 @@ public class QuanLyBUS
         {
             if (ghe == null || string.IsNullOrWhiteSpace(ghe.MaGhe)
                 || string.IsNullOrWhiteSpace(ghe.MaMayBay) || string.IsNullOrWhiteSpace(ghe.MaHV)
-                || (ghe.LoaiGhe != Ghe.Thuong && ghe.LoaiGhe != Ghe.Vip)
+                || (ghe.LoaiGhe != GheDTO.Thuong && ghe.LoaiGhe != GheDTO.Vip)
                 || !maMayBay.Contains(ghe.MaMayBay) || !maHangVe.Contains(ghe.MaHV)
                 || (khoaGheToanCuc && !maGheToanCuc.Add(ghe.MaGhe))
                 || !maGhe.Add((ghe.MaMayBay.ToUpperInvariant(), ghe.MaGhe.ToUpperInvariant())))
@@ -66,13 +66,13 @@ public class QuanLyBUS
     }
 
     private static bool DungKhoaGheToanCuc() => MyConnection.DaCauHinh
-        && CSDLListDAO.DocAnhXa(typeof(Ghe)).KeyColumns.SequenceEqual(new[] { nameof(Ghe.MaGhe) });
+        && CSDLListDAO.DocAnhXa(typeof(GheDTO)).KeyColumns.SequenceEqual(new[] { nameof(GheDTO.MaGhe) });
 
     public ArrayList LayHangHangKhong()
     {
-        if (CSDLListDAO.ThuDoc<HangHangKhong>(out var rows, out _)) return new ArrayList(rows);
+        if (CSDLListDAO.ThuDoc<HangHangKhongDTO>(out var rows, out _)) return new ArrayList(rows);
         return new ArrayList(duLieu.MayBay.Select(x => x.MHHK).Distinct(StringComparer.OrdinalIgnoreCase)
-            .Select(x => new HangHangKhong { MaHHK = x, TenHang = x }).ToList());
+            .Select(x => new HangHangKhongDTO { MaHHK = x, TenHang = x }).ToList());
     }
 
     // GUI nhan ban sao, khong thay doi truc tiep du lieu cua BUS.
@@ -80,9 +80,9 @@ public class QuanLyBUS
     {
         DaNapBoDuLieuMau = duLieu.DaNapBoDuLieuMau,
         DaCapNhatHangM01M02 = duLieu.DaCapNhatHangM01M02,
-        MayBay = duLieu.MayBay.Select(x => new MayBay(x.MaMayBay, x.MHHK)).ToList(),
-        Ghe = duLieu.Ghe.Select(x => new Ghe(x.MaGhe, x.MaMayBay, x.MaHV, x.LoaiGhe)).ToList(),
-        HangVe = duLieu.HangVe.Select(x => new HangVe(x.MaHV, x.TenHV, x.HanhLyKg, x.DonGiaVe)).ToList()
+        MayBay = duLieu.MayBay.Select(x => new MayBayDTO(x.MaMayBay, x.MHHK)).ToList(),
+        Ghe = duLieu.Ghe.Select(x => new GheDTO(x.MaGhe, x.MaMayBay, x.MaHV, x.LoaiGhe)).ToList(),
+        HangVe = duLieu.HangVe.Select(x => new HangVeDTO(x.MaHV, x.TenHV, x.HanhLyKg, x.DonGiaVe)).ToList()
     };
 
     private void Luu(DuLieu moi)
@@ -105,13 +105,13 @@ public class QuanLyBUS
     }
 
     public ArrayList TimMayBay(string tuKhoa = "") => Tim(new ArrayList(SaoChep().MayBay), tuKhoa,
-        x => new[] { ((MayBay)x).MaMayBay, ((MayBay)x).MHHK });
+        x => new[] { ((MayBayDTO)x).MaMayBay, ((MayBayDTO)x).MHHK });
 
     public ArrayList TimHangVe(string tuKhoa = "") => Tim(new ArrayList(SaoChep().HangVe), tuKhoa,
-        x => new[] { ((HangVe)x).MaHV, ((HangVe)x).TenHV });
+        x => new[] { ((HangVeDTO)x).MaHV, ((HangVeDTO)x).TenHV });
 
     public ArrayList TimGhe(string tuKhoa = "") => Tim(new ArrayList(SaoChep().Ghe), tuKhoa,
-        x => new[] { ((Ghe)x).MaGhe, ((Ghe)x).MaMayBay, ((Ghe)x).MaHV, ((Ghe)x).LoaiGhe });
+        x => new[] { ((GheDTO)x).MaGhe, ((GheDTO)x).MaMayBay, ((GheDTO)x).MaHV, ((GheDTO)x).LoaiGhe });
 
     public ArrayList LayBangTongHop(string tuKhoa = "")
     {
@@ -168,15 +168,15 @@ public class QuanLyBUS
 
     public static string? LoaiGheTheoHangVe(string maHV)
     {
-        if (CungMa(maHV.Trim(), "HV01")) return Ghe.Thuong;
-        if (CungMa(maHV.Trim(), "HV02")) return Ghe.Vip;
+        if (CungMa(maHV.Trim(), "HV01")) return GheDTO.Thuong;
+        if (CungMa(maHV.Trim(), "HV02")) return GheDTO.Vip;
         return null;
     }
 
     private static string? LoaiGheTheoTenHangVe(string ten)
     {
-        if (CungMa(ten.Trim(), "Hạng phổ thông")) return Ghe.Thuong;
-        if (CungMa(ten.Trim(), "Hạng thương gia")) return Ghe.Vip;
+        if (CungMa(ten.Trim(), "Hạng phổ thông")) return GheDTO.Thuong;
+        if (CungMa(ten.Trim(), "Hạng thương gia")) return GheDTO.Vip;
         return null;
     }
 
@@ -210,7 +210,7 @@ public class QuanLyBUS
             {
                 var maCu = ma == "HV01" ? "HV1" : "HV2";
                 var hangVeCu = moi.HangVe.Find(x => CungMa(x.MaHV, maCu));
-                moi.HangVe.Add(new HangVe(ma, ten, hangVeCu?.HanhLyKg ?? kg, hangVeCu?.DonGiaVe ?? gia));
+                moi.HangVe.Add(new HangVeDTO(ma, ten, hangVeCu?.HanhLyKg ?? kg, hangVeCu?.DonGiaVe ?? gia));
                 thayDoi = true;
             }
             else if (hangVe.TenHV != ten)
@@ -231,8 +231,8 @@ public class QuanLyBUS
             var hangVe = moi.HangVe.First(x => CungMa(x.MaHV, ghe.MaHV));
             var maChuan = LoaiGheTheoTenHangVe(hangVe.TenHV) switch
             {
-                Ghe.Thuong => "HV01",
-                Ghe.Vip => "HV02",
+                GheDTO.Thuong => "HV01",
+                GheDTO.Vip => "HV02",
                 _ => null
             };
             if (maChuan != null && ghe.MaHV != maChuan)
@@ -286,17 +286,17 @@ public class QuanLyBUS
             var mayBay = moi.MayBay.Find(x => CungMa(x.MaMayBay, maMayBay));
             if (mayBay == null)
             {
-                mayBay = new MayBay(maMayBay, cacHang[i]);
+                mayBay = new MayBayDTO(maMayBay, cacHang[i]);
                 moi.MayBay.Add(mayBay);
             }
             var hangVe = moi.HangVe.Find(x => CungMa(x.MaHV, maHV));
             if (hangVe == null)
             {
-                hangVe = new HangVe(maHV, cacVe[hangVeIndex].Ten, cacVe[hangVeIndex].Kg, cacVe[hangVeIndex].Gia);
+                hangVe = new HangVeDTO(maHV, cacVe[hangVeIndex].Ten, cacVe[hangVeIndex].Kg, cacVe[hangVeIndex].Gia);
                 moi.HangVe.Add(hangVe);
             }
             if (!moi.Ghe.Any(x => CungMa(x.MaMayBay, maMayBay) && CungMa(x.MaGhe, maGhe)))
-                moi.Ghe.Add(new Ghe(maGhe, mayBay.MaMayBay, hangVe.MaHV, i < 6 ? Ghe.Thuong : Ghe.Vip));
+                moi.Ghe.Add(new GheDTO(maGhe, mayBay.MaMayBay, hangVe.MaHV, i < 6 ? GheDTO.Thuong : GheDTO.Vip));
         }
         moi.DaNapBoDuLieuMau = true;
         Luu(moi);
@@ -312,7 +312,7 @@ public class QuanLyBUS
         {
             var ma = $"M{i + 1:00}";
             if (moi.MayBay.Any(x => CungMa(x.MaMayBay, ma))) continue;
-            moi.MayBay.Add(new MayBay(ma, cacHang[i]));
+            moi.MayBay.Add(new MayBayDTO(ma, cacHang[i]));
             soDaThem++;
         }
         if (soDaThem > 0) Luu(moi);
@@ -325,7 +325,7 @@ public class QuanLyBUS
         mhhk = BatBuoc(mhhk, "mã hãng hàng không");
         if (MyConnection.DaCauHinh)
         {
-            var hang = LayHangHangKhong().Cast<HangHangKhong>().FirstOrDefault(x => CungMa(x.MaHHK, mhhk));
+            var hang = LayHangHangKhong().Cast<HangHangKhongDTO>().FirstOrDefault(x => CungMa(x.MaHHK, mhhk));
             if (hang == null) throw new ArgumentException("Mã hãng hàng không không tồn tại trong HangHangKhong.");
             mhhk = hang.MaHHK;
         }
@@ -334,7 +334,7 @@ public class QuanLyBUS
         if (sua && cu == null) throw new ArgumentException("Máy bay không còn tồn tại.");
         if (!sua && cu != null) throw new ArgumentException("Mã máy bay đã tồn tại.");
         if (cu != null) cu.MHHK = mhhk;
-        else moi.MayBay.Add(new MayBay(ma, mhhk));
+        else moi.MayBay.Add(new MayBayDTO(ma, mhhk));
         Luu(moi);
     }
 
@@ -363,7 +363,7 @@ public class QuanLyBUS
             cu.HanhLyKg = hanhLy;
             cu.DonGiaVe = donGia;
         }
-        else moi.HangVe.Add(new HangVe(ma, ten, hanhLy, donGia));
+        else moi.HangVe.Add(new HangVeDTO(ma, ten, hanhLy, donGia));
         Luu(moi);
     }
 
@@ -394,15 +394,15 @@ public class QuanLyBUS
         if (!sua && DungKhoaGheToanCuc() && moi.Ghe.Any(x => CungMa(x.MaGhe, ma)))
             throw new ArgumentException("Mã ghế đã tồn tại. CSDL SQL đang dùng MaGhe là khóa duy nhất toàn hệ thống.");
         loaiGhe = BatBuoc(LoaiGheTheoHangVe(hv.MaHV) ?? LoaiGheTheoTenHangVe(hv.TenHV)
-            ?? loaiGhe ?? cu?.LoaiGhe ?? Ghe.Thuong, "loại ghế");
-        if (loaiGhe != Ghe.Thuong && loaiGhe != Ghe.Vip)
+            ?? loaiGhe ?? cu?.LoaiGhe ?? GheDTO.Thuong, "loại ghế");
+        if (loaiGhe != GheDTO.Thuong && loaiGhe != GheDTO.Vip)
             throw new ArgumentException("Vui lòng chọn Ghế thường hoặc Ghế VIP.");
         if (cu != null)
         {
             cu.MaHV = hv.MaHV;
             cu.LoaiGhe = loaiGhe;
         }
-        else moi.Ghe.Add(new Ghe(ma, mb.MaMayBay, hv.MaHV, loaiGhe));
+        else moi.Ghe.Add(new GheDTO(ma, mb.MaMayBay, hv.MaHV, loaiGhe));
         Luu(moi);
     }
 

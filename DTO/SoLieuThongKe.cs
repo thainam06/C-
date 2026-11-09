@@ -1,4 +1,4 @@
-namespace QuanLyMayBay.DTO;
+namespace VeMayBay.DTO;
 
 // Dau vao chuan hoa tu hoa don/CTHD cua CSDL nhom hoac file Excel.
 public class DongDoanhThu

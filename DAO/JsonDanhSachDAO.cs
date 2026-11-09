@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 // Dung chung cach doc/ghi JSON cho cac danh muc moi.
 public class JsonDanhSachDAO<T> where T : class, new()

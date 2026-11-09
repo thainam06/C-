@@ -1,29 +1,29 @@
 using System.Data;
-using MySqlConnector;
-using QuanLyMayBay.DTO;
+using MySql.Data.MySqlClient;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
-public class CTKMDAO : JsonDanhSachDAO<CTKM>
+public class CTKMDAO : JsonDanhSachDAO<CTKMDTO>
 {
     public CTKMDAO(string? duongDan = null) : base("ctkm.json", duongDan) { }
 
-    public List<CTKM> DocDS()
+    public List<CTKMDTO> DocDS()
     {
-        List<CTKM> dsctkm = new List<CTKM>();
+        List<CTKMDTO> dsctkm = new List<CTKMDTO>();
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(CTKM));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(CTKMDTO));
             string query = "SELECT MaCTKM,TenCTKM,NgayBatDau,NgayKetThuc FROM CTKM";
             query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection);
             using MySqlDataReader reader = command.ExecuteReader();
-            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(CTKM));
+            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(CTKMDTO));
             while (reader.Read())
             {
-                CTKM ctkm = new CTKM();
+                CTKMDTO ctkm = new CTKMDTO();
                 ctkm.MaCTKM = (reader.IsDBNull(reader.GetOrdinal("MaCTKM")) ? "" : reader.GetString("MaCTKM").TrimEnd());
                 ctkm.TenCTKM = (reader.IsDBNull(reader.GetOrdinal("TenCTKM")) ? "" : reader.GetString("TenCTKM").TrimEnd());
                 ctkm.NgayBatDau = reader.GetDateTime("NgayBatDau");
@@ -44,14 +44,14 @@ public class CTKMDAO : JsonDanhSachDAO<CTKM>
         return dsctkm;
     }
 
-    public void Them(CTKM ctkm)
+    public void Them(CTKMDTO ctkm)
     {
         ArgumentNullException.ThrowIfNull(ctkm);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(CTKM));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(CTKMDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, ctkm);
@@ -75,14 +75,14 @@ public class CTKMDAO : JsonDanhSachDAO<CTKM>
         }
     }
 
-    public void Sua(CTKM ctkm)
+    public void Sua(CTKMDTO ctkm)
     {
         ArgumentNullException.ThrowIfNull(ctkm);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(CTKM));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(CTKMDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, ctkm);
@@ -116,11 +116,11 @@ public class CTKMDAO : JsonDanhSachDAO<CTKM>
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(CTKM));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(CTKMDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép; cần cung cấp đủ khóa để xóa.");
-            DanhMucMySql.KiemTraBangKhoa<CTKM>(connection, transaction, map);
+            DanhMucMySql.KiemTraBangKhoa<CTKMDTO>(connection, transaction, map);
             string query = "DELETE FROM CTKM WHERE MaCTKM=@MaCTKM";
             query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
@@ -140,7 +140,7 @@ public class CTKMDAO : JsonDanhSachDAO<CTKM>
             connection.Close();
         }
     }
-    public void Xoa(CTKM item)
+    public void Xoa(CTKMDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         Xoa(item.MaCTKM);

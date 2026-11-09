@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Globalization;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public class CTKMBUS
 {
     private readonly CTKMDAO dao;
     private readonly VoucherDAO voucherDAO;
-    private List<CTKM> danhSach;
+    private List<CTKMDTO> danhSach;
 
     public CTKMBUS(CTKMDAO? dao = null, VoucherDAO? voucherDAO = null)
     {
@@ -34,9 +34,9 @@ public class CTKMBUS
     private static string BatBuoc(string? value, string ten) => !string.IsNullOrWhiteSpace(value)
         ? value.Trim() : throw new ArgumentException($"Vui lòng nhập {ten}.");
 
-    private static CTKM SaoChep(CTKM km) => new(km.MaCTKM, km.TenCTKM, km.NgayBatDau, km.NgayKetThuc);
+    private static CTKMDTO SaoChep(CTKMDTO km) => new(km.MaCTKM, km.TenCTKM, km.NgayBatDau, km.NgayKetThuc);
 
-    private static void KiemTra(CTKM km)
+    private static void KiemTra(CTKMDTO km)
     {
         BatBuoc(km.MaCTKM, "mã CTKM");
         BatBuoc(km.TenCTKM, "tên CTKM");
@@ -48,7 +48,7 @@ public class CTKMBUS
     public ArrayList TimKiem(string tuKhoa = "")
     {
         var ketQua = new ArrayList();
-        foreach (CTKM km in new ArrayList(danhSach))
+        foreach (CTKMDTO km in new ArrayList(danhSach))
             if (new[] { km.MaCTKM, km.TenCTKM, km.NgayBatDau.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
                 km.NgayKetThuc.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) }
                 .Any(x => x.Contains(tuKhoa.Trim(), StringComparison.OrdinalIgnoreCase)))
@@ -56,10 +56,10 @@ public class CTKMBUS
         return ketQua;
     }
 
-    public void Luu(CTKM km, bool sua)
+    public void Luu(CTKMDTO km, bool sua)
     {
         ArgumentNullException.ThrowIfNull(km);
-        var moi = new CTKM(BatBuoc(km.MaCTKM, "mã CTKM"), BatBuoc(km.TenCTKM, "tên CTKM"),
+        var moi = new CTKMDTO(BatBuoc(km.MaCTKM, "mã CTKM"), BatBuoc(km.TenCTKM, "tên CTKM"),
             km.NgayBatDau.Date, km.NgayKetThuc.Date);
         KiemTra(moi);
         var index = danhSach.FindIndex(x => string.Equals(x.MaCTKM, moi.MaCTKM, StringComparison.OrdinalIgnoreCase));
@@ -72,10 +72,10 @@ public class CTKMBUS
         danhSach = data;
     }
 
-    public void NhapDanhSach(List<CTKM> rows)
+    public void NhapDanhSach(List<CTKMDTO> rows)
     {
         var next = NhapLoatBUS.HopNhat(danhSach, rows, x => x.MaCTKM,
-            x => new CTKM(BatBuoc(x.MaCTKM, "mã CTKM"), BatBuoc(x.TenCTKM, "tên CTKM"),
+            x => new CTKMDTO(BatBuoc(x.MaCTKM, "mã CTKM"), BatBuoc(x.TenCTKM, "tên CTKM"),
                 x.NgayBatDau.Date, x.NgayKetThuc.Date), KiemTra);
         dao.Luu(next); danhSach = next;
     }

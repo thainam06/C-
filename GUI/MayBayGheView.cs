@@ -1,7 +1,7 @@
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DTO;
+using VeMayBay.BUS;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 // Mot bang hien thi thong tin may bay, ghe va hang ve tren cung mot dong.
 internal class MayBayGheView : UserControl

@@ -1,3 +1,15 @@
+# Đồng bộ theo 11 file DAO/DTO mới
+
+- Toàn bộ namespace runtime đổi sang VeMayBay; DTO danh mục có hậu tố DTO và tên file tương ứng. Khai báo thuộc tính của 5 DTO theo mẫu; giữ constructor cho BUS hiện tại. Các reference được đổi theo symbol để không đổi tên bảng/cột hoặc khóa JSON.
+- Dùng MySql.Data.MySqlClient 26.10.0 theo file mẫu, thay MySqlConnector; cập nhật lockfile. Restore/build không có cảnh báo NuGet hay lỗi biên dịch.
+- GiamGia Voucher dùng double; form, ListView, lọc, Excel và DAO đều xử lý double, kiểm tra hữu hạn/0–100%/tối đa 2 số lẻ. Các khoản tiền khác giữ decimal.
+- NgaySinh là DateTime bắt buộc, đúng DTO mới. Bộ test xác nhận SQL NULL báo lỗi dữ liệu rõ ràng trước khi điền ngày thật; không gán ngày giả. Các NULL chuỗi tùy chọn khác vẫn đọc được.
+- **179 kiểm tra hồi quy qua**: KhachHang29, HanhKhach28, NhanVienKhuyenMai51, DoAn49, SqlProfile22. **95 kiểm tra schema/CRUD và 20 kiểm tra MySQL chung qua** trên MySQL 8.4 riêng, provider MySql.Data thực, Unix socket, không đụng CSDL nhóm.
+- Build WinForms và SqlInspector Release: 0 lỗi/0 cảnh báo. Đã kiểm tra double qua Excel/lọc/DB, NaN/vô cực, độ chính xác, DOB bắt buộc, FK/UNIQUE, snapshot và rollback.
+- Giữ nguyên byte 11 file nguồn ở examples/Mau-DAO-DTO, tách khỏi Compile. Chưa bấm GUI trên Windows, chưa chuyển dữ liệu thật, chưa bổ sung nghiệp vụ bán/hủy vé hoặc nguồn chi phí. Báo cáo DOCX cũ vẫn là bản nháp chưa cập nhật thay đổi namespace/provider.
+
+---
+
 # Tích hợp 5 file DAO tải lên mới
 
 - Thay phần CRUD của HanhKhach/NhanVien/KhachHang/Voucher/CTKM bằng nội dung từ 5 file người dùng gửi, theo lựa chọn "chỉnh tối thiểu để chạy trong project".

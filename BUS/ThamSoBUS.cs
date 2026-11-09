@@ -1,13 +1,13 @@
 using System.Collections;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public class ThamSoBUS
 {
     private readonly ThamSoDAO dao;
-    private List<ThamSo> data;
+    private List<ThamSoDTO> data;
     public ThamSoBUS(ThamSoDAO? dao = null)
     {
         this.dao = dao ?? new ThamSoDAO();
@@ -34,8 +34,8 @@ public class ThamSoBUS
             this.dao.Luu(next); data = next;
         }
     }
-    private static ThamSo Copy(ThamSo x) => new() { MaThamSo = x.MaThamSo, GiaTri = x.GiaTri, MoTa = x.MoTa };
-    private static void KiemTra(ThamSo x)
+    private static ThamSoDTO Copy(ThamSoDTO x) => new() { MaThamSo = x.MaThamSo, GiaTri = x.GiaTri, MoTa = x.MoTa };
+    private static void KiemTra(ThamSoDTO x)
     {
         if (string.IsNullOrWhiteSpace(x.MaThamSo) || string.IsNullOrWhiteSpace(x.GiaTri))
             throw new ArgumentException("Mã và giá trị tham số không được trống.");
@@ -47,9 +47,9 @@ public class ThamSoBUS
     public int SoLeTien => int.TryParse(Lay("SO_LE_TIEN"), out var n) ? n : 0;
     public ArrayList TimKiem(string q = "") => new(data.Where(x => new[] { x.MaThamSo, x.GiaTri, x.MoTa }
         .Any(v => v.Contains(q.Trim(), StringComparison.OrdinalIgnoreCase))).Select(Copy).ToList());
-    public void Luu(ThamSo x, bool sua)
+    public void Luu(ThamSoDTO x, bool sua)
     {
-        var item = new ThamSo { MaThamSo = x.MaThamSo.Trim(), GiaTri = x.GiaTri.Trim(), MoTa = x.MoTa.Trim() };
+        var item = new ThamSoDTO { MaThamSo = x.MaThamSo.Trim(), GiaTri = x.GiaTri.Trim(), MoTa = x.MoTa.Trim() };
         KiemTra(item);
         var index = data.FindIndex(v => v.MaThamSo.Equals(item.MaThamSo, StringComparison.OrdinalIgnoreCase));
         if (sua && index < 0) throw new ArgumentException("Không tìm thấy tham số.");

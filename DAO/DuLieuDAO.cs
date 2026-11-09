@@ -1,13 +1,13 @@
 using System.Text.Json;
-using QuanLyMayBay.DTO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 public class DuLieu
 {
-    public List<MayBay> MayBay { get; set; } = new();
-    public List<Ghe> Ghe { get; set; } = new();
-    public List<HangVe> HangVe { get; set; } = new();
+    public List<MayBayDTO> MayBay { get; set; } = new();
+    public List<GheDTO> Ghe { get; set; } = new();
+    public List<HangVeDTO> HangVe { get; set; } = new();
     public bool DaNapBoDuLieuMau { get; set; }
     public bool DaCapNhatHangM01M02 { get; set; }
 }
@@ -15,9 +15,9 @@ public class DuLieu
 public class DuLieuDAO
 {
     private readonly string duongDan;
-    private readonly PhienBangSql<MayBay> sqlMayBay = new();
-    private readonly PhienBangSql<HangVe> sqlHangVe = new();
-    private readonly PhienBangSql<Ghe> sqlGhe = new();
+    private readonly PhienBangSql<MayBayDTO> sqlMayBay = new();
+    private readonly PhienBangSql<HangVeDTO> sqlHangVe = new();
+    private readonly PhienBangSql<GheDTO> sqlGhe = new();
 
     public DuLieuDAO(string? duongDan = null)
     {

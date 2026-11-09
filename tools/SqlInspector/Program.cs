@@ -1,8 +1,8 @@
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.Services;
+using VeMayBay.DAO;
+using VeMayBay.Services;
 using System.Data.Common;
 
-namespace QuanLyMayBay.Tools;
+namespace VeMayBay.Tools;
 
 internal static class SqlInspector
 {

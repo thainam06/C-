@@ -1,14 +1,14 @@
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DTO;
+using VeMayBay.BUS;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 internal class KhachHangView : UserControl
 {
     public KhachHangView(KhachHangBUS bus)
     {
         Dock = DockStyle.Fill;
-        var tab = new QuanLyTab<KhachHang>(
+        var tab = new QuanLyTab<KhachHangDTO>(
             new[]
             {
                 new Truong("MaKH", "Mã khách hàng", Khoa: true),
@@ -20,7 +20,7 @@ internal class KhachHangView : UserControl
                 new Truong("MatKhau", "Mật khẩu", LaMatKhau: true),
                 new Truong("DiaChi", "Địa chỉ")
             },
-            q => bus.TimKiem(q).Cast<KhachHang>().ToList(),
+            q => bus.TimKiem(q).Cast<KhachHangDTO>().ToList(),
             (kh, sua) => bus.Luu(kh, sua),
             kh => bus.Xoa(kh.MaKH));
         Controls.Add(tab);

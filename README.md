@@ -7,22 +7,19 @@ Tên đề tài chính thức: **Quản lý bán vé máy bay**. Các danh mục
 bán vé; nghiệp vụ đặt/bán/hủy vé và tồn ghế theo chuyến chưa hoàn tất.
 Đã chuyển DDL SQL Server nhóm gửi sang MySQL 8.4 như hướng dẫn bên dưới.
 
-## 5 DAO tải lên mới
+## Đồng bộ theo 11 file DAO/DTO mới
 
-Đã tích hợp Hành khách, Nhân viên, Khách hàng, Voucher và CTKM từ 5 file người dùng gửi,
-chỉnh phần tương thích project theo lựa chọn của người dùng. Bản gốc nguyên vẹn ở
-[examples/DAO-nguoi-dung](examples/DAO-nguoi-dung/README.md); bản chạy ở `DAO/`.
+DAO, DTO, BUS và form ListView đã chuyển đồng bộ sang **VeMayBay**, các lớp **\*DTO**
+và **MySql.Data.MySqlClient** theo file người dùng gửi. `VoucherDTO.GiamGia` dùng double;
+`HanhKhachDTO.NgaySinh` là DateTime bắt buộc. Mở `QuanLyMayBay.csproj` như trước.
 
-## DAO theo mẫu của nhóm
-
-Đã có `DocDS`, `Them`, `Sua`, `Xoa` cho 10 DAO danh mục, gồm các DAO riêng cho
-Máy bay/Ghế/Hạng vé/Hãng hàng không. Xem [cách dùng và tích hợp BUS](docs/DAO_THEO_MAU.md).
-Mỗi DAO có trực tiếp SQL, MySqlCommand, vòng đọc DTO và try/catch/finally trong các hàm;
-không còn các hàm chỉ gọi Lenh.Them/Lenh.Sua. Giá trị SQL vẫn dùng tham số.
+Xem [các thay đổi và cách xử lý dữ liệu cũ](docs/DONG_BO_MAU_DAO_DTO.md).
+Bản chạy ở DAO/DTO, [11 file gốc](examples/Mau-DAO-DTO/README.md) được giữ để đối chiếu.
+Các cột/bảng SQL và khóa JSON giữ tên cũ; dữ liệu ngày sinh NULL cần bổ sung ngày thật.
 
 ## MySQL và ListView (cập nhật mới)
 
-Đã thêm **MySQL qua DAO (MySqlConnector)** và đổi toàn bộ bảng GUI sang **ListView**.
+Đã thêm **MySQL qua DAO (MySql.Data)** và đổi toàn bộ bảng GUI sang **ListView**.
 Đã nhận `BanVeMayBay.sql` của nhóm (DDL SQL Server), chuyển đủ **15 bảng/23 FK/13 CHECK**
 sang MySQL 8.4 và ghép profile DAO cụ thể. Xem [nhập CSDL MySQL mới](docs/mysql/README.md)
 và [cấu hình kết nối](docs/KET_NOI_MYSQL.md). `MHHK → MaHHK`, `LoaiKH → LoaiHK`,

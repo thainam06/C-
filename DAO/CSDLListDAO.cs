@@ -4,9 +4,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Data.Common;
-using QuanLyMayBay.DTO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 public sealed class AnhXaBangSql
 {
@@ -32,14 +32,15 @@ public static class CSDLListDAO
         }
         if (!File.Exists(path)) throw new InvalidDataException("Thiếu file ánh xạ. Cấu hình QLMB_MYSQL_MAPPING_FILE (MySQL) hoặc QLMB_SQL_MAPPING_FILE (SQL Server) theo CSDL của nhóm.");
         var maps = JsonSerializer.Deserialize<Dictionary<string, AnhXaBangSql>>(File.ReadAllText(path), Options);
-        if (maps == null || !maps.TryGetValue(type.Name, out var map) || map == null)
+        var profileName = type.Name.EndsWith("DTO", StringComparison.Ordinal) ? type.Name[..^3] : type.Name;
+        if (maps == null || (!maps.TryGetValue(type.Name, out var map) && !maps.TryGetValue(profileName, out map)) || map == null)
             throw new InvalidDataException($"Thiếu ánh xạ SQL cho {type.Name}.");
         var properties = type.GetProperties().Where(x => x.CanRead && x.CanWrite).ToArray();
         if (string.IsNullOrWhiteSpace(map.Table) || map.Columns == null || map.KeyColumns == null || map.DerivedColumns == null
             || map.Table.Split('.').Length > 2
             || properties.Any(x => !map.Columns.ContainsKey(x.Name) && !map.DerivedColumns.ContainsKey(x.Name))
             || map.Columns.Any(x => string.IsNullOrWhiteSpace(x.Value) || properties.All(p => p.Name != x.Key))
-            || map.DerivedColumns.Any(x => type != typeof(Ghe) || x.Key != nameof(Ghe.LoaiGhe)
+            || map.DerivedColumns.Any(x => type != typeof(GheDTO) || x.Key != nameof(GheDTO.LoaiGhe)
                 || x.Value != "LoaiGheTuHangVe" || map.Columns.ContainsKey(x.Key))
             || map.Columns.Values.Distinct(StringComparer.OrdinalIgnoreCase).Count() != map.Columns.Count
             || map.KeyColumns.Count == 0 || map.KeyColumns.Distinct().Count() != map.KeyColumns.Count
@@ -124,11 +125,11 @@ public static class CSDLListDAO
 
     public static void ApDungCotSuyDien(object item, AnhXaBangSql map)
     {
-        if (item is Ghe ghe && map.DerivedColumns.TryGetValue(nameof(Ghe.LoaiGhe), out var rule))
+        if (item is GheDTO ghe && map.DerivedColumns.TryGetValue(nameof(GheDTO.LoaiGhe), out var rule))
         {
             if (rule != "LoaiGheTuHangVe") throw new InvalidDataException("Quy tắc suy diễn loại ghế không hợp lệ.");
             ghe.LoaiGhe = ghe.MaHV.Trim().ToUpperInvariant() is "HV02" or "HV2" or "HV07" or "HV08" or "HV09" or "HV10"
-                ? Ghe.Vip : Ghe.Thuong;
+                ? GheDTO.Vip : GheDTO.Thuong;
         }
     }
 
@@ -192,7 +193,10 @@ public static class CSDLListDAO
             foreach (var row in rows)
             {
                 var value = property.GetValue(row);
-                if (value is decimal number && scale is >= 0 and <= 28 && decimal.Round(number, scale.Value) != number)
+                if (value is double real && !double.IsFinite(real))
+                    throw new ArgumentException($"{type.Name}.{propertyName}: không nhận NaN hoặc vô cực.");
+                decimal? numeric = value is decimal money ? money : value is double realValue ? Convert.ToDecimal(realValue) : null;
+                if (numeric is decimal number && scale is >= 0 and <= 28 && decimal.Round(number, scale.Value) != number)
                     throw new ArgumentException($"{type.Name}.{propertyName}: cột MySQL chỉ nhận {scale} chữ số thập phân. Không tự làm tròn dữ liệu.");
                 if (value is string text && maxLength.HasValue && text.EnumerateRunes().Count() > maxLength.Value)
                     throw new ArgumentException($"{type.Name}.{propertyName}: vượt quá {maxLength} ký tự của cột MySQL.");

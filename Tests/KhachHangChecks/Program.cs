@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.BUS;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.Tests;
+namespace VeMayBay.Tests;
 
 internal static class KhachHangChecks
 {
@@ -28,7 +28,7 @@ internal static class KhachHangChecks
             catch (ArgumentException) { Check(true, name); return; }
             throw new Exception("FAIL: " + name);
         }
-        KhachHang Sample(string ma = "KH01", string cccd = "001000000001", string account = "kh01") =>
+        KhachHangDTO Sample(string ma = "KH01", string cccd = "001000000001", string account = "kh01") =>
             new(ma, "Nguyễn Văn Mẫu", cccd, "0900000001", $"{account}@example.test", account,
                 "Fake password 123!", "Địa chỉ kiểm thử");
         bool Matches(string password, string stored)
@@ -49,7 +49,7 @@ internal static class KhachHangChecks
             var first = Sample();
             first.MaKH = " KH01 ";
             bus.Luu(first, false);
-            var shown = bus.TimKiem().Cast<KhachHang>().Single();
+            var shown = bus.TimKiem().Cast<KhachHangDTO>().Single();
             Check(shown.MaKH == "KH01" && shown.CCCD == "001000000001" && shown.SDT == "0900000001",
                 "Create preserves leading zeroes and normalizes code");
             Check(shown.MatKhau == "", "Search results never expose password or hash");
@@ -82,7 +82,7 @@ internal static class KhachHangChecks
             Check(bus.TimKiem(first.MatKhau).Count == 0, "Password cannot be searched");
             shown.HoTen = "Changed outside BUS";
             Check(bus.TimKiem("Changed outside BUS").Count == 0, "Search returns detached copies");
-            var edit = bus.TimKiem("KH01").Cast<KhachHang>().Single();
+            var edit = bus.TimKiem("KH01").Cast<KhachHangDTO>().Single();
             edit.HoTen = "Tên đã sửa";
             bus.Luu(edit, true);
             Check(dao.Doc().Single(x => x.MaKH == "KH01").MatKhau == originalHash,

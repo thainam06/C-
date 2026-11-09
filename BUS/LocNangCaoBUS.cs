@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public static class LocNangCaoBUS
 {

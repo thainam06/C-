@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Globalization;
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DTO;
+using VeMayBay.BUS;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 internal class MainSubView : UserControl
 {
@@ -46,9 +46,9 @@ internal class MainSubView : UserControl
         if (master.SelectedItems.Count == 0) return;
         var ma = master.SelectedItems[0].Text;
         if (module.SelectedIndex == 0) Bind(detail, mayBay.LayGheTheoMayBay(ma), "MaGhe", "LoaiGhe", "MaHV", "TenHV", "HanhLyKg", "DonGiaVe");
-        else if (module.SelectedIndex == 1) Bind(detail, new ArrayList(hanhKhach.TimKiem().Cast<HanhKhach>()
+        else if (module.SelectedIndex == 1) Bind(detail, new ArrayList(hanhKhach.TimKiem().Cast<HanhKhachDTO>()
             .Where(x => x.MaKH.Equals(ma, StringComparison.OrdinalIgnoreCase)).ToList()), "MaHK", "HoTen", "NgaySinh", "GioiTinh", "LoaiKH");
-        else Bind(detail, new ArrayList(voucher.TimKiem().Cast<Voucher>()
+        else Bind(detail, new ArrayList(voucher.TimKiem().Cast<VoucherDTO>()
             .Where(x => x.MaCTKM.Equals(ma, StringComparison.OrdinalIgnoreCase)).ToList()), "MaVoucher", "GiamGia");
     }
     private static ListView TaoList() => new()

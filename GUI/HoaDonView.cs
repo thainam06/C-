@@ -1,10 +1,10 @@
 using System.Globalization;
-using QuanLyMayBay.BUS;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
-using QuanLyMayBay.Services;
+using VeMayBay.BUS;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
+using VeMayBay.Services;
 
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 internal class HoaDonView : UserControl
 {

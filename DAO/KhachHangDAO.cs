@@ -1,14 +1,14 @@
 using System.Data;
-using MySqlConnector;
-using QuanLyMayBay.DTO;
+using MySql.Data.MySqlClient;
+using VeMayBay.DTO;
 using System.Text.Json;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 public class KhachHangDAO
 {
     private readonly string duongDan;
-    private readonly PhienBangSql<KhachHang> sql = new();
+    private readonly PhienBangSql<KhachHangDTO> sql = new();
     internal string ThuMuc => Path.GetDirectoryName(duongDan)!;
 
     public KhachHangDAO(string? duongDan = null)
@@ -18,22 +18,22 @@ public class KhachHangDAO
             "QuanLyMayBay", "khachhang.json"));
     }
 
-    public List<KhachHang> DocDS()
+    public List<KhachHangDTO> DocDS()
     {
-        List<KhachHang> dskh = new List<KhachHang>();
+        List<KhachHangDTO> dskh = new List<KhachHangDTO>();
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(KhachHang));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(KhachHangDTO));
             string query = "SELECT MaKH,HoTen,CCCD,SDT,Email,TaiKhoan,MatKhau,DiaChi FROM KhachHang";
             query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection);
             using MySqlDataReader reader = command.ExecuteReader();
-            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(KhachHang));
+            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(KhachHangDTO));
             while (reader.Read())
             {
-                KhachHang kh = new KhachHang();
+                KhachHangDTO kh = new KhachHangDTO();
                 kh.MaKH = (reader.IsDBNull(reader.GetOrdinal("MaKH")) ? "" : reader.GetString("MaKH").TrimEnd());
                 kh.HoTen = (reader.IsDBNull(reader.GetOrdinal("HoTen")) ? "" : reader.GetString("HoTen").TrimEnd());
                 kh.CCCD = (reader.IsDBNull(reader.GetOrdinal("CCCD")) ? "" : reader.GetString("CCCD").TrimEnd());
@@ -58,14 +58,14 @@ public class KhachHangDAO
         return dskh;
     }
 
-    public void Them(KhachHang kh)
+    public void Them(KhachHangDTO kh)
     {
         ArgumentNullException.ThrowIfNull(kh);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(KhachHang));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(KhachHangDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, kh);
@@ -93,14 +93,14 @@ public class KhachHangDAO
         }
     }
 
-    public void Sua(KhachHang kh)
+    public void Sua(KhachHangDTO kh)
     {
         ArgumentNullException.ThrowIfNull(kh);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(KhachHang));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(KhachHangDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, kh);
@@ -138,11 +138,11 @@ public class KhachHangDAO
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(KhachHang));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(KhachHangDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép; cần cung cấp đủ khóa để xóa.");
-            DanhMucMySql.KiemTraBangKhoa<KhachHang>(connection, transaction, map);
+            DanhMucMySql.KiemTraBangKhoa<KhachHangDTO>(connection, transaction, map);
             string query = "DELETE FROM KhachHang WHERE MaKH=@MaKH";
             query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
@@ -162,22 +162,22 @@ public class KhachHangDAO
             connection.Close();
         }
     }
-    public void Xoa(KhachHang item)
+    public void Xoa(KhachHangDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         Xoa(item.MaKH);
     }
 
     // Giu API Doc/Luu cu cho BUS va du lieu JSON.
-    public List<KhachHang> Doc()
+    public List<KhachHangDTO> Doc()
     {
         if (sql.ThuDoc(out var dataSql)) return dataSql;
-        if (!File.Exists(duongDan)) return new List<KhachHang>();
-        return JsonSerializer.Deserialize<List<KhachHang>>(File.ReadAllText(duongDan))
+        if (!File.Exists(duongDan)) return new List<KhachHangDTO>();
+        return JsonSerializer.Deserialize<List<KhachHangDTO>>(File.ReadAllText(duongDan))
             ?? throw new InvalidDataException("File khách hàng không hợp lệ.");
     }
 
-    public void Luu(IReadOnlyCollection<KhachHang> danhSach)
+    public void Luu(IReadOnlyCollection<KhachHangDTO> danhSach)
     {
         if (sql.ThuLuu(danhSach)) return;
         Directory.CreateDirectory(Path.GetDirectoryName(duongDan)!);

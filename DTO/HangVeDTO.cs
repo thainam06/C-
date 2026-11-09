@@ -1,9 +1,9 @@
-namespace QuanLyMayBay.DTO
+namespace VeMayBay.DTO
 {
     /// <summary>
     /// Du lieu hang ve, trao doi giua cac lop GUI, BUS va DAO.
     /// </summary>
-    public class HangVe
+    public class HangVeDTO
     {
         public string MaHV { get; set; }
 
@@ -14,7 +14,7 @@ namespace QuanLyMayBay.DTO
 
         public decimal DonGiaVe { get; set; }
 
-        public HangVe()
+        public HangVeDTO()
         {
             MaHV = string.Empty;
             TenHV = string.Empty;
@@ -22,7 +22,7 @@ namespace QuanLyMayBay.DTO
             DonGiaVe = 0m;
         }
 
-        public HangVe(string maHV, string tenHV, decimal hanhLyKg, decimal donGiaVe)
+        public HangVeDTO(string maHV, string tenHV, decimal hanhLyKg, decimal donGiaVe)
         {
             MaHV = maHV;
             TenHV = tenHV;

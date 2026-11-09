@@ -1,3 +1,5 @@
+> Cập nhật DTO mới: namespace VeMayBay, MySql.Data.MySqlClient, VoucherDTO.GiamGia dùng double và ngày sinh DateTime bắt buộc. NgaySinh NULL trong schema cần bổ sung giá trị thật trước khi đọc bằng DTO mới; hướng dẫn checkbox/nullable của phiên bản cũ bên dưới không còn áp dụng. Xem ../DONG_BO_MAU_DAO_DTO.md.
+
 # CSDL MySQL chuyển từ BanVeMayBay.sql của nhóm
 
 Nguồn là **DDL SQL Server**, không có INSERT dữ liệu. Script `BanVeMayBay.mysql.sql` chuyển đủ 15 bảng, 23 FK, 13 CHECK, các UNIQUE/default/index và cột tính ThanhTien. Không bao gồm lệnh/tùy chọn hệ thống SQL Server như GO, đường dẫn MDF/LDF, broker, compatibility level.
@@ -33,7 +35,7 @@ Server=localhost;Port=3306;Database=BanVeMayBayMySql;User ID=TEN_USER;Password=M
 
 - `MayBay.MHHK → MayBay.MaHHK`; `HanhKhach.LoaiKH → HanhKhach.LoaiHK`.
 - Ghe có đúng ba cột vật lý MaGhe/MaMayBay/MaHV, khóa chính MaGhe toàn bảng. LoaiGhe suy ra từ MaHV; HV01 thường/phổ thông, HV02 VIP/thương gia.
-- NgaySinh nullable: bỏ tick ô ngày sinh để lưu NULL, không tự thay bằng ngày hôm nay. Các chuỗi SQL NULL được biểu diễn bằng chuỗi trống trong DTO hiện tại.
+- DDL nguồn cho phép NgaySinh NULL nhưng DTO mới không cho phép: cần bổ sung ngày thật trước khi mở danh sách; không tự thay bằng ngày hôm nay. Các chuỗi SQL NULL được biểu diễn bằng chuỗi trống trong DTO hiện tại.
 - Mở dữ liệu hiện có chấp nhận các trường tùy chọn NULL (SDT/Email/DiaChi khách hàng, GioiTinh/LoaiHK hành khách, ChucVu nhân viên). Khi thêm/sửa qua form, BUS vẫn yêu cầu thông tin như trước; điền các trường bắt buộc trên form trước khi lưu. Khách hàng cần mật khẩu băm PBKDF2 theo định dạng của app; không tự chuyển mật khẩu dữ liệu cũ.
 - HanhLyKg là INT; DonGiaVe/giá vé trong nguồn là DECIMAL(18,0). DAO chặn phần lẻ trước khi ghi thay vì để MySQL làm tròn. Kiểm tra chiều dài chuỗi theo cột thật. Voucher.GiamGia vẫn là phần trăm theo yêu cầu, BUS giới hạn lớn hơn 0 đến 100; file gốc chỉ ràng buộc không âm.
 - NVARCHAR/VARCHAR chuyển thành VARCHAR utf8mb4 để giữ tiếng Việt. Collation MySQL không thể bảo đảm mọi phép so sánh y hệt collation SQL Server (file nguồn không ghi collation cụ thể); cần rà soát mã trùng trước khi chuyển dữ liệu thật.

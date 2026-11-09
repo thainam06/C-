@@ -1,6 +1,8 @@
+> Bản mới dùng namespace VeMayBay và MySql.Data.MySqlClient theo mẫu DAO/DTO được cung cấp. Tên project/biến kết nối giữ nguyên. Xem DONG_BO_MAU_DAO_DTO.md, đặc biệt ngày sinh bắt buộc trong DTO mới.
+
 # MySQL qua DAO và form ListView
 
-Ứng dụng dùng MySqlConnector trong lớp `MyConnection`; các DAO gọi `CSDLListDAO` để đọc/ghi bằng lệnh có tham số, giao dịch và kiểm tra phiên dữ liệu. GUI chỉ gọi BUS, không chứa SQL. Các bảng giao diện dùng WinForms ListView (Details), chọn dòng để sửa/xóa; vẫn có lọc, xuất Excel/PDF.
+Ứng dụng dùng MySql.Data.MySqlClient trong lớp `MyConnection`; các DAO gọi `CSDLListDAO` để đọc/ghi bằng lệnh có tham số, giao dịch và kiểm tra phiên dữ liệu. GUI chỉ gọi BUS, không chứa SQL. Các bảng giao diện dùng WinForms ListView (Details), chọn dòng để sửa/xóa; vẫn có lọc, xuất Excel/PDF.
 
 Đã nhận `BanVeMayBay.sql` của nhóm: nguồn là DDL SQL Server. Đã chuyển đủ 15 bảng/23 FK/13 CHECK sang MySQL 8.4 tại `docs/mysql/BanVeMayBay.mysql.sql` và có profile cụ thể `docs/mysql-mapping.BanVeMayBay.json`. Xem [các bước nhập CSDL mới](mysql/README.md). Không chạy script tạo bảng vào CSDL đang có dữ liệu; app không tự sửa schema. Profile `mysql-mapping.example.json` cũ chỉ là ví dụ chung.
 

@@ -1,8 +1,8 @@
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using System.Text.RegularExpressions;
-using QuanLyMayBay.DTO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 // Chi ho tro anh xa va kiem tra kieu; SQL CRUD nam truc tiep trong tung DAO.
 internal static class DanhMucMySql
@@ -11,16 +11,16 @@ internal static class DanhMucMySql
     {
         object? data = typeof(T).Name switch
         {
-            nameof(HangHangKhong) when typeof(T) == typeof(HangHangKhong) => new HangHangKhongDAO().DocDS(),
-            nameof(MayBay) when typeof(T) == typeof(MayBay) => new MayBayDAO().DocDS(),
-            nameof(HangVe) when typeof(T) == typeof(HangVe) => new HangVeDAO().DocDS(),
-            nameof(Ghe) when typeof(T) == typeof(Ghe) => new GheDAO().DocDS(),
-            nameof(KhachHang) when typeof(T) == typeof(KhachHang) => new KhachHangDAO().DocDS(),
-            nameof(HanhKhach) when typeof(T) == typeof(HanhKhach) => new HanhKhachDAO().DocDS(),
-            nameof(NhanVien) when typeof(T) == typeof(NhanVien) => new NhanVienDAO().DocDS(),
-            nameof(CTKM) when typeof(T) == typeof(CTKM) => new CTKMDAO().DocDS(),
-            nameof(Voucher) when typeof(T) == typeof(Voucher) => new VoucherDAO().DocDS(),
-            nameof(ThamSo) when typeof(T) == typeof(ThamSo) => new ThamSoDAO().DocDS(),
+            nameof(HangHangKhongDTO) when typeof(T) == typeof(HangHangKhongDTO) => new HangHangKhongDAO().DocDS(),
+            nameof(MayBayDTO) when typeof(T) == typeof(MayBayDTO) => new MayBayDAO().DocDS(),
+            nameof(HangVeDTO) when typeof(T) == typeof(HangVeDTO) => new HangVeDAO().DocDS(),
+            nameof(GheDTO) when typeof(T) == typeof(GheDTO) => new GheDAO().DocDS(),
+            nameof(KhachHangDTO) when typeof(T) == typeof(KhachHangDTO) => new KhachHangDAO().DocDS(),
+            nameof(HanhKhachDTO) when typeof(T) == typeof(HanhKhachDTO) => new HanhKhachDAO().DocDS(),
+            nameof(NhanVienDTO) when typeof(T) == typeof(NhanVienDTO) => new NhanVienDAO().DocDS(),
+            nameof(CTKMDTO) when typeof(T) == typeof(CTKMDTO) => new CTKMDAO().DocDS(),
+            nameof(VoucherDTO) when typeof(T) == typeof(VoucherDTO) => new VoucherDAO().DocDS(),
+            nameof(ThamSoDTO) when typeof(T) == typeof(ThamSoDTO) => new ThamSoDAO().DocDS(),
             _ => null
         };
         rows = data is List<T> typed ? typed : new();

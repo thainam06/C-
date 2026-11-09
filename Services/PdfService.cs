@@ -3,7 +3,7 @@ using PdfSharp.Drawing;
 using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 
-namespace QuanLyMayBay.Services;
+namespace VeMayBay.Services;
 
 public static class PdfService
 {

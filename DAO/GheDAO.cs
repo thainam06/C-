@@ -1,32 +1,32 @@
 using System.Data;
-using MySqlConnector;
-using QuanLyMayBay.DTO;
+using MySql.Data.MySqlClient;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 public class GheDAO
 {
-    public List<Ghe> DocDS()
+    public List<GheDTO> DocDS()
     {
-        List<Ghe> danhSach = new List<Ghe>();
+        List<GheDTO> danhSach = new List<GheDTO>();
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Ghe));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(GheDTO));
             string query = $"SELECT {DanhMucMySql.Cot(map, "MaGhe")} AS `MaGhe`, {DanhMucMySql.Cot(map, "MaMayBay")} AS `MaMayBay`, {DanhMucMySql.Cot(map, "MaHV")} AS `MaHV`";
             if (map.Columns.ContainsKey("LoaiGhe")) query += $", {DanhMucMySql.Cot(map, "LoaiGhe")} AS `LoaiGhe`";
             query += $" FROM {DanhMucMySql.Bang(map)}";
             using MySqlCommand command = new MySqlCommand(query, connection);
             using MySqlDataReader reader = command.ExecuteReader();
-            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(Ghe));
+            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(GheDTO));
             while (reader.Read())
             {
-                Ghe item = new Ghe();
+                GheDTO item = new GheDTO();
                 item.MaGhe = reader.IsDBNull(reader.GetOrdinal("MaGhe")) ? "" : reader.GetString("MaGhe").TrimEnd();
                 item.MaMayBay = reader.IsDBNull(reader.GetOrdinal("MaMayBay")) ? "" : reader.GetString("MaMayBay").TrimEnd();
                 item.MaHV = reader.IsDBNull(reader.GetOrdinal("MaHV")) ? "" : reader.GetString("MaHV").TrimEnd();
-                item.LoaiGhe = map.Columns.ContainsKey("LoaiGhe") ? (reader.IsDBNull(reader.GetOrdinal("LoaiGhe")) ? "" : reader.GetString("LoaiGhe").TrimEnd()) : Ghe.Thuong;
+                item.LoaiGhe = map.Columns.ContainsKey("LoaiGhe") ? (reader.IsDBNull(reader.GetOrdinal("LoaiGhe")) ? "" : reader.GetString("LoaiGhe").TrimEnd()) : GheDTO.Thuong;
                 CSDLListDAO.ApDungCotSuyDien(item, map);
                 danhSach.Add(item);
             }
@@ -42,14 +42,14 @@ public class GheDAO
         return danhSach;
     }
 
-    public void Them(Ghe item)
+    public void Them(GheDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Ghe));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(GheDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
@@ -76,14 +76,14 @@ public class GheDAO
         }
     }
 
-    public void Sua(Ghe item)
+    public void Sua(GheDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Ghe));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(GheDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
@@ -121,12 +121,12 @@ public class GheDAO
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Ghe));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(GheDTO));
             if (string.IsNullOrWhiteSpace(ma)) throw new ArgumentException("Vui lòng nhập mã cần xóa.");
             if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép. Hãy dùng Xoa(dto).");
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraBangKhoa<Ghe>(connection, transaction, map);
+            DanhMucMySql.KiemTraBangKhoa<GheDTO>(connection, transaction, map);
             string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
             command.Parameters.AddWithValue("@" + map.KeyColumns[0], ma);
@@ -146,21 +146,21 @@ public class GheDAO
         }
     }
 
-    public void Xoa(Ghe item)
+    public void Xoa(GheDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(Ghe));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(GheDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item, xoa: true);
             string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
             foreach (string khoa in map.KeyColumns)
-                command.Parameters.AddWithValue("@" + khoa, typeof(Ghe).GetProperty(khoa)!.GetValue(item) ?? DBNull.Value);
+                command.Parameters.AddWithValue("@" + khoa, typeof(GheDTO).GetProperty(khoa)!.GetValue(item) ?? DBNull.Value);
             command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
             if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần xóa.");
             command.CommandText = query;

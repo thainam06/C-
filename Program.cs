@@ -1,6 +1,6 @@
-using QuanLyMayBay.GUI;
+using VeMayBay.GUI;
 
-namespace QuanLyMayBay;
+namespace VeMayBay;
 
 internal static class Program
 {

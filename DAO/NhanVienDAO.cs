@@ -1,29 +1,29 @@
 using System.Data;
-using MySqlConnector;
-using QuanLyMayBay.DTO;
+using MySql.Data.MySqlClient;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
-public class NhanVienDAO : JsonDanhSachDAO<NhanVien>
+public class NhanVienDAO : JsonDanhSachDAO<NhanVienDTO>
 {
     public NhanVienDAO(string? duongDan = null) : base("nhanvien.json", duongDan) { }
 
-    public List<NhanVien> DocDS()
+    public List<NhanVienDTO> DocDS()
     {
-        List<NhanVien> dsnv = new List<NhanVien>();
+        List<NhanVienDTO> dsnv = new List<NhanVienDTO>();
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(NhanVien));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(NhanVienDTO));
             string query = "SELECT MaNV,Ho,Ten,ChucVu FROM NhanVien";
             query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection);
             using MySqlDataReader reader = command.ExecuteReader();
-            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(NhanVien));
+            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(NhanVienDTO));
             while (reader.Read())
             {
-                NhanVien nv = new NhanVien();
+                NhanVienDTO nv = new NhanVienDTO();
                 nv.MaNV = (reader.IsDBNull(reader.GetOrdinal("MaNV")) ? "" : reader.GetString("MaNV").TrimEnd());
                 nv.Ho = (reader.IsDBNull(reader.GetOrdinal("Ho")) ? "" : reader.GetString("Ho").TrimEnd());
                 nv.Ten = (reader.IsDBNull(reader.GetOrdinal("Ten")) ? "" : reader.GetString("Ten").TrimEnd());
@@ -44,14 +44,14 @@ public class NhanVienDAO : JsonDanhSachDAO<NhanVien>
         return dsnv;
     }
 
-    public void Them(NhanVien nv)
+    public void Them(NhanVienDTO nv)
     {
         ArgumentNullException.ThrowIfNull(nv);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(NhanVien));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(NhanVienDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, nv);
@@ -75,14 +75,14 @@ public class NhanVienDAO : JsonDanhSachDAO<NhanVien>
         }
     }
 
-    public void Sua(NhanVien nv)
+    public void Sua(NhanVienDTO nv)
     {
         ArgumentNullException.ThrowIfNull(nv);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(NhanVien));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(NhanVienDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, nv);
@@ -116,11 +116,11 @@ public class NhanVienDAO : JsonDanhSachDAO<NhanVien>
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(NhanVien));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(NhanVienDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép; cần cung cấp đủ khóa để xóa.");
-            DanhMucMySql.KiemTraBangKhoa<NhanVien>(connection, transaction, map);
+            DanhMucMySql.KiemTraBangKhoa<NhanVienDTO>(connection, transaction, map);
             string query = "DELETE FROM NhanVien WHERE MaNV=@MaNV";
             query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
@@ -140,7 +140,7 @@ public class NhanVienDAO : JsonDanhSachDAO<NhanVien>
             connection.Close();
         }
     }
-    public void Xoa(NhanVien item)
+    public void Xoa(NhanVienDTO item)
     {
         ArgumentNullException.ThrowIfNull(item);
         Xoa(item.MaNV);

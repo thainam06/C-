@@ -1,4 +1,4 @@
-namespace QuanLyMayBay.GUI;
+namespace VeMayBay.GUI;
 
 internal class LocNangCaoForm : Form
 {

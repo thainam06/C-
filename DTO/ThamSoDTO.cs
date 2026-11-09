@@ -1,6 +1,6 @@
-namespace QuanLyMayBay.DTO;
+namespace VeMayBay.DTO;
 
-public class ThamSo
+public class ThamSoDTO
 {
     public string MaThamSo { get; set; } = "";
     public string GiaTri { get; set; } = "";

@@ -1,167 +1,119 @@
 using System.Data;
-using MySqlConnector;
-using QuanLyMayBay.DTO;
+using MySql.Data.MySqlClient;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.DAO;
+namespace VeMayBay.DAO;
 
 public class HangHangKhongDAO
 {
-    public List<HangHangKhong> DocDS()
+    public List<HangHangKhongDTO> DocDS()
     {
-        List<HangHangKhong> danhSach = new List<HangHangKhong>();
+        List<HangHangKhongDTO> dshhk = new List<HangHangKhongDTO>();
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhong));
-            string query = $"SELECT {DanhMucMySql.Cot(map, "MaHHK")} AS `MaHHK`, {DanhMucMySql.Cot(map, "TenHang")} AS `TenHang`";
-            query += $" FROM {DanhMucMySql.Bang(map)}";
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhongDTO));
+            string query = "SELECT MaHHK,TenHang FROM HangHangKhong";
+            query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection);
             using MySqlDataReader reader = command.ExecuteReader();
-            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(HangHangKhong));
+            DanhMucMySql.KiemTraKieuKhoa(reader, map, typeof(HangHangKhongDTO));
             while (reader.Read())
             {
-                HangHangKhong item = new HangHangKhong();
-                item.MaHHK = reader.IsDBNull(reader.GetOrdinal("MaHHK")) ? "" : reader.GetString("MaHHK").TrimEnd();
-                item.TenHang = reader.IsDBNull(reader.GetOrdinal("TenHang")) ? "" : reader.GetString("TenHang").TrimEnd();
-                danhSach.Add(item);
+                HangHangKhongDTO hhk = new HangHangKhongDTO();
+                hhk.MaHHK = reader.GetString("MaHHK").TrimEnd();
+                hhk.TenHang = reader.IsDBNull(reader.GetOrdinal("TenHang")) ? "" : reader.GetString("TenHang").TrimEnd();
+                dshhk.Add(hhk);
             }
+            reader.Close();
         }
         catch (MySqlException ex)
         {
-            throw new InvalidOperationException("Lỗi đọc thông tin hãng hàng không: " + ex.Message, ex);
+            throw new InvalidOperationException("Lỗi đọc thông tin hãng hàng không! " + ex.Message, ex);
         }
-        finally
-        {
-            connection.Close();
-        }
-        return danhSach;
+        finally { connection.Close(); }
+        return dshhk;
     }
 
-    public void Them(HangHangKhong item)
+    public void Them(HangHangKhongDTO hhk)
     {
-        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(hhk);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhong));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhongDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
-            string query = $"INSERT INTO {DanhMucMySql.Bang(map)} ({DanhMucMySql.Cot(map, "MaHHK")}, {DanhMucMySql.Cot(map, "TenHang")}) VALUES (@MaHHK, @TenHang)";
+            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, hhk);
+            string query = "INSERT INTO HangHangKhong(MaHHK,TenHang) VALUES (@MaHHK,@TenHang)";
+            query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
-            command.Parameters.AddWithValue("@MaHHK", (object?)item.MaHHK ?? DBNull.Value);
-            command.Parameters.AddWithValue("@TenHang", (object?)item.TenHang ?? DBNull.Value);
-            command.ExecuteNonQuery();
+            command.Parameters.AddWithValue("@MaHHK", hhk.MaHHK);
+            command.Parameters.AddWithValue("@TenHang", hhk.TenHang);
+            int r = command.ExecuteNonQuery();
             transaction.Commit();
         }
-        catch (MySqlException ex)
-        {
-            throw new InvalidOperationException("Lỗi ghi thông tin hãng hàng không: " + ex.Message, ex);
-        }
-        finally
-        {
-            connection.Close();
-        }
+        catch (MySqlException ex) { throw new InvalidOperationException("Lỗi ghi thông tin hãng hàng không! " + ex.Message, ex); }
+        finally { connection.Close(); }
     }
 
-    public void Sua(HangHangKhong item)
+    public void Sua(HangHangKhongDTO hhk)
     {
-        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(hhk);
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhong));
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhongDTO));
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item);
-            string[] cacCot = new[] { "MaHHK", "TenHang" };
-            string query = $"UPDATE {DanhMucMySql.Bang(map)} SET "
-                + string.Join(", ", cacCot.Where(x => !map.KeyColumns.Contains(x)).Select(x => DanhMucMySql.Cot(map, x) + "=@" + x))
-                + " WHERE " + DanhMucMySql.DieuKienKhoa(map);
+            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, hhk);
+            string query = "UPDATE HangHangKhong SET TenHang=@TenHang WHERE MaHHK=@MaHHK";
+            query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
-            command.Parameters.AddWithValue("@MaHHK", (object?)item.MaHHK ?? DBNull.Value);
-            command.Parameters.AddWithValue("@TenHang", (object?)item.TenHang ?? DBNull.Value);
-            // Khoa dong truoc khi UPDATE; sua khong doi du lieu van hop le.
+            command.Parameters.AddWithValue("@TenHang", hhk.TenHang);
+            command.Parameters.AddWithValue("@MaHHK", hhk.MaHHK);
             command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
-            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần sửa.");
+            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy hãng hàng không cần sửa.");
             command.CommandText = query;
-            if (cacCot.All(map.KeyColumns.Contains)) { transaction.Commit(); return; }
-            command.ExecuteNonQuery();
+            int r = command.ExecuteNonQuery();
             transaction.Commit();
         }
-        catch (MySqlException ex)
-        {
-            throw new InvalidOperationException("Lỗi sửa thông tin hãng hàng không: " + ex.Message, ex);
-        }
-        finally
-        {
-            connection.Close();
-        }
+        catch (MySqlException ex) { throw new InvalidOperationException("Lỗi sửa thông tin hãng hàng không! " + ex.Message, ex); }
+        finally { connection.Close(); }
     }
 
     public void Xoa(string ma)
     {
+        if (string.IsNullOrWhiteSpace(ma)) throw new ArgumentException("Vui lòng nhập mã hãng.");
         using MySqlConnection connection = MyConnection.GetConnection();
         try
         {
             connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhong));
-            if (string.IsNullOrWhiteSpace(ma)) throw new ArgumentException("Vui lòng nhập mã cần xóa.");
-            if (map.KeyColumns.Count != 1) throw new ArgumentException("Bảng dùng khóa ghép. Hãy dùng Xoa(dto).");
+            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhongDTO));
+            if (map.KeyColumns.Count != 1) throw new ArgumentException("Cần đủ các cột khóa để xóa hãng.");
             CSDLListDAO.KiemTraBangMySql(connection, map);
             using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraBangKhoa<HangHangKhong>(connection, transaction, map);
-            string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
+            DanhMucMySql.KiemTraBangKhoa<HangHangKhongDTO>(connection, transaction, map);
+            string query = "DELETE FROM HangHangKhong WHERE MaHHK=@MaHHK";
+            query = DanhMucMySql.AnhXaCauLenh(query, map);
             using MySqlCommand command = new MySqlCommand(query, connection, transaction);
-            command.Parameters.AddWithValue("@" + map.KeyColumns[0], ma);
+            command.Parameters.AddWithValue("@MaHHK", ma);
             command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
-            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần xóa.");
+            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy hãng hàng không cần xóa.");
             command.CommandText = query;
-            command.ExecuteNonQuery();
+            int r = command.ExecuteNonQuery();
             transaction.Commit();
         }
-        catch (MySqlException ex)
-        {
-            throw new InvalidOperationException("Lỗi xóa thông tin hãng hàng không: " + ex.Message, ex);
-        }
-        finally
-        {
-            connection.Close();
-        }
+        catch (MySqlException ex) { throw new InvalidOperationException("Lỗi xóa thông tin hãng hàng không! " + ex.Message, ex); }
+        finally { connection.Close(); }
     }
 
-    public void Xoa(HangHangKhong item)
+    public void Xoa(HangHangKhongDTO hhk)
     {
-        ArgumentNullException.ThrowIfNull(item);
-        using MySqlConnection connection = MyConnection.GetConnection();
-        try
-        {
-            connection.Open();
-            AnhXaBangSql map = CSDLListDAO.DocAnhXa(typeof(HangHangKhong));
-            CSDLListDAO.KiemTraBangMySql(connection, map);
-            using MySqlTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            DanhMucMySql.KiemTraTruocKhiGhi(connection, transaction, map, item, xoa: true);
-            string query = $"DELETE FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)}";
-            using MySqlCommand command = new MySqlCommand(query, connection, transaction);
-            foreach (string khoa in map.KeyColumns)
-                command.Parameters.AddWithValue("@" + khoa, typeof(HangHangKhong).GetProperty(khoa)!.GetValue(item) ?? DBNull.Value);
-            command.CommandText = $"SELECT 1 FROM {DanhMucMySql.Bang(map)} WHERE {DanhMucMySql.DieuKienKhoa(map)} FOR UPDATE";
-            if (command.ExecuteScalar() == null) throw new ArgumentException("Không tìm thấy dòng cần xóa.");
-            command.CommandText = query;
-            command.ExecuteNonQuery();
-            transaction.Commit();
-        }
-        catch (MySqlException ex)
-        {
-            throw new InvalidOperationException("Lỗi xóa thông tin hãng hàng không: " + ex.Message, ex);
-        }
-        finally
-        {
-            connection.Close();
-        }
+        ArgumentNullException.ThrowIfNull(hhk);
+        Xoa(hhk.MaHHK);
     }
-
 }

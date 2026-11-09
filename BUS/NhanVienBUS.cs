@@ -1,13 +1,13 @@
 using System.Collections;
-using QuanLyMayBay.DAO;
-using QuanLyMayBay.DTO;
+using VeMayBay.DAO;
+using VeMayBay.DTO;
 
-namespace QuanLyMayBay.BUS;
+namespace VeMayBay.BUS;
 
 public class NhanVienBUS
 {
     private readonly NhanVienDAO dao;
-    private List<NhanVien> danhSach;
+    private List<NhanVienDTO> danhSach;
 
     public NhanVienBUS(NhanVienDAO? dao = null)
     {
@@ -31,9 +31,9 @@ public class NhanVienBUS
     private static string BatBuoc(string? value, string ten) => !string.IsNullOrWhiteSpace(value)
         ? value.Trim() : throw new ArgumentException($"Vui lòng nhập {ten}.");
 
-    private static NhanVien SaoChep(NhanVien nv) => new(nv.MaNV, nv.Ho, nv.Ten, nv.ChucVu);
+    private static NhanVienDTO SaoChep(NhanVienDTO nv) => new(nv.MaNV, nv.Ho, nv.Ten, nv.ChucVu);
 
-    private static void KiemTra(NhanVien nv, bool dangDoc = false)
+    private static void KiemTra(NhanVienDTO nv, bool dangDoc = false)
     {
         BatBuoc(nv.MaNV, "mã nhân viên");
         BatBuoc(nv.Ho, "họ");
@@ -44,17 +44,17 @@ public class NhanVienBUS
     public ArrayList TimKiem(string tuKhoa = "")
     {
         var ketQua = new ArrayList();
-        foreach (NhanVien nv in new ArrayList(danhSach))
+        foreach (NhanVienDTO nv in new ArrayList(danhSach))
             if (new[] { nv.MaNV, nv.Ho, nv.Ten, nv.ChucVu, $"{nv.Ho} {nv.Ten}" }
                 .Any(x => x.Contains(tuKhoa.Trim(), StringComparison.OrdinalIgnoreCase)))
                 ketQua.Add(SaoChep(nv));
         return ketQua;
     }
 
-    public void Luu(NhanVien nv, bool sua)
+    public void Luu(NhanVienDTO nv, bool sua)
     {
         ArgumentNullException.ThrowIfNull(nv);
-        var moi = new NhanVien(BatBuoc(nv.MaNV, "mã nhân viên"), BatBuoc(nv.Ho, "họ"),
+        var moi = new NhanVienDTO(BatBuoc(nv.MaNV, "mã nhân viên"), BatBuoc(nv.Ho, "họ"),
             BatBuoc(nv.Ten, "tên"), BatBuoc(nv.ChucVu, "chức vụ"));
         var index = danhSach.FindIndex(x => string.Equals(x.MaNV, moi.MaNV, StringComparison.OrdinalIgnoreCase));
         if (sua && index < 0) throw new ArgumentException("Không tìm thấy nhân viên cần sửa.");
@@ -66,10 +66,10 @@ public class NhanVienBUS
         danhSach = data;
     }
 
-    public void NhapDanhSach(List<NhanVien> rows)
+    public void NhapDanhSach(List<NhanVienDTO> rows)
     {
         var next = NhapLoatBUS.HopNhat(danhSach, rows, x => x.MaNV,
-            x => new NhanVien(BatBuoc(x.MaNV, "mã nhân viên"), BatBuoc(x.Ho, "họ"),
+            x => new NhanVienDTO(BatBuoc(x.MaNV, "mã nhân viên"), BatBuoc(x.Ho, "họ"),
                 BatBuoc(x.Ten, "tên"), BatBuoc(x.ChucVu, "chức vụ")), nv => KiemTra(nv));
         dao.Luu(next); danhSach = next;
     }
